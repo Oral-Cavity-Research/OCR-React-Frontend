@@ -7,7 +7,7 @@ import axios from 'axios';
 import config from '../config.json';
 import NotificationBar from './NotificationBar';
 
-export default function AssigneeDropdown({assignee, setAssignee}) {
+export default function AssigneeDropdown({setAssignee}) {
   const [status, setStatus] = React.useState({msg:"",severity:"success", open:false});
   const [open, setOpen] = React.useState(false);
   const [options, setOptions] = React.useState([]);
@@ -16,18 +16,7 @@ export default function AssigneeDropdown({assignee, setAssignee}) {
   const loading = open && options.length === 0;
 
   const handleAddAssignee = (item)=>{
-    if(item === null) return;
-    if(assignee.length >= 3){
-      showMsg("Maximum number of reviewers is 3","error");
-      return;
-    }
-    let newList = assignee.filter((newAssignee)=> {return newAssignee.reg_no !== item.reg_no});
-    if(newList.length>=3){
-      newList.pop();
-    }
-
-    newList.unshift(item);
-    setAssignee(newList);
+    setAssignee(item);
   }
 
   const showMsg = (msg, severity)=>{
@@ -50,7 +39,7 @@ export default function AssigneeDropdown({assignee, setAssignee}) {
         setOptions(resp.data);
     }).catch(function (error) {
         if(error.response){
-            alert(error.response?.data.message)
+            showMsg(error.response.data?.message)
         }else{
             alert(error?.message)
         }

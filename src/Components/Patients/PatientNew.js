@@ -143,6 +143,8 @@ const PatientNew = () => {
             return;
         }
 
+        const filename = Math.floor(Math.random() * 101) + "_" + Date.now() + "_"+ 0 + "_" + file.name
+
         const upload = {
             patient_name: form.get("patient_name"),
             patient_id: form.get("patient_id"), 
@@ -153,12 +155,19 @@ const PatientNew = () => {
             systemic_disease: form.get("systemic_disease"),
             medical_history: medicalHistory,
             family_history: familyHistory,
-            contact_no: contact
+            contact_no: contact,
+            consent_form: filename
         }
 
         setLoading(true);
+
+        var data = new FormData();
+        data.append('files', file, filename);
+        data.append('data',JSON.stringify(upload))
+
+
         axios.post(`${config['path']}/user/patient/check`,{
-            patient_id: form.get("patient_name")
+            patient_id: form.get("patient_id")
         },
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
@@ -169,9 +178,8 @@ const PatientNew = () => {
                 showMsg("Patient ID already exists", "error");
                 setLoading(false);
             }else{
-                uploadData(upload);
+                uploadData(data);
             }
-            
         }).catch(err=>{
             if(err.response) showMsg(err.response.data.message, "error")
             else alert(err)
@@ -181,7 +189,7 @@ const PatientNew = () => {
 
     const uploadData = (upload)=>{
 
-        axios.post(`${config['path']}/user/patient/add`, upload,
+        axios.post(`${config['path']}/user/upload/patient`, upload,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,

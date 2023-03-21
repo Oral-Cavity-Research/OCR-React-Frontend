@@ -169,7 +169,11 @@ const Entries = () => {
                 </Table>
                 </TableContainer>
                 <Stack direction='row' justifyContent='center'>
+                    { data.length > 0 ?
                     <LoadingButton disabled={noMore} loading={loading} sx={{mt:2}} onClick={loadMore}>Load More</LoadingButton>
+                    :
+                    <Typography sx={{m:3}} variant='body2' color='GrayText'>{loading?"":"No Entries"}</Typography>
+                    }
                 </Stack>
                 </Paper>
                 <NotificationBar status={status} setStatus={setStatus}/>  

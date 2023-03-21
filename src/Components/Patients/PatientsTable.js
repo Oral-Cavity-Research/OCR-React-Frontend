@@ -2,7 +2,7 @@ import React, {useEffect, useState } from 'react';
 import { Button, FormControl, LinearProgress, Menu, MenuItem, OutlinedInput, Paper, Stack, 
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from '@mui/material';
 import { InputAdornment, IconButton} from '@mui/material';
-import { ArrowDownward, ArrowUpward, FilterList, Search } from '@mui/icons-material';
+import { ArrowDownward, ArrowUpward, Close, FilterList, Search } from '@mui/icons-material';
 import {useNavigate } from 'react-router-dom';
 import NotificationBar from '../NotificationBar';
 import axios from 'axios';
@@ -45,6 +45,10 @@ const PatientsTable = () => {
         getData();
     }
 
+    const handleClearSearch = ()=>{
+        setSearch("");
+    }
+
     const handleSort = () =>{
         setPage(1)
         setSort(!sort)
@@ -54,7 +58,6 @@ const PatientsTable = () => {
         setPage(1);
         setFilt(name);
         handleClose();
-        getData();
     }
 
     const handleClick = (id) => {
@@ -71,7 +74,7 @@ const PatientsTable = () => {
 
     useEffect(() => {
         getData();
-    }, [sort]);
+    }, [sort, filt]);
 
     const loadMore = () => {
         setLoading(true);
@@ -184,6 +187,7 @@ const PatientsTable = () => {
                 <Button sx={{mt:2}} variant='contained'onClick={handleAddNew}>Add New</Button>
                 
                 <Paper sx={{p:2, my:3}}>
+        
                 <Stack direction='row' justifyContent='space-between' mb={2}>
                     <Stack direction='row' alignItems='center' spacing={1}>
                     <IconButton
@@ -209,11 +213,19 @@ const PatientsTable = () => {
                         placeholder='Search'
                         size='small'
                         inputProps={{ maxLength: 20}}
+                        value={search}
                         onChange={(e)=>handleChange(e)}
                         endAdornment={
                         <InputAdornment position="end">
+                            { search.length > 0 &&
                             <IconButton
-                            aria-label="toggle password visibility"
+                            size='small'
+                            edge="end"
+                            onClick={handleClearSearch}
+                            >
+                            <Close fontSize='small'/>
+                            </IconButton>}
+                            <IconButton
                             edge="end"
                             onClick={()=>handleSearch()}
                             >
@@ -258,8 +270,14 @@ const PatientsTable = () => {
                     </TableBody>
                 </Table>
                 </TableContainer>
+
                 <Stack direction='row' justifyContent='center'>
-                    <LoadingButton disabled={noMore} loading={loading} sx={{mt:2}} onClick={loadMore}>Load More</LoadingButton>
+                    {
+                        data.length > 0 ?
+                        <LoadingButton disabled={noMore} loading={loading} sx={{mt:2}} onClick={loadMore}>Load More</LoadingButton>
+                        :
+                        <Typography sx={{m:3}} variant='body2' color='GrayText'>{loading?"":"No Patients"}</Typography>
+                    }
                 </Stack>
                 </Paper>
                 <NotificationBar status={status} setStatus={setStatus}/>  

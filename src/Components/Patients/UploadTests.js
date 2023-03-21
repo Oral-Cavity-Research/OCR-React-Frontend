@@ -95,10 +95,12 @@ const UploadTests = ({entryID, btnRef, setDone, setLoading}) => {
         <Box>
             <input hidden accept="application/pdf" ref={hidenInput} multiple type="file" onChange={selectFiles}/>
             <button hidden ref={btnRef} onClick={handleSubmit}/>
-            <Stack spacing={2} direction='row'>
-                <Button variant='outlined' onClick={handleSelection}>Add Reports</Button>
+            <Stack spacing={2} direction='row' sx={{my:3}}>
+                <Button variant='contained' color='success' onClick={handleSelection}>Add Reports</Button>
             </Stack>
                     
+            { selectedFiles.length > 0 &&
+            <Box sx={{border:'1px solid lightgray', borderRadius:1, p:2}}>
             <List disablePadding >
             {[...selectedFiles].map((item, index) => (
                     <ListItem key={index} disablePadding
@@ -114,7 +116,9 @@ const UploadTests = ({entryID, btnRef, setDone, setLoading}) => {
                 />
                 </ListItem>
             ))}
-            </List>  
+            </List>
+            </Box>
+            } 
         </Box>   
             <NotificationBar status={status} setStatus={setStatus}/> 
         </div>

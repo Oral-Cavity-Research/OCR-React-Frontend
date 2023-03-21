@@ -17,6 +17,9 @@ export function stringToColor(string) {
 }
 
 export function stringAvatar(name, size=40) {
+    if(!name){
+        name = "XX"
+    }
     return {
     sx: {bgcolor: stringToColor(name), width: size, height: size},
     children: `${name.split(' ')[0][0]}${name.split(' ')[1]?name.split(' ')[1][0]:""}`,
