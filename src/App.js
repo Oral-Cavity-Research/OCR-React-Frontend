@@ -29,6 +29,7 @@ import SharedPatientDetails from './Components/SharedPatients/SharedPatientDetai
 import SharedEntries from './Components/SharedEntry/SharedEntries';
 import SharedEntryDetails from './Components/SharedEntry/SharedEntryDetails';
 import ViewEntryDetails from './Components/SharedPatients/ViewEntryDetails';
+import Dashboard from './Components/AdminPortal/Dashboard/Dashboard';
 
 
 function App() {
@@ -89,6 +90,8 @@ function App() {
             <Route path='/adminportal/hospitals/new' element={<HospiatalNew/>} ></Route>
             <Route path='/adminportal/hospitals/:id' element={<HospitalDetails/>} ></Route>
             <Route path='/adminportal/hospitals/:id/edit' element={<HospitalTable/>} ></Route>
+
+            <Route path='/adminportal/dashboard' element={<Dashboard/>} ></Route>
         </Route>
 
         <Route path='/manage' element={<ProtectedRoute allowed={[100,200]}><Manage/></ProtectedRoute>}>
