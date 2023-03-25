@@ -210,7 +210,7 @@ const EntryDetails = () => {
                 <div>  
                     <div className="sticky">
                     <Typography sx={{ fontWeight: 700}} variant="h5">Tele Consultation Entry</Typography>                  
-                    <Button component={Link} to='/manage/my/entries' size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back To Entries</Button>
+                    <Button onClick={() => navigate(-1)} size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back</Button>
                     </div>
                     {loading && !data?
                     <Paper sx={{p:2, my:3}}>

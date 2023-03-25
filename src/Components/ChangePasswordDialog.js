@@ -50,7 +50,7 @@ export default function ChangePasswordDialog({setShowPassword}) {
       
         setState(1);
 
-        axios.post(`${config['path']}/auth/password`,
+        axios.post(`${config['path']}/user/self/password`,
         {
             cpassword: Cpassword,
             npassword: Npassword

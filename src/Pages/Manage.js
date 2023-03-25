@@ -36,7 +36,6 @@ const Manage = () => {
           <ListItemText secondary={"Shared Data"}/>
           </ListItem>
           <Divider/>
-          <NavButton path={"/manage/shared/patients"} startIcon={<HowToReg color='action'/>} name={"Patients"}/> 
           <NavButton path={"/manage/shared/entries"} startIcon={<Grading color='action'/>} name={"Entries"}/> 
         </List>
       </div>

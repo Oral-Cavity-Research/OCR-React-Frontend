@@ -56,7 +56,7 @@ const SharedPatientEntries = () => {
     const loadMore = () => {
         setLoading(true);
         setNoMore(false);
-        axios.get(`${config['path']}/user/entry/get/patient/${id}`,{
+        axios.get(`${config['path']}/user/entry/shared/patient/${id}`,{
             params: { page: page + 1, filter: filt},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
@@ -78,7 +78,7 @@ const SharedPatientEntries = () => {
     const getData = ()=>{
         setLoading(true);
         setNoMore(false);
-        axios.get(`${config['path']}/user/entry/get/patient/${id}`,{
+        axios.get(`${config['path']}/user/entry/shared/patient/${id}`,{
             params: { page: 1, filter: filt},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,

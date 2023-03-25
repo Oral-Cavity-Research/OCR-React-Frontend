@@ -15,7 +15,7 @@ const filtOptions = ["All","Not Reviewed","Reviewed"]
 
 const SharedEntries = () => {
     const [anchorEl, setAnchorEl] = React.useState(null);
-    const [filt, setFilt] = React.useState("Not Reviewed");
+    const [filt, setFilt] = React.useState("All");
     const open = Boolean(anchorEl);
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
@@ -66,8 +66,8 @@ const SharedEntries = () => {
             setData([...data, ...res.data]);
             setPage(page+1);
         }).catch(err=>{
-            if(err.response) showMsg(err.response.data.message, "error")
-            else alert(err)
+            if(err.response) showMsg(err.response.data?.message, "error")
+            else alert(err?.message)
         }).finally(()=>{
             setLoading(false);
         })
@@ -86,10 +86,9 @@ const SharedEntries = () => {
         }).then(res=>{
             if(res.data?.length < 20) setNoMore(true);
             setData(res.data);
-            console.log(res.data)
         }).catch(err=>{
-            if(err.response) showMsg(err.response.data.message, "error")
-            else alert(err)
+            if(err.response) showMsg(err.response.data?.message,"error")
+            else alert(err?.message)
         }).finally(()=>{
             setLoading(false);
         })

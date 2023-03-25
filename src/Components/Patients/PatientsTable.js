@@ -16,7 +16,7 @@ const filtOptions = ["All","ID","Name","Age","Gender","Created Date","Updated Da
 
 const PatientsTable = () => {
     const [anchorEl, setAnchorEl] = React.useState(null);
-    const [filt, setFilt] = React.useState("All");
+    const [filt, setFilt] = React.useState("Updated Date");
     const open = Boolean(anchorEl);
     const [search, setSearch] = useState('') // Initialize it with an empty filter
     const [loading, setLoading] = useState(false);
@@ -25,7 +25,7 @@ const PatientsTable = () => {
     const userData = useSelector(state => state.data);
     const [page, setPage] = useState(1);
     const [noMore, setNoMore] = useState(false);
-    const [sort, setSort] = useState(true);
+    const [sort, setSort] = useState(false);
     const navigate = useNavigate();
 
     
@@ -257,7 +257,7 @@ const PatientsTable = () => {
                     {
                         loading && 
                         <TableRow >
-                            <TableCell sx={{p:0}} colSpan={4}><LinearProgress/></TableCell>
+                            <TableCell sx={{p:0}} colSpan={5}><LinearProgress/></TableCell>
                         </TableRow>
                     }
                     {data.map((item,index)=>{ 

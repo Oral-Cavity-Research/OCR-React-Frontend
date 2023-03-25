@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState} from 'react';
-import { Link, useParams} from 'react-router-dom';
+import { useNavigate, useParams} from 'react-router-dom';
 import { ArrowBack } from '@mui/icons-material';
 import { Box, Stack, Avatar, Typography, Skeleton, Button, Divider, 
          Table, TableBody, TableCell, TableRow, Paper} from '@mui/material';
@@ -22,6 +22,7 @@ const UserDetails = () => {
     const [state, setState] = useState(0);
     const formRef = useRef();
     const { id } = useParams();
+    const navigate = useNavigate();
     const userData = useSelector(state => state.data);
 
     const handleChange = (event) => {
@@ -86,7 +87,7 @@ const UserDetails = () => {
         <Box className='sticky'>    
             <Typography sx={{ fontWeight: 700}} variant="h5">Users</Typography>    
         
-        <Button component={Link} to='/adminportal/users' size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back To Users</Button>
+        <Button onClick={() => navigate(-1)} size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back</Button>
         </Box>
         <Box sx={{my:3}}>            
             {loading?

@@ -11,7 +11,7 @@ import { useSelector} from 'react-redux';
 import dayjs from 'dayjs';
 import { LoadingButton } from '@mui/lab';
 
-const filtOptions = ["Created Date","Updated Date"]
+const filtOptions = ["Created Date","Updated Date","Assigned", "Unassigned", "Reviewed", "Unreviewed"]
 
 const Entries = () => {
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -37,7 +37,6 @@ const Entries = () => {
         setPage(1);
         setFilt(name);
         handleClose();
-        getData();
     }
 
     const handleClick = (id) => {
@@ -50,7 +49,7 @@ const Entries = () => {
 
     useEffect(() => {
         getData();
-    }, []);
+    }, [filt]);
 
     const loadMore = () => {
         setLoading(true);
@@ -87,7 +86,6 @@ const Entries = () => {
         }).then(res=>{
             if(res.data?.length < 20) setNoMore(true);
             setData(res.data);
-            console.log(res.data)
         }).catch(err=>{
             if(err.response) showMsg(err.response.data.message, "error")
             else alert(err)

@@ -4,7 +4,7 @@ import { Box, Button, FormControl, FormControlLabel, FormGroup, FormLabel, Paper
 import config from '../../../config.json'
 import axios from 'axios';
 import NotificationBar from '../../NotificationBar';
-import { Link, useNavigate } from 'react-router-dom';
+import {useNavigate } from 'react-router-dom';
 import { ArrowBack, LockPerson} from '@mui/icons-material';
 import { useSelector} from 'react-redux';
 import { LoadingButton } from '@mui/lab';
@@ -87,7 +87,7 @@ const NewUserPermission = () => {
         <div>
             <Box className="sticky">    
             <Typography sx={{ fontWeight: 700}} variant="h5">User Permissions</Typography>  
-            <Button component={Link} to='/adminportal/permissions' size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back To Permissions</Button>  
+            <Button onClick={() => navigate(-1)} size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back</Button>  
             </Box> 
             
             <Paper  sx={{p:2, my:3}}>

@@ -239,8 +239,8 @@ const SharedEntryDetails = () => {
             <div className="inner_content">
                 <div>  
                     <div className="sticky">
-                    <Typography sx={{ fontWeight: 700}} variant="h5">Shared Entry</Typography>                  
-                    <Button component={Link} to='/manage/shared/entries' size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back To Entries</Button>
+                    <Typography sx={{ fontWeight: 700}} variant="h5">Assigned Entry</Typography>                  
+                    <Button onClick={() => navigate(-1)} size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back</Button>
                     </div>
                     {loading ?
                     <Paper sx={{p:2, my:3}}>
@@ -267,7 +267,7 @@ const SharedEntryDetails = () => {
                             <Assignment sx={{color:'orange', width:'60px',height:'60px'}}/>
                         }
                         <Stack direction='column'>
-                            <Tooltip title='Go to patients profile' arrow placement="right"><Typography component={Link} to={`/manage/patients/${data.patient?.patient_id}`} variant='h5' color='Highlight' sx={{cursor:'pointer'}}>
+                            <Tooltip title='Go to patients profile' arrow placement="right"><Typography component={Link} to={`/manage/shared/patients/${data.patient?._id}`} variant='h5' color='Highlight' sx={{cursor:'pointer'}}>
                                 {data.patient?.patient_name}
                             </Typography></Tooltip>
                             <Typography color='GrayText'>{data.patient?.patient_id}</Typography>

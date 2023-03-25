@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState} from 'react';
-import { Link, useParams} from 'react-router-dom';
-import { ArrowBack, AccountBox, AddAPhoto, Image} from '@mui/icons-material';
+import {useNavigate, useParams} from 'react-router-dom';
+import { ArrowBack} from '@mui/icons-material';
 import { Box, Stack, Avatar, Typography, Skeleton,Tab, Button, Paper} from '@mui/material';
 import {TabContext,TabList,TabPanel} from '@mui/lab';
 import { stringAvatar } from '../utils';
@@ -21,6 +21,7 @@ const PatientDetails = () => {
     const [value, setValue] = React.useState('1');
     const [status, setStatus] = useState({msg:"",severity:"success", open:false});
     const { id } = useParams();
+    const navigate = useNavigate();
     const userData = useSelector(state => state.data);
 
     const handleChange = (event, newValue) => {
@@ -55,7 +56,7 @@ const PatientDetails = () => {
         <div>
         <div className="sticky">
             <Typography sx={{ fontWeight: 700}} variant="h5">Patients</Typography> 
-            <Button component={Link} to='/manage/my/patients' size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back To Patients</Button>
+            <Button onClick={() => navigate(-1)} size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back</Button>
         </div>
                 
             {loading?

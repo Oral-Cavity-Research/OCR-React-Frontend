@@ -1,5 +1,5 @@
 import React, { useRef, useState} from 'react';
-import { Link, useNavigate} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import { ArrowBack, Close,PersonAddAlt1 } from '@mui/icons-material';
 import { Box, Stack, Typography,Button, Paper, TextField, FormControl, MenuItem, Select, Checkbox,
     ListItem, IconButton, ListItemText, InputLabel, List} from '@mui/material';
@@ -133,7 +133,6 @@ const PatientNew = () => {
 
         if(form.get("patient_id")===""||form.get("patient_name")===""||
         error !== null){
-            console.log(error)
             showMsg("Please add required feilds","error");
             return;
         }
@@ -212,7 +211,7 @@ const PatientNew = () => {
             <Box className="sticky">    
             <Typography sx={{ fontWeight: 700}} variant="h5">Patient</Typography>    
             
-            <Button component={Link} to='/manage/my/patients' size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back To Patients</Button>
+            <Button onClick={() => navigate(-1)} size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back</Button>
             </Box>  
 
             <Paper sx={{p:2, my:3}}>  

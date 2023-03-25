@@ -1,41 +1,13 @@
 import React, {useState} from 'react';
 import NotificationBar from '../NotificationBar';
-import { Box, TextField, FormControl, MenuItem, Select, Checkbox,
-    Table, TableBody, TableRow, TableCell,List, ListItem, ListItemText, Typography} from '@mui/material';
+import { Box,Table, TableBody, TableRow, TableCell,List, ListItem, ListItemText, Typography} from '@mui/material';
 
 import config from '../../config.json';
-import { useSelector} from 'react-redux';
 import dayjs from 'dayjs';
 import { age } from '../utils';
 
-const familyHistoryOptions = [
-    'OSCC',
-    'Cancer excluding OSCC'
-];
-
-const habitOptions = [
-    {value: "Smoking", label: "Smoking"},
-    {value: "Alcohol", label: "Alcohol"},
-    {value: "Betel quid", label: "Betel quid"},
-    {value: "Smokeless tobacco", label: "Smokeless tobacco"}
-]
-
-const frequencyOptions = [
-    {value: "Daily", label: "Daily"},
-    {value: "Weekly", label: "Weekly"},
-    {value: "Bi-weekly", label: "Bi-weekly"},
-    {value: "Monthly", label: "Monthly"},
-    {value: "Occasionally", label: "Occasionally"},
-]
-const durationOptions = [
-    {value: "Short-term", label: "Short-term"},
-    {value: "Long-term", label: "Long-term"},
-    {value: "Short-term Ongoing", label: "Short-term Ongoing"},
-    {value: "Long-term Ongoing", label: "Long-term Ongoing"}
-]
 const SharedPatientProfile = ({data}) => {
     const [status, setStatus] = useState({msg:"",severity:"success", open:false})
-    const userData = useSelector(state => state.data);
     
     return (
         <div>

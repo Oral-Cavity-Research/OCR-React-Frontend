@@ -1,5 +1,5 @@
 import React, { useEffect, useState} from 'react';
-import { Link, useParams} from 'react-router-dom';
+import { Link, useNavigate, useParams} from 'react-router-dom';
 import { ArrowBack} from '@mui/icons-material';
 import { Box, Stack, Avatar, Typography, Skeleton,Tab, Button, Paper} from '@mui/material';
 import {TabContext,TabList,TabPanel} from '@mui/lab';
@@ -20,6 +20,7 @@ const SharedPatientDetails = () => {
     const [value, setValue] = React.useState('1');
     const [status, setStatus] = useState({msg:"",severity:"success", open:false});
     const { id } = useParams();
+    const navigate = useNavigate();
     const userData = useSelector(state => state.data);
 
     const handleChange = (event, newValue) => {
@@ -33,7 +34,7 @@ const SharedPatientDetails = () => {
     useEffect(()=>{
 
         setLoading(true);
-        axios.get(`${config['path']}/user/patient/${id}`,
+        axios.get(`${config['path']}/user/patient/shared/${id}`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,
@@ -54,7 +55,7 @@ const SharedPatientDetails = () => {
         <div>
         <div className="sticky">
             <Typography sx={{ fontWeight: 700}} variant="h5">Shared Patients</Typography> 
-            <Button component={Link} to='/manage/shared/patients' size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back To Patients</Button>
+            <Button onClick={() => navigate(-1)} size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back</Button>
         </div>
                 
             {loading?
@@ -86,7 +87,7 @@ const SharedPatientDetails = () => {
                 <Box sx={{ borderBottom: 1, borderColor: 'divider'}}>
                 <TabList onChange={handleChange} aria-label="lab API tabs example" variant='standard'>
                     <Tab disableRipple label="Profile" value="1"/>
-                    <Tab disableRipple label="All Entries" value="2" />
+                    <Tab disableRipple label="Previous Entries" value="2" />
                 </TabList>
                 </Box>
                 <TabPanel value="1" sx={{px:0}}><SharedPatientProfile data={data}/></TabPanel>

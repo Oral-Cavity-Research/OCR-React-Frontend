@@ -1,5 +1,5 @@
 import React, { useEffect, useState} from 'react';
-import { Link, useParams} from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 import { ArrowBack, CheckBox, CheckBoxOutlineBlank, Edit, LocalHospital, LockPerson, Square } from '@mui/icons-material';
 import { Box, Stack, Typography, Skeleton, Button, Paper, FormLabel, FormGroup, FormControl, FormControlLabel, Checkbox, Divider, CircularProgress} from '@mui/material';
 import { useSelector} from 'react-redux';
@@ -19,6 +19,7 @@ const EditUserPermission = () => {
     const [userData, setUserData] = useState(selectorData);
     const [loading, setLoading] = useState(true);
     const { id } = useParams();
+    const navigate = useNavigate();
 
     useEffect(()=>{
         setLoading(true);
@@ -101,7 +102,7 @@ const EditUserPermission = () => {
             <Box className="sticky">    
             <Typography sx={{ fontWeight: 700}} variant="h5">User Permissions</Typography>    
             
-            <Button component={Link} to='/adminportal/permissions' size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back To Permissions</Button>
+            <Button onClick={() => navigate(-1)} size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back</Button>
             </Box>  
             {loading?
             <Paper sx={{p:2, my:3}}>  

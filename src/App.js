@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import {createBrowserRouter, createRoutesFromElements, Route, RouterProvider , Outlet} from 'react-router-dom';
 import './App.css';
 import LoginPage from './Pages/LoginPage';
-import NotFound from './Components/NotFound';
+import NotFound from './Pages/NotFound';
 import ProtectedRoute from './Components/ProtectedRoute';
 import AdminPage from './Pages/AdminPage';
 import Manage from './Pages/Manage';
@@ -25,7 +25,6 @@ import HospiatalNew from './Components/AdminPortal/Hospitals/HospitalNew';
 import NewUserPermission from './Components/AdminPortal/Permissions/NewUserPermission';
 import EditUserPermission from './Components/AdminPortal/Permissions/EditUserPermission';
 import PatientNew from './Components/Patients/PatientNew';
-import SharedPatientsTable from './Components/SharedPatients/SharedPatientsTable';
 import SharedPatientDetails from './Components/SharedPatients/SharedPatientDetails';
 import SharedEntries from './Components/SharedEntry/SharedEntries';
 import SharedEntryDetails from './Components/SharedEntry/SharedEntryDetails';
@@ -102,14 +101,12 @@ function App() {
                 <Route  index path="/manage/my/patients/new" element={<PatientNew/>}></Route>
                 <Route path="/manage/my/patients/:id" element={<PatientDetails/>}></Route>
             </Route>
-            <Route path='/manage/shared/entries' element={<SharedEntries/>}/>
-            <Route path='/manage/shared/entries/view/:id' element={<ViewEntryDetails/>}/>
-            <Route path='/manage/shared/entries/:id' element={<SharedEntryDetails/>}/>
-            <Route path ='/manage/shared/patients' element={<Outlet/>}>
-                <Route  index element={<SharedPatientsTable/>}></Route>
-                <Route  index path="/manage/shared/patients/all" element={<SharedPatientsTable/>}></Route>
-                <Route path="/manage/shared/patients/:id" element={<SharedPatientDetails/>}></Route>
-            </Route>
+            <Route path ='/manage/shared' element={<Outlet/>}>
+              <Route index path='/manage/shared/entries' element={<SharedEntries/>}/>
+              <Route path='/manage/shared/entries/view/:id' element={<ViewEntryDetails/>}/>
+              <Route path='/manage/shared/entries/:id' element={<SharedEntryDetails/>}/>
+              <Route path="/manage/shared/patients/:id" element={<SharedPatientDetails/>}></Route> 
+            </Route>          
         </Route>
 
         <Route path='/profile' element={<ProtectedRoute allowed={[100,200,300]}><UserProfile/></ProtectedRoute> }/>         

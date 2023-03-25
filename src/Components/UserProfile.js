@@ -44,7 +44,7 @@ const UserProfile = () => {
     useEffect(()=>{
         
         setLoading(true);
-        axios.get(`${config['path']}/user/hospitals`,
+        axios.get(`${config['path']}/user/self/hospitals`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,
@@ -53,7 +53,6 @@ const UserProfile = () => {
         }
         ).then(res=>{
             setHospitalList(res.data);
-            console.log(res.data);
             fetchData();
         }).catch(err=>{
             if(err.response) showMsg(err.response.data.message, "error")
@@ -95,29 +94,29 @@ const UserProfile = () => {
             return;
         }
 
-        const toBeSend = {username, designation, hospital, contact_no};
-        if(data.role.includes(2)){
-            toBeSend["availability"] = availability;
-        }
+        const toBeSend = {username, designation, hospital, contact_no, availability};
 
         setState(1);
 
-        axios.post(`${config['path']}/auth/update`,
+        axios.post(`${config['path']}/user/self/update`,
         toBeSend,
         { headers: {
-            'Authorization': 'BEARER '+ JSON.parse(sessionStorage.getItem("info")).atoken,
+            'Authorization': `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,
         }}
         ).then(res=>{
             setData(res.data)
             let newData = JSON.parse(sessionStorage.getItem("info"))
             newData.username = res.data.username;
+            newData.designation = res.data.designation;
+            newData.hospital = res.data.hospital;
+            newData.contact_no = res.data.contact_no;
+            newData.availability = res.data.availability;
             sessionStorage.setItem("info", JSON.stringify(newData));
             showMsg("User details updated successfully", "success");
         }).catch(err=>{
             if(err.response) showMsg(err.response.data.message, "error")
             else alert(err)
-            console.log(err)
         }).finally(()=>{
             setState(0);
         })
@@ -173,15 +172,15 @@ const UserProfile = () => {
 
                     <Stack direction='column' spacing={3}>
                         <TextField defaultValue={data.username} name='username' size='small' label='User name'/>
-                        { data.role.includes(2) &&
-                            <FormControl>
-                                <InputLabel id="Status">Status</InputLabel>
-                                <Select fullWidth size='small'  value={availability? true: false} labelId="Status" label="Status" onChange={(e)=>setAvailability(e.target.value)} sx={{mb:1}}>
-                                <MenuItem value={true}>Available</MenuItem>
-                                <MenuItem value={false}>Unavailable</MenuItem>
-                            </Select>
-                            </FormControl>
-                        }
+                       
+                        <FormControl>
+                            <InputLabel id="Status">Status</InputLabel>
+                            <Select fullWidth size='small'  value={availability? true: false} labelId="Status" label="Status" onChange={(e)=>setAvailability(e.target.value)} sx={{mb:1}}>
+                            <MenuItem value={true}>Available</MenuItem>
+                            <MenuItem value={false}>Unavailable</MenuItem>
+                        </Select>
+                        </FormControl>
+                        
                         <TextField defaultValue={data.designation} name='designation' size='small' label='Designation'/>
                         <FormControl size='small'>
                             <InputLabel id="hospital">Hospital</InputLabel>

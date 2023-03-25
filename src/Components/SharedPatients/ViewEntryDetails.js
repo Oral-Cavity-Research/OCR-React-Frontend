@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import {ArrowBack, ArrowLeft, AssignmentInd, PictureAsPdf} from '@mui/icons-material';
-import { Avatar, AvatarGroup, Paper, Tooltip, Typography , Stack, Box, Divider, Grid, 
-    Button, Table, TableRow, TableCell, TableBody, Skeleton, ListItem, ListItemText, List} from '@mui/material';
+import {ArrowBack, ArrowLeft, AssignmentInd, Edit, PictureAsPdf, Visibility} from '@mui/icons-material';
+import { Avatar, AvatarGroup, Paper, Tooltip, Typography , Stack, Box, Divider, Grid, Slide, Dialog, 
+    IconButton, Button, Table, TableRow, TableCell, TableBody, Skeleton, ListItem, ListItemText, List, Chip} from '@mui/material';
 import { stringAvatar } from '../utils';
 import { useSelector} from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import Canvas from '../Annotation/Canvas';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import config from '../../config.json';
 import NotificationBar from '../NotificationBar';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
 
 function timeDuration(start, end){
     try {
@@ -29,44 +34,54 @@ function realReportName(filename){
     }
 }
 
-const details = {
-    "_id":"id",
-    "patient": {
-        "name":"patient name",
-        "patient_id":"patient_id",
-    },
-    "assignees": [{"name":"P Silva", "availability":false},{"name":"M Perera", "availability":true}],
-    "images":["1","2","3"],
-    "Complaint":"",
-    "startTime":"",
-    "endTime":"",
-    "findings":"findings findings findings new findings are shown here findings findings findings new findings are shown here findings findings findings new findings are shown here findings findings findings new findings are shown here",
-    "currentHabits":"",
-    "reports":"",
-    "reviews": ["1","2","3","4","5"],
-    "createdAt": "2023-05-06 5.00 am",
-    "updatedAt": "2023-05-10 10.14 pm"
-
-}
-
-const SharedEntryDetails = () => {
+const ViewEntryDetails = () => {
     
     const [status, setStatus] = useState({msg:"",severity:"success", open:false});
     const selectorData = useSelector(state => state.data);
     const [userData, setUserData] = useState(selectorData);
     const [loading, setLoading] = useState(true);
+    const [loadingReviews, setLoadingReviews] = useState(true);
+    const [openAnnotation, setOpenAnnotation] = useState(false)
+    const [imageIndex, setImageIndex] = useState({});
+    const [reviews, setReviews] = useState([]);
     const [data, setData] = useState(null);
     const { id } = useParams();
+    const navigate = useNavigate();
 
-    const loadData = ()=>{
-        axios.get(`${config['path']}/user/entry/get/${id}`,{
+    const handleDoubleClick = (index)=>{
+        setImageIndex(index);
+        setOpenAnnotation(true);
+    }
+
+    const handleClose = () => {
+        setOpenAnnotation(false);
+    };
+
+    const getReviews = ()=>{
+        setLoadingReviews(true);
+        axios.get(`${config['path']}/user/entry/reviews/${id}`,{
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
                 'email': JSON.parse(sessionStorage.getItem("info")).email,
             },
             withCredentials: true
         }).then(res=>{
-            console.log(res.data)
+            setReviews(res.data);
+            setLoadingReviews(false);
+        }).catch(err=>{
+            if(err.response) showMsg(err.response.data?.message, "error")
+            else alert(err.message)
+        })
+    }
+
+    const loadData = ()=>{
+        axios.get(`${config['path']}/user/entry/shared/${id}`,{
+            headers: {
+                'Authorization': `Bearer ${userData.accessToken.token}`,
+                'email': JSON.parse(sessionStorage.getItem("info")).email,
+            },
+            withCredentials: true
+        }).then(res=>{
             setData(res.data);
             setLoading(false);
         }).catch(err=>{
@@ -78,6 +93,7 @@ const SharedEntryDetails = () => {
     useEffect(()=>{
         setLoading(true);
         loadData();
+        getReviews();
     },[])
 
     const showMsg = (msg, severity)=>{
@@ -89,7 +105,7 @@ const SharedEntryDetails = () => {
                 <div>  
                     <div className="sticky">
                     <Typography sx={{ fontWeight: 700}} variant="h5">Tele Consultation Entry</Typography>                  
-                    <Button component={Link} to='/manage/shared/entries' size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back To Entries</Button>
+                    <Button onClick={() => navigate(-1)} size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back</Button>
                     </div>
                     {loading && !data?
                     <Paper sx={{p:2, my:3}}>
@@ -108,14 +124,16 @@ const SharedEntryDetails = () => {
                     :
                     <>
                     <Paper sx={{p:3, my:3}}>
-                    <Stack direction='row' spacing={2} alignItems='center'>
+                    <Stack direction='row' spacing={2} alignItems='flex-start'>
                         <AssignmentInd sx={{color:'orange', width:'60px',height:'60px'}}/>
                         <Stack direction='column'>
-                            <Tooltip title='Go to patients profile' arrow placement="right"><Typography component={Link} to={`/manage/patients/${data.patient._id}`} variant='h5' color='Highlight' sx={{cursor:'pointer'}}>
+                            <Tooltip title='Go to patients profile' arrow placement="right"><Typography component={Link} to={`/manage/shared/patients/${data.patient._id}`} variant='h5' color='Highlight' sx={{cursor:'pointer'}}>
                                 {data.patient?.patient_name}
                             </Typography></Tooltip>
                             <Typography color='GrayText'>{data.patient?.patient_id}</Typography>
                         </Stack>
+                        <Box flex={1}></Box>
+                        <Chip label="View Only" color='primary' size='small'/>
                     </Stack>
                     <Divider sx={{my:1}}/>
                     <Stack direction='column' spacing={1}>
@@ -129,7 +147,7 @@ const SharedEntryDetails = () => {
                             data.reviewers?.map((reviewer, index)=>{
                                 return(<Tooltip title={reviewer.username} placement="bottom-start" arrow  key={index}><Avatar {...stringAvatar(reviewer.username)}/></Tooltip>)
                             })
-                        }                        
+                        }
                     </AvatarGroup>
                 
                     </Paper>
@@ -177,7 +195,11 @@ const SharedEntryDetails = () => {
                             <div className='imageDiv'>
                                 <div className='grid_image'>
                                     <img src={`${config["image_path"]}/${item.image_name}`} alt="Failed to Load"/>
+                                    <Stack direction='row' sx={{position:'absolute', bottom:10, right:0}}>
+                                        <IconButton onClick={()=>handleDoubleClick(index)} size='small' sx={{ color:'transparent'}} className='iconBackground'><Edit fontSize='small'/></IconButton>
+                                    </Stack>
                                 </div>
+                                        
                                 <Stack direction='column' justifyContent='space-between' alignItems='start' px={1}>
                                 <Box>
                                     <Typography fontSize='small' color='GrayText'>{item.location} | {item.clinical_diagnosis}</Typography>
@@ -193,7 +215,7 @@ const SharedEntryDetails = () => {
                         data.reports?.length > 0 ?
                         <Typography sx={{mb:2}} variant='body2'>Test Reports:</Typography>
                         :
-                        <Typography sx={{mb:2}} color='GrayText' variant='body2'>No Test Reports were Added</Typography>
+                        <Typography color='GrayText' variant='body2'>No Test Reports were Added</Typography>
                     }
                     
                     {data.reports?.map((item, index) => {
@@ -208,25 +230,27 @@ const SharedEntryDetails = () => {
                     </Paper>
                     <Paper sx={{p:2, my:3}}>
                     {
-                        data.reviews?.length > 0 ?
+                        loadingReviews?
+                        <Typography variant='body2'>Loading Reviews...</Typography>
+                        :
+                        reviews.length > 0 ?
                         <Typography sx={{mb:2}} variant='body2'>Reviews:</Typography>
                         :
-                        <Typography sx={{mb:2}} color='GrayText' variant='body2'>No Reviews</Typography>
+                        <Typography color='GrayText' variant='body2'>No Reviews Yet</Typography>
                     }
                     <Stack direction='column' spacing={1}>
                     {
-                        details.reviews?.map((item,index)=>{
+                        reviews.map((item,index)=>{
                             return(
                                 <Stack direction='row' key={index} sx={{background:'white', p:1}}>
-                                    <Avatar {...stringAvatar("name")}/>
+                                    <Avatar {...stringAvatar(item.reviewer_id?.username)}/>
                                     <ArrowLeft/>
                                     <Box>
-                                        <Typography variant='body2'><strong>Reviewers name</strong></Typography>
-                                        <Typography variant='body2'>provisional_diagnosis:</Typography>
-                                        <Typography variant='body2'>management_suggestions:</Typography>
-                                        <Typography variant='body2'>management_suggestions:</Typography>
-                                        <Typography variant='body2'>review_comment:</Typography>
-                                        <Typography variant='body2'>other_comments:</Typography>
+                                        <Typography variant='body2'><strong>{item.reviewer_id?.username}</strong> | {item.reviewer_id?.reg_no}</Typography>
+                                        {item.provisional_diagnosis !== "" && <Typography variant='body2'>Provisional Diagnosis: {item.provisional_diagnosis}</Typography>}
+                                        {item.management_suggestions !== "" && <Typography variant='body2'>Management Suggestions: {item.management_suggestions}</Typography>}
+                                        {item.referral_suggestions !== "" && <Typography variant='body2'>Referral Suggestions: {item.referral_suggestions}</Typography>}
+                                        {item.other_comments !== "" && <Typography variant='body2'>Comments: {item.other_comments}</Typography>}
                                     </Box>
                                 </Stack>
                             )
@@ -234,6 +258,9 @@ const SharedEntryDetails = () => {
                     }
                     </Stack>
                     </Paper>
+                    <Dialog fullScreen open={openAnnotation} onClose={handleClose} TransitionComponent={Transition}>
+                        <Canvas imageIndex={imageIndex} open={openAnnotation} setOpen={setOpenAnnotation} data={data} setData={setData} upload={false}/>
+                    </Dialog>
                     </>
                     }
 
@@ -244,4 +271,4 @@ const SharedEntryDetails = () => {
     );
 };
 
-export default SharedEntryDetails;
+export default ViewEntryDetails;
