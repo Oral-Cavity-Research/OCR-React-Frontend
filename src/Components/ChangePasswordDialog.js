@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {DialogTitle, Dialog, Button, DialogContent,DialogActions, } from '@mui/material';
+import {Button, Stack} from '@mui/material';
 import { FormControl, InputLabel, InputAdornment, IconButton, OutlinedInput, Typography } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { PasswordStrengthIndicator, passwordStrength } from './utils';
@@ -9,9 +9,7 @@ import config from './../config.json';
 import axios from 'axios';
 import { useSelector} from 'react-redux';
 
-export default function ChangePasswordDialog({user}) {
-
-    const [open, setOpen] =  useState(false);
+export default function ChangePasswordDialog({setShowPassword}) {
     const [showCPassword, setShowCPassword] = useState(false);
     const [showNPassword, setShowNPassword] = useState(false);
     const [Cpassword, setCPassword] = useState("");
@@ -19,12 +17,9 @@ export default function ChangePasswordDialog({user}) {
     const [Npassword, setNPassword] = useState("");
     const [state, setState] = useState(0);
     const [status, setStatus] = useState({msg:"",severity:"success", open:false});
-    const userData = useSelector(state => state.data);
+    const selectorData = useSelector(state => state.data);
+    const [userData, setUserData] = useState(selectorData);
    
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-
     const handleCPasswordChange = (e)=>{
         setCPassword(e.target.value);
         handleConfirmation();
@@ -39,10 +34,6 @@ export default function ChangePasswordDialog({user}) {
         const ok = Cpassword!=="" && passwordStrength(Npassword) > 30;
         setConfirm(ok);
     }
-
-    const handleClose = () => {
-        setOpen(false);
-    };
 
     const handleClickShowCPassword = () => setShowCPassword((show) => !show);
     const handleClickShowNPassword = () => setShowNPassword((show) => !show);
@@ -59,13 +50,13 @@ export default function ChangePasswordDialog({user}) {
       
         setState(1);
 
-        axios.post(`${config['path']}/auth/password`,
+        axios.post(`${config['path']}/user/self/password`,
         {
             cpassword: Cpassword,
             npassword: Npassword
         },
         { headers: {
-            'Authorization': 'BEARER '+ JSON.parse(sessionStorage.getItem("info")).atoken,
+            'Authorization': `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,
         }}
         ).then(res=>{
@@ -75,17 +66,13 @@ export default function ChangePasswordDialog({user}) {
             else alert(err)
         }).finally(()=>{
             setState(0);
-            handleClose();
+            setShowPassword(false);
         })
 
     }
 
   return (
     <div>
-        <Button variant='outlined' onClick={handleClickOpen}>Change Password</Button>
-        <Dialog onClose={handleClose} open={open}>
-        <DialogTitle>Change Password</DialogTitle>
-        <DialogContent dividers>
         <FormControl margin="normal" fullWidth  variant="outlined">
             <InputLabel required size='small' htmlFor="Cpassword">Current Password</InputLabel>
             <OutlinedInput required size='small' inputProps={{ maxLength: 30 }} id="Cpassword" type={showCPassword ? 'text' : 'password'} label="Current Password" name="cpassword"
@@ -113,12 +100,12 @@ export default function ChangePasswordDialog({user}) {
             />
         </FormControl>
         <PasswordStrengthIndicator password={Npassword}/>
-        </DialogContent>
-        <DialogActions>
-            <LoadingButton onClick={handleReset} loading={state === 1} variant="contained" disabled={!confirm || state !==0}>Reset Password</LoadingButton>
-            <Button onClick={handleClose} color='inherit' variant='outlined' disabled={state !==0}>Cancel</Button>
-            </DialogActions>
-        </Dialog>
+        
+        <Stack direction='row' spacing={2}>
+        <LoadingButton onClick={handleReset} loading={state === 1} variant="contained" disabled={!confirm || state !==0}>Reset Password</LoadingButton>
+        <Button onClick={()=>setShowPassword(false)} color='inherit' variant='outlined' disabled={state !==0}>Cancel</Button>  
+        </Stack>
+        
         <NotificationBar status={status} setStatus={setStatus}/>
     </div>
   );

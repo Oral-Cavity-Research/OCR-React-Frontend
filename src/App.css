@@ -54,10 +54,20 @@ a{
 	box-shadow: 3px 3px 5px 6px var(--bg-color);
 }
 
-.highlight{
-	background-color: yellow;
-	color: red;
+/* .text-danger-glow {
+	border-radius: 100%;
+	box-shadow: 0 0 1px #f00, 0 0 2px #f00, 0 0 3px #f00, 0 0 4px #f00, 0 0 5px #f00, 0 0 6px #f00, 0 0 7px #f00;
+} */
+  
+.blink {
+	animation: blinker 1s cubic-bezier(0.075, 0.82, 1, 1) infinite;
 }
+@keyframes blinker {  
+	50% {
+		opacity: 0;
+	}
+}
+
 /* .entry_page{
 	position: absolute;
 	display: flex;

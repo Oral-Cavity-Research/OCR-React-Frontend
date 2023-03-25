@@ -357,6 +357,10 @@ const PatientProfile = ({data}) => {
                         </TableCell>
                     </TableRow>
                     <TableRow>
+                        <TableCell>Consent Form</TableCell>
+                        <TableCell sx={{py:0, "&:hover" :{color:'var(--primary-color)'}}}><a href={`${config["consentform_path"]}/`+data.consent_form} target="_blank">Consent Form</a></TableCell>
+                    </TableRow>
+                    <TableRow>
                         <TableCell>Created At</TableCell>
                         <TableCell sx={{py:0}}>{(data.createdAt?.split("T"))[0]}</TableCell>
                     </TableRow>

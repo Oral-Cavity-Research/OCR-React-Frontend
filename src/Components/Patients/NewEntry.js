@@ -6,8 +6,6 @@ import dayjs from 'dayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import AssigneeDropdown from '../AssigneeDropDown';
-import { stringAvatar } from '../utils';
 import NotificationBar from '../NotificationBar';
 import { useSelector} from 'react-redux';
 import axios from 'axios';
@@ -104,7 +102,7 @@ const NewEntry = ({entryID, setEntryID, btnRef, setDone, setLoading}) => {
         <Stack spacing={3}>
             <Stack direction='row' spacing={2}>
                 <LocalizationProvider dateAdapter={AdapterDayjs} >
-                    <DateTimePicker format='DD/MM/YYYY HH:mm' label="Start Time"  value={startTime} onChange={(newValue) => setStartTime(newValue)}
+                    <DateTimePicker format='DD/MM/YYYY HH:MM:ss A' label="Start Time"  value={startTime} onChange={(newValue) => setStartTime(newValue)}
                      maxDate={dayjs()} minDate={dayjs().subtract(30, 'day')}
                      componentsProps={{ textField: { size: 'small', fullWidth:true  }}}
                      onError={(newError) => setErrorStart(newError)}
@@ -112,7 +110,7 @@ const NewEntry = ({entryID, setEntryID, btnRef, setDone, setLoading}) => {
                 </LocalizationProvider>
 
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DateTimePicker label="End Time" format='DD/MM/YYYY HH:mm' value={endTime} onChange={(newValue) => setEndTime(newValue)}
+                    <DateTimePicker label="End Time" format='DD/MM/YYYY HH:MM:ss A' value={endTime} onChange={(newValue) => setEndTime(newValue)}
                     componentsProps={{ textField: { size: 'small', fullWidth:true }}}
                     maxDate={dayjs()} minDate={dayjs().subtract(30, 'day')}
                     onError={(newError) => setErrorEnd(newError)}

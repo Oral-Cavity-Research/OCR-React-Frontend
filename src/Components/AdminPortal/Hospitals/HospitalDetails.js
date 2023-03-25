@@ -1,5 +1,5 @@
 import React, { useEffect, useState} from 'react';
-import { Link, useParams} from 'react-router-dom';
+import { Link, useNavigate, useParams} from 'react-router-dom';
 import { ArrowBack, LocalHospital } from '@mui/icons-material';
 import { Box, Stack, Typography, Skeleton, Button, Paper} from '@mui/material';
 import { useSelector} from 'react-redux';
@@ -16,6 +16,7 @@ const HospiatalDetails = () => {
     const [userData, setUserData] = useState(selectorData);
     const [loading, setLoading] = useState(true);
     const { id } = useParams();
+    const navigate = useNavigate();
 
     useEffect(()=>{
         setLoading(true);
@@ -44,7 +45,7 @@ const HospiatalDetails = () => {
             <Box className="sticky">    
             <Typography sx={{ fontWeight: 700}} variant="h5">Hospital</Typography>    
             
-            <Button component={Link} to='/adminportal/hospitals' size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back To Hospitals</Button>
+            <Button onClick={() => navigate(-1)} size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back</Button>
             </Box>  
             {loading?
             <Paper sx={{p:2, my:3}}>  

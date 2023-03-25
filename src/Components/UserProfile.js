@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState} from 'react';
 import { Box, Stack, Avatar, Typography, TextField, Skeleton,
-       Grid, Paper, Badge, Select, MenuItem, FormControl, InputLabel} from '@mui/material';
+       Grid, Paper, Badge, Select, MenuItem, FormControl, InputLabel, Button} from '@mui/material';
 import { stringAvatar } from './utils';
 import config from '../config.json'
 import axios from 'axios';
@@ -10,6 +10,7 @@ import { useSelector} from 'react-redux';
 import ChangePasswordDialog from './ChangePasswordDialog';
 import { styled } from '@mui/material/styles';
 import { MuiTelInput } from 'mui-tel-input';
+import dayjs from 'dayjs';
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -30,6 +31,7 @@ const UserProfile = () => {
     const [hospital, setHospital] = useState("");
     const [hospitalList, setHospitalList] = useState([]);
     const [availability, setAvailability] = useState(data.availability);
+    const [showPassword, setShowPassword] = useState(false);
     const [state, setState] = useState(0);
     const formRef = useRef();
     const userData = useSelector(state => state.data);
@@ -42,16 +44,15 @@ const UserProfile = () => {
     useEffect(()=>{
         
         setLoading(true);
-        axios.get(`${config['path']}/user/hospitals`,
+        axios.get(`${config['path']}/user/self/hospitals`,
         { headers: {
-            'Authorization': `Bearer ${JSON.parse(sessionStorage.getItem("info")).atoken}`,
+            'Authorization': `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,
         },
             withCredentials: true
         }
         ).then(res=>{
             setHospitalList(res.data);
-            console.log(res.data);
             fetchData();
         }).catch(err=>{
             if(err.response) showMsg(err.response.data.message, "error")
@@ -66,7 +67,7 @@ const UserProfile = () => {
 
         axios.get(`${config['path']}/admin/users/${_id}`,
         { headers: {
-            'Authorization': `Bearer ${JSON.parse(sessionStorage.getItem("info")).atoken}`,
+            'Authorization': `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,
         },
             withCredentials: true
@@ -93,29 +94,29 @@ const UserProfile = () => {
             return;
         }
 
-        const toBeSend = {username, designation, hospital, contact_no};
-        if(data.role.includes(2)){
-            toBeSend["availability"] = availability;
-        }
+        const toBeSend = {username, designation, hospital, contact_no, availability};
 
         setState(1);
 
-        axios.post(`${config['path']}/auth/update`,
+        axios.post(`${config['path']}/user/self/update`,
         toBeSend,
         { headers: {
-            'Authorization': 'BEARER '+ JSON.parse(sessionStorage.getItem("info")).atoken,
+            'Authorization': `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,
         }}
         ).then(res=>{
             setData(res.data)
             let newData = JSON.parse(sessionStorage.getItem("info"))
             newData.username = res.data.username;
+            newData.designation = res.data.designation;
+            newData.hospital = res.data.hospital;
+            newData.contact_no = res.data.contact_no;
+            newData.availability = res.data.availability;
             sessionStorage.setItem("info", JSON.stringify(newData));
             showMsg("User details updated successfully", "success");
         }).catch(err=>{
             if(err.response) showMsg(err.response.data.message, "error")
             else alert(err)
-            console.log(err)
         }).finally(()=>{
             setState(0);
         })
@@ -128,8 +129,10 @@ const UserProfile = () => {
     }
 
     return (
-        <div className='body'>
-        <Box sx={{my:3}} style={{paddingLeft:'20px'}}>
+        <Box className="content_wrapper">
+        <Box sx={{flexGrow:1}} className='content'>
+        <div className="inner_content">
+        <div>
             <Grid container spacing={2}>
                 <Grid item xs={12} md={4}>
                 {loading?
@@ -141,18 +144,15 @@ const UserProfile = () => {
                         </Stack>
                         </Paper>
                     :
-                        <Paper sx={{p:3, background:"#fbfbfb"}}>
+                        <Paper sx={{p:3}}>
                        <Stack direction='column' spacing={1} alignItems='center'>
-                            {data.role.includes(2)?
-                                <StyledBadge overlap="circular" anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} variant="dot" color={data.availability?'success':'error'}>
-                                <Avatar {...stringAvatar(data.username, 60)}/>
-                                </StyledBadge>
-                            :
-                                <Avatar {...stringAvatar(data.username, 60)}/>
-                            }
+                            
+                            <StyledBadge overlap="circular" anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} variant="dot" color={data.availability?'success':'error'}>
+                            <Avatar {...stringAvatar(data.username, 60)}/>
+                            </StyledBadge>
                             <Typography variant='h6'>{data.username}</Typography>
                             <Typography color='GrayText'>{data.reg_no}</Typography>
-                            <Typography color='GrayText'>{data.role[0]===1?"Admin":data.role[0]===1?"Reviewer":"Clinicain"}</Typography>
+                            <Typography color='GrayText'>{data.role}</Typography>
                         </Stack>
             
                         </Paper>
@@ -167,20 +167,20 @@ const UserProfile = () => {
                     </Stack>
                     </Paper>
                     :
-                    <Paper sx={{p:3}}>
+                    <Paper sx={{p:3, mb:3}}>
                     <Box component="form" noValidate ref={formRef}>
 
                     <Stack direction='column' spacing={3}>
                         <TextField defaultValue={data.username} name='username' size='small' label='User name'/>
-                        { data.role.includes(2) &&
-                            <FormControl>
-                                <InputLabel id="Status">Status</InputLabel>
-                                <Select fullWidth size='small'  value={availability? true: false} labelId="Status" label="Status" onChange={(e)=>setAvailability(e.target.value)} sx={{mb:1}}>
-                                <MenuItem value={true}>Available</MenuItem>
-                                <MenuItem value={false}>Unavailable</MenuItem>
-                            </Select>
-                            </FormControl>
-                        }
+                       
+                        <FormControl>
+                            <InputLabel id="Status">Status</InputLabel>
+                            <Select fullWidth size='small'  value={availability? true: false} labelId="Status" label="Status" onChange={(e)=>setAvailability(e.target.value)} sx={{mb:1}}>
+                            <MenuItem value={true}>Available</MenuItem>
+                            <MenuItem value={false}>Unavailable</MenuItem>
+                        </Select>
+                        </FormControl>
+                        
                         <TextField defaultValue={data.designation} name='designation' size='small' label='Designation'/>
                         <FormControl size='small'>
                             <InputLabel id="hospital">Hospital</InputLabel>
@@ -193,42 +193,31 @@ const UserProfile = () => {
                             </Select>
                         </FormControl>
                         <MuiTelInput value={value} onChange={handleChange} size='small' name='contactNo' placeholder='Phone Number' margin="normal" fullWidth/>
-                        <TextField  value={data.email} name='email' size='small' disabled label='Email'/>
-                        <TextField value={data.reg_no} name='reg_no' size='small' disabled label='SLMC Registration Number'/>
-                        <TextField value={data.createdAt} name='created_at' size='small' disabled label='Created At'/>
-                        <TextField value={data.updatedAt} name='updated_at' size='small' disabled label='Updated At'/>
+                        <TextField sx={{"& .MuiInputBase-input.Mui-disabled": {WebkitTextFillColor: "#000000"}}} value={data.email} name='email' size='small' disabled label='Email'/>
+                        <TextField sx={{"& .MuiInputBase-input.Mui-disabled": {WebkitTextFillColor: "#000000"}}} value={data.reg_no} name='reg_no' size='small' disabled label='SLMC Registration Number'/>
+                        <TextField sx={{"& .MuiInputBase-input.Mui-disabled": {WebkitTextFillColor: "#000000"}}} value={dayjs(data.createdAt).format("DD/MM/YYYY")} name='created_at' size='small' disabled label='Created At'/>
+                        <TextField sx={{"& .MuiInputBase-input.Mui-disabled": {WebkitTextFillColor: "#000000"}}} value={dayjs(data.updatedAt).format("DD/MM/YYYY")} name='updated_at' size='small' disabled label='Updated At'/>
                     </Stack>
                     <Stack direction='row' spacing={2} sx={{my:3}}>
                         <LoadingButton onClick={handleUpdate} loading={state=== 1} variant="contained" disabled={state!==0}>Update</LoadingButton>
-                        <ChangePasswordDialog/>
+                        <Button onClick={()=>{setShowPassword(true)}}>Change Password</Button>
                     </Stack>
+                    { showPassword && 
+                        <Box sx={{border:'1px solid red', borderRadius:1, p:2}}>
+                        <ChangePasswordDialog setShowPassword={setShowPassword}/>
+                        </Box>
+                    }
                     </Box>
-
-                    {/* <Box sx={{border: '1px solid red', borderRadius:'5px', my:10}}>
-                        <Stack direction='row' sx={{p:3}} alignItems='end'>
-                            <div style={{flexGrow: 1}}>
-                            <Typography color='error'>Reset Password</Typography>
-                            <Typography color='GrayText'>Once you change the password, the user will no longer be able to log in to the application using the current password.</Typography>
-                            </div>
-                            <ResetPasswordDialog user={data}/>
-                        </Stack>
-                        <Divider sx={{bgcolor: 'red'}}/>
-                        <Stack direction='row' sx={{p:3}} alignItems='end'>
-                            <div style={{flexGrow: 1}}>
-                            <Typography color='error'>Delete user</Typography>
-                            <Typography color='GrayText'>This action will permanently delete the user from the organization. Please be certain before you proceed.</Typography>
-                            </div>
-                            <DeleteUserDialog user={data}/>
-                        </Stack>
-                    </Box> */}
                     </Paper>
             }
                 </Grid>
             </Grid>
             
             <NotificationBar status={status} setStatus={setStatus}/>
-        </Box>
         </div>
+        </div>
+        </Box>
+        </Box>
     );
 };
 

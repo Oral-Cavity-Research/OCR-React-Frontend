@@ -1,5 +1,5 @@
 import React, { useRef, useState} from 'react';
-import { Link, useNavigate} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import { ArrowBack, Close,PersonAddAlt1 } from '@mui/icons-material';
 import { Box, Stack, Typography,Button, Paper, TextField, FormControl, MenuItem, Select, Checkbox,
     ListItem, IconButton, ListItemText, InputLabel, List} from '@mui/material';
@@ -118,7 +118,7 @@ const PatientNew = () => {
     }
 
     const handleCancle = ()=>{
-        navigate("/manage/patients")
+        navigate("/manage/my/patients")
     }
 
     const selectFiles = (event) => {
@@ -133,7 +133,6 @@ const PatientNew = () => {
 
         if(form.get("patient_id")===""||form.get("patient_name")===""||
         error !== null){
-            console.log(error)
             showMsg("Please add required feilds","error");
             return;
         }
@@ -142,6 +141,8 @@ const PatientNew = () => {
             showMsg("Please add the consent form","error");
             return;
         }
+
+        const filename = Math.floor(Math.random() * 101) + "_" + Date.now() + "_"+ 0 + "_" + file.name
 
         const upload = {
             patient_name: form.get("patient_name"),
@@ -153,12 +154,19 @@ const PatientNew = () => {
             systemic_disease: form.get("systemic_disease"),
             medical_history: medicalHistory,
             family_history: familyHistory,
-            contact_no: contact
+            contact_no: contact,
+            consent_form: filename
         }
 
         setLoading(true);
+
+        var data = new FormData();
+        data.append('files', file, filename);
+        data.append('data',JSON.stringify(upload))
+
+
         axios.post(`${config['path']}/user/patient/check`,{
-            patient_id: form.get("patient_name")
+            patient_id: form.get("patient_id")
         },
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
@@ -169,9 +177,8 @@ const PatientNew = () => {
                 showMsg("Patient ID already exists", "error");
                 setLoading(false);
             }else{
-                uploadData(upload);
+                uploadData(data);
             }
-            
         }).catch(err=>{
             if(err.response) showMsg(err.response.data.message, "error")
             else alert(err)
@@ -181,14 +188,14 @@ const PatientNew = () => {
 
     const uploadData = (upload)=>{
 
-        axios.post(`${config['path']}/user/patient/add`, upload,
+        axios.post(`${config['path']}/user/upload/patient`, upload,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,
         }}
         ).then(res=>{
             showMsg("Patient is successfully added", "success");
-            navigate(`/manage/patients/${res.data._id}`);
+            navigate(`/manage/my/patients/${res.data._id}`);
         }).catch(err=>{
             if(err.response) showMsg(err.response.data.message, "error")
             else alert(err)
@@ -204,7 +211,7 @@ const PatientNew = () => {
             <Box className="sticky">    
             <Typography sx={{ fontWeight: 700}} variant="h5">Patient</Typography>    
             
-            <Button component={Link} to='/manage/patients' size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back To Patients</Button>
+            <Button onClick={() => navigate(-1)} size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back</Button>
             </Box>  
 
             <Paper sx={{p:2, my:3}}>  

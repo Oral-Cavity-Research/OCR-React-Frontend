@@ -3,7 +3,7 @@ import { Avatar, AvatarGroup, Button, FormControl, LinearProgress, Menu, MenuIte
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography} from '@mui/material';
 import {IconButton} from '@mui/material';
 import {FilterList, Image, Message} from '@mui/icons-material';
-import {useNavigate } from 'react-router-dom';
+import {useNavigate, useParams } from 'react-router-dom';
 import NotificationBar from '../NotificationBar';
 import axios from 'axios';
 import config from '../../config.json';
@@ -11,9 +11,9 @@ import { useSelector} from 'react-redux';
 import dayjs from 'dayjs';
 import { LoadingButton } from '@mui/lab';
 
-const filtOptions = ["Created Date","Updated Date","Assigned", "Unassigned", "Reviewed", "Unreviewed"]
+const filtOptions = ["Created Date","Updated Date"]
 
-const Entries = () => {
+const SharedPatientEntries = () => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [filt, setFilt] = React.useState("Created Date");
     const open = Boolean(anchorEl);
@@ -23,6 +23,7 @@ const Entries = () => {
     const userData = useSelector(state => state.data);
     const [page, setPage] = useState(1);
     const [noMore, setNoMore] = useState(false);
+    const {id} = useParams();
     const navigate = useNavigate();
 
     
@@ -37,10 +38,11 @@ const Entries = () => {
         setPage(1);
         setFilt(name);
         handleClose();
+        getData();
     }
 
     const handleClick = (id) => {
-        navigate(`/manage/my/entries/${id}`)
+        navigate(`/manage/shared/entries/view/${id}`)
     };
 
     const showMsg = (msg, severity)=>{
@@ -49,12 +51,12 @@ const Entries = () => {
 
     useEffect(() => {
         getData();
-    }, [filt]);
+    }, []);
 
     const loadMore = () => {
         setLoading(true);
         setNoMore(false);
-        axios.get(`${config['path']}/user/entry/get`,{
+        axios.get(`${config['path']}/user/entry/shared/patient/${id}`,{
             params: { page: page + 1, filter: filt},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
@@ -76,7 +78,7 @@ const Entries = () => {
     const getData = ()=>{
         setLoading(true);
         setNoMore(false);
-        axios.get(`${config['path']}/user/entry/get`,{
+        axios.get(`${config['path']}/user/entry/shared/patient/${id}`,{
             params: { page: 1, filter: filt},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
@@ -94,13 +96,8 @@ const Entries = () => {
         })
     }      
 
-    return (
-        <div className="inner_content">
-        <div>
-        <div className="sticky">
-            <Typography sx={{ fontWeight: 700}} variant="h5">Consultation Entries</Typography> 
-        </div>                
-                <Paper sx={{p:2, my:3}}>
+    return (                    
+            <>
                 <Stack direction='row' alignItems='center' spacing={1} mb={2}>
                     <IconButton
                         id="fade-button"
@@ -115,7 +112,8 @@ const Entries = () => {
                 <Menu id="fade-menu" MenuListProps={{ 'aria-labelledby': 'fade-button'}} anchorEl={anchorEl} open={open} onClose={handleClose}>
                 {filtOptions.map((item,index)=>{ return(<MenuItem key={index} onClick={()=>handleFilter(item)}>{item}</MenuItem>)})}
                 </Menu>
-
+                
+                
                 <TableContainer sx={{border: '1px solid lightgray', borderRadius: 1}}>
                 <Table>
                     <TableHead>
@@ -167,17 +165,17 @@ const Entries = () => {
                 </Table>
                 </TableContainer>
                 <Stack direction='row' justifyContent='center'>
-                    { data.length > 0 ?
-                    <LoadingButton disabled={noMore} loading={loading} sx={{mt:2}} onClick={loadMore}>Load More</LoadingButton>
-                    :
-                    <Typography sx={{m:3}} variant='body2' color='GrayText'>{loading?"":"No Entries"}</Typography>
+                    {
+                        data.length > 0 ?
+                        <LoadingButton disabled={noMore} loading={loading} sx={{mt:2}} onClick={loadMore}>Load More</LoadingButton>
+                        :
+                        <Typography sx={{m:3}} variant='body2' color='GrayText'>{loading? "":"No Entries"}</Typography>
                     }
                 </Stack>
-                </Paper>
+               
                 <NotificationBar status={status} setStatus={setStatus}/>  
-        </div>
-    </div> 
+            </>
     );
 };
 
-export default Entries;
+export default SharedPatientEntries;

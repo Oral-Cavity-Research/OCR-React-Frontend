@@ -20,7 +20,6 @@ const ProtectedRoute = ({allowed, children}) => {
         setIsLoading(true);
 		const res = async() => {
             await trySilentRefresh().then((data) => {
-                console.log(data)
                 if (data) {
                     dispatch(setUserData({
                         _id: data.ref._id,

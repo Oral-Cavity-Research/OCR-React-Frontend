@@ -17,7 +17,7 @@ export default function HospitalDropdown() {
     }
 
     (async () => {
-    axios.get(`${config['path']}/user/hospitals`).then(resp =>{
+    axios.get(`${config['path']}/user/self/hospitals`).then(resp =>{
         setOptions(resp.data);
         for(let i = 0; i < resp.data.length; i++){
             options[i] = resp.data[i]['name']

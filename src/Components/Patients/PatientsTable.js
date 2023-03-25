@@ -2,7 +2,7 @@ import React, {useEffect, useState } from 'react';
 import { Button, FormControl, LinearProgress, Menu, MenuItem, OutlinedInput, Paper, Stack, 
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from '@mui/material';
 import { InputAdornment, IconButton} from '@mui/material';
-import { ArrowDownward, ArrowUpward, FilterList, Search } from '@mui/icons-material';
+import { ArrowDownward, ArrowUpward, Close, FilterList, Search } from '@mui/icons-material';
 import {useNavigate } from 'react-router-dom';
 import NotificationBar from '../NotificationBar';
 import axios from 'axios';
@@ -16,7 +16,7 @@ const filtOptions = ["All","ID","Name","Age","Gender","Created Date","Updated Da
 
 const PatientsTable = () => {
     const [anchorEl, setAnchorEl] = React.useState(null);
-    const [filt, setFilt] = React.useState("All");
+    const [filt, setFilt] = React.useState("Updated Date");
     const open = Boolean(anchorEl);
     const [search, setSearch] = useState('') // Initialize it with an empty filter
     const [loading, setLoading] = useState(false);
@@ -25,7 +25,7 @@ const PatientsTable = () => {
     const userData = useSelector(state => state.data);
     const [page, setPage] = useState(1);
     const [noMore, setNoMore] = useState(false);
-    const [sort, setSort] = useState(true);
+    const [sort, setSort] = useState(false);
     const navigate = useNavigate();
 
     
@@ -45,6 +45,10 @@ const PatientsTable = () => {
         getData();
     }
 
+    const handleClearSearch = ()=>{
+        setSearch("");
+    }
+
     const handleSort = () =>{
         setPage(1)
         setSort(!sort)
@@ -54,15 +58,14 @@ const PatientsTable = () => {
         setPage(1);
         setFilt(name);
         handleClose();
-        getData();
     }
 
     const handleClick = (id) => {
-        navigate(`/manage/patients/${id}`)
+        navigate(`/manage/my/patients/${id}`)
     };
 
     const handleAddNew = () => {
-        navigate(`/manage/patients/new`);
+        navigate(`/manage/my/patients/new`);
     };
 
     const showMsg = (msg, severity)=>{
@@ -71,7 +74,7 @@ const PatientsTable = () => {
 
     useEffect(() => {
         getData();
-    }, [sort]);
+    }, [sort, filt]);
 
     const loadMore = () => {
         setLoading(true);
@@ -184,6 +187,7 @@ const PatientsTable = () => {
                 <Button sx={{mt:2}} variant='contained'onClick={handleAddNew}>Add New</Button>
                 
                 <Paper sx={{p:2, my:3}}>
+        
                 <Stack direction='row' justifyContent='space-between' mb={2}>
                     <Stack direction='row' alignItems='center' spacing={1}>
                     <IconButton
@@ -209,11 +213,19 @@ const PatientsTable = () => {
                         placeholder='Search'
                         size='small'
                         inputProps={{ maxLength: 20}}
+                        value={search}
                         onChange={(e)=>handleChange(e)}
                         endAdornment={
                         <InputAdornment position="end">
+                            { search.length > 0 &&
                             <IconButton
-                            aria-label="toggle password visibility"
+                            size='small'
+                            edge="end"
+                            onClick={handleClearSearch}
+                            >
+                            <Close fontSize='small'/>
+                            </IconButton>}
+                            <IconButton
                             edge="end"
                             onClick={()=>handleSearch()}
                             >
@@ -237,13 +249,15 @@ const PatientsTable = () => {
                             <TableCell>Patient Name</TableCell>
                             <TableCell>Age</TableCell>
                             <TableCell>Gender</TableCell>
+                            {filt === "Created Date" && <TableCell>Created Date</TableCell>}
+                            {filt === "Updated Date" && <TableCell>Updated Date</TableCell>}
                         </TableRow>
                     </TableHead>
                     <TableBody>
                     {
                         loading && 
                         <TableRow >
-                            <TableCell sx={{p:0}} colSpan={4}><LinearProgress/></TableCell>
+                            <TableCell sx={{p:0}} colSpan={5}><LinearProgress/></TableCell>
                         </TableRow>
                     }
                     {data.map((item,index)=>{ 
@@ -253,13 +267,21 @@ const PatientsTable = () => {
                             <TableCell>{highlightSearchText(item.patient_name, search)}</TableCell>
                             <TableCell>{age(dayjs(item.DOB))}</TableCell>
                             <TableCell>{highlightSearchText(item.gender, search)}</TableCell>
+                            {filt === "Created Date" && <TableCell>{dayjs(item.createdAt).format('DD/MM/YYYY')}</TableCell>}
+                            {filt === "Updated Date" && <TableCell>{dayjs(item.updatedAt).format('DD/MM/YYYY')}</TableCell>}
                         </TableRow>
                     )})}
                     </TableBody>
                 </Table>
                 </TableContainer>
+
                 <Stack direction='row' justifyContent='center'>
-                    <LoadingButton disabled={noMore} loading={loading} sx={{mt:2}} onClick={loadMore}>Load More</LoadingButton>
+                    {
+                        data.length > 0 ?
+                        <LoadingButton disabled={noMore} loading={loading} sx={{mt:2}} onClick={loadMore}>Load More</LoadingButton>
+                        :
+                        <Typography sx={{m:3}} variant='body2' color='GrayText'>{loading?"":"No Patients"}</Typography>
+                    }
                 </Stack>
                 </Paper>
                 <NotificationBar status={status} setStatus={setStatus}/>  
@@ -270,7 +292,7 @@ const PatientsTable = () => {
                     getOptionLabel={(option) => option.patient_id}
                     style={{ width: 300 }}
                     noOptionsText="No Patients"
-                    onChange={(event, value) => {navigate(`/manage/patients/${value._id}`)}} 
+                    onChange={(event, value) => {navigate(`/manage/my/patients/${value._id}`)}} 
                     renderInput={(params) => (
                     <TextField {...params} label="Search By ID" variant="outlined" />
                     )}

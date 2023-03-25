@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState} from 'react';
 import { Link, useNavigate, useParams} from 'react-router-dom';
-import { ArrowBack, Help } from '@mui/icons-material';
+import { ArrowBack} from '@mui/icons-material';
 import { Box, Stack, Avatar, Typography, TextField,
-     Skeleton, Button, Table, TableBody, TableCell, TableRow, Paper, IconButton} from '@mui/material';
+     Skeleton, Button, Table, TableBody, TableCell, TableRow, Paper} from '@mui/material';
 import { stringAvatar } from '../../utils';
 import config from '../../../config.json'
 import axios from 'axios';
@@ -130,7 +130,7 @@ const RequestDetails = () => {
             <Box className='sticky'>    
             <Typography sx={{ fontWeight: 700}} variant="h5">Requests</Typography>    
             
-            <Button component={Link} to='/adminportal/requests' size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back To Requests</Button>
+            <Button onClick={() => navigate(-1)} size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back</Button>
             </Box>
             {loading?
             <Paper sx={{p:2, my:3}}>

@@ -60,7 +60,7 @@ const HospiatalNew = () => {
             <Box className="sticky">    
             <Typography sx={{ fontWeight: 700}} variant="h5">Hospital</Typography>    
             
-            <Button component={Link} to='/adminportal/hospitals' size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back To Hospitals</Button>
+            <Button onClick={() => navigate(-1)} size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back</Button>
             </Box>  
 
             <Paper sx={{p:2, my:3}}>  

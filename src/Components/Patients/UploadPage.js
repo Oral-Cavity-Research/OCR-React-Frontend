@@ -52,7 +52,6 @@ const UploadPage = ({entryID, btnRef, setDone, setLoading}) => {
 
         setSelectedFiles(files);       
         setData(images);
-        console.log(images);
     };
 
     const handleSelection = ()=>{
