@@ -59,7 +59,7 @@ const HospitalTable = () => {
     useEffect(()=>{
         setLoading(true);
         setUserData(selectorData);
-        axios.get(`${config['path']}/user/hospitals`,
+        axios.get(`${config['path']}/user/self/hospitals`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,
