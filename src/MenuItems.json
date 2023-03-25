@@ -5,7 +5,7 @@
         {"path":"/adminportal/hospitals", "name":"Hospitals"}
     ],
     "recruiter":[
-        {"path":"/manage/patients", "name":"Patients"},
-        {"path":"/manage/entries", "name":"Entries"}
+        {"path":"/manage/my/patients", "name":"Patients"},
+        {"path":"/manage/my/entries", "name":"Entries"}
     ]
 }

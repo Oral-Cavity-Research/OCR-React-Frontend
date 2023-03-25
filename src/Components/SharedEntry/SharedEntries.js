@@ -1,8 +1,8 @@
 import React, {useEffect, useState } from 'react';
-import { Avatar, AvatarGroup, Button, FormControl, LinearProgress, Menu, MenuItem, OutlinedInput, Paper, Stack, 
-    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography} from '@mui/material';
+import {LinearProgress, Menu, MenuItem, Paper, Stack, 
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from '@mui/material';
 import {IconButton} from '@mui/material';
-import {FilterList, Image, Message} from '@mui/icons-material';
+import {FilterList} from '@mui/icons-material';
 import {useNavigate } from 'react-router-dom';
 import NotificationBar from '../NotificationBar';
 import axios from 'axios';
@@ -11,9 +11,9 @@ import { useSelector} from 'react-redux';
 import dayjs from 'dayjs';
 import { LoadingButton } from '@mui/lab';
 
-const filtOptions = ["Created Date","Updated Date"]
+const filtOptions = ["Not Reviewed","Reviewed"]
 
-const Entries = () => {
+const SharedEntries = () => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [filt, setFilt] = React.useState("Created Date");
     const open = Boolean(anchorEl);
@@ -37,11 +37,10 @@ const Entries = () => {
         setPage(1);
         setFilt(name);
         handleClose();
-        getData();
     }
 
     const handleClick = (id) => {
-        navigate(`/manage/my/entries/${id}`)
+        navigate(`/manage/shared/entries/${id}`)
     };
 
     const showMsg = (msg, severity)=>{
@@ -50,12 +49,12 @@ const Entries = () => {
 
     useEffect(() => {
         getData();
-    }, []);
+    }, [filt]);
 
     const loadMore = () => {
         setLoading(true);
         setNoMore(false);
-        axios.get(`${config['path']}/user/entry/get`,{
+        axios.get(`${config['path']}/user/entry/shared/all`,{
             params: { page: page + 1, filter: filt},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
@@ -77,7 +76,7 @@ const Entries = () => {
     const getData = ()=>{
         setLoading(true);
         setNoMore(false);
-        axios.get(`${config['path']}/user/entry/get`,{
+        axios.get(`${config['path']}/user/entry/shared/all`,{
             params: { page: 1, filter: filt},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
@@ -100,7 +99,7 @@ const Entries = () => {
         <div className="inner_content">
         <div>
         <div className="sticky">
-            <Typography sx={{ fontWeight: 700}} variant="h5">Consultation Entries</Typography> 
+            <Typography sx={{ fontWeight: 700}} variant="h5">Assigend Entries</Typography> 
         </div>                
                 <Paper sx={{p:2, my:3}}>
                 <Stack direction='row' alignItems='center' spacing={1} mb={2}>
@@ -122,12 +121,11 @@ const Entries = () => {
                 <Table>
                     <TableHead>
                         <TableRow>
+                            <TableCell></TableCell>
                             <TableCell>Patient ID</TableCell>
                             <TableCell>Patient Name</TableCell>
-                            <TableCell>Created Date</TableCell>
-                            <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>Images/Reviews</TableCell>
-                            <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>Updated Date</TableCell>
-                            <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>Reviewers</TableCell>
+                            <TableCell>Assigned Date</TableCell>
+                            <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>Created by</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -140,29 +138,11 @@ const Entries = () => {
                     {data.map((item,index)=>{ 
                         return(
                         <TableRow key={index} sx={{cursor:'pointer', '&:hover':{background: '#f8f8f8'}}} onClick={()=>handleClick(item._id)}>
-                            <TableCell>{item.patient?.patient_id}</TableCell>
-                            <TableCell>{item.patient?.patient_name}</TableCell>
+                            <TableCell>{item.checked?"true": <div className="text-danger-glow blink"></div>}</TableCell>
+                            <TableCell>{item.telecon_entry?.patient?.patient_id}</TableCell>
+                            <TableCell>{item.telecon_entry?.patient?.patient_name}</TableCell>
                             <TableCell>{dayjs( new Date(item.createdAt)).format('DD/MM/YYYY h:mm A')}</TableCell>
-                            <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>
-                                <Stack direction='row' spacing={1} alignItems='center'>
-                                    <Image color={item.images?.length > 0? "primary":"disabled"} fontSize='small'/>
-                                    <Typography variant='body2'>{item.images?.length}</Typography>
-                                    <Message color={item.reviews?.length > 0? "primary":"disabled"} fontSize='small'/>
-                                    <Typography variant='body2'>{item.reviews?.length ? item.reviews.length: 0}</Typography>
-                                </Stack>
-                            </TableCell>
-                            <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>{dayjs( new Date(item.updatedAt)).format('DD/MM/YYYY h:mm A')}</TableCell>
-                            <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>
-                            <AvatarGroup max={3}>
-                                {
-                                    item.reviewers?.map((reviewer, index)=>{
-                                        return(
-                                            <Tooltip arrow placement='bottom-end' key={index} title={reviewer.username}><Avatar sx={{width: '30px', height:'30px'}}  alt={reviewer.username} src="/"/></Tooltip>
-                                        )
-                                    })
-                                }
-                            </AvatarGroup>
-                            </TableCell>
+                            <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>{item.telecon_entry?.clinician_id?.username}</TableCell>
                         </TableRow>
                     )})}
                     </TableBody>
@@ -182,4 +162,4 @@ const Entries = () => {
     );
 };
 
-export default Entries;
+export default SharedEntries;

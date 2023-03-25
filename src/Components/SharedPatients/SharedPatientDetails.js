@@ -1,19 +1,18 @@
-import React, { useEffect, useRef, useState} from 'react';
+import React, { useEffect, useState} from 'react';
 import { Link, useParams} from 'react-router-dom';
-import { ArrowBack, AccountBox, AddAPhoto, Image} from '@mui/icons-material';
+import { ArrowBack} from '@mui/icons-material';
 import { Box, Stack, Avatar, Typography, Skeleton,Tab, Button, Paper} from '@mui/material';
 import {TabContext,TabList,TabPanel} from '@mui/lab';
 import { stringAvatar } from '../utils';
 import config from '../../config.json'
 import axios from 'axios';
 import { useSelector} from 'react-redux';
-import PatientProfile from './PatientProfile';
 import NotificationBar from '../NotificationBar';
-import PatientsEntries from './PatientsEntries';
-import LinearStepper from './LinearStepper';
+import SharedPatientProfile from './SharedPatientProfile';
+import SharedPatientEntries from './SharedPatientsEntries';
 
 
-const PatientDetails = () => {
+const SharedPatientDetails = () => {
 
   
     const [data, setData] = useState({});
@@ -54,8 +53,8 @@ const PatientDetails = () => {
         <div className="inner_content">
         <div>
         <div className="sticky">
-            <Typography sx={{ fontWeight: 700}} variant="h5">Patients</Typography> 
-            <Button component={Link} to='/manage/my/patients' size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back To Patients</Button>
+            <Typography sx={{ fontWeight: 700}} variant="h5">Shared Patients</Typography> 
+            <Button component={Link} to='/manage/shared/patients' size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back To Patients</Button>
         </div>
                 
             {loading?
@@ -88,12 +87,10 @@ const PatientDetails = () => {
                 <TabList onChange={handleChange} aria-label="lab API tabs example" variant='standard'>
                     <Tab disableRipple label="Profile" value="1"/>
                     <Tab disableRipple label="All Entries" value="2" />
-                    <Tab disableRipple label="Add New Entry" value="3" />
                 </TabList>
                 </Box>
-                <TabPanel value="1" sx={{px:0}}><PatientProfile data={data}/></TabPanel>
-                <TabPanel value="2" sx={{px:0}}><PatientsEntries/></TabPanel>
-                <TabPanel value="3" sx={{px:0}}><LinearStepper data={data}/></TabPanel>
+                <TabPanel value="1" sx={{px:0}}><SharedPatientProfile data={data}/></TabPanel>
+                <TabPanel value="2" sx={{px:0}}><SharedPatientEntries/></TabPanel>
             </TabContext>
             </Box>
             </Paper>
@@ -105,4 +102,4 @@ const PatientDetails = () => {
     );
 };
 
-export default PatientDetails;
+export default SharedPatientDetails;

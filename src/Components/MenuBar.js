@@ -182,14 +182,11 @@ function MenuBar({permissions,username, availability, roleName}) {
                               
           </Menu>
             <Box sx={{ flexGrow: 0, display: { xs: 'none', sm: 'flex'}}}>
-                <Button sx={{ my: 2, color: 'white', display: 'block', m:0}} component={NavLink} to="/manage/patients"> 
-                    Recruiter
-                </Button>
-                <Button sx={{ my: 2, color: 'white', display: 'block', m:0}} component={NavLink} to="/review/entries"> 
-                    Reviewer
+                <Button sx={{ my: 2, color: 'white', display: 'block', m:0}} component={NavLink} to="/manage/my/patients"> 
+                    Manage
                 </Button>
                 { permissions.includes(100) &&
-                  <Button sx={{ my: 2, color: 'white', display: 'block', m:0}} color='secondary' component={NavLink} to="/adminportal/requests">
+                  <Button sx={{ my: 2, color: 'white', display: 'block', m:0}} component={NavLink} to="/adminportal/requests">
                     Admin
                 </Button>}
             </Box>
@@ -206,14 +203,9 @@ function MenuBar({permissions,username, availability, roleName}) {
             color="inherit"
           >
             <Typography sx={{ m: 1, textTransform: 'none', display: { xs: 'none', sm: 'block'}}}>{username}</Typography>
-            { permissions.includes(200)?
               <StyledBadge overlap="circular" anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} variant="dot" color={availability?'success':'error'}>
                 <Avatar {...stringAvatar(username)}/>
               </StyledBadge>
-              :
-              <Avatar {...stringAvatar(username)}/>
-            }
-
           </Button>
       </Box>
       <Menu

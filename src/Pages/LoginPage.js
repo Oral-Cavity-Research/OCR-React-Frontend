@@ -80,7 +80,7 @@ const LoginPage =()=>{
             if(response.data.others.permissions.includes(100)){
                 navigate("/adminportal/requests");
             }else{
-                navigate("/manage/");
+                navigate("/manage/my/patients");
             }
         })
         .catch(function (error) {

@@ -118,7 +118,7 @@ const PatientNew = () => {
     }
 
     const handleCancle = ()=>{
-        navigate("/manage/patients")
+        navigate("/manage/my/patients")
     }
 
     const selectFiles = (event) => {
@@ -196,7 +196,7 @@ const PatientNew = () => {
         }}
         ).then(res=>{
             showMsg("Patient is successfully added", "success");
-            navigate(`/manage/patients/${res.data._id}`);
+            navigate(`/manage/my/patients/${res.data._id}`);
         }).catch(err=>{
             if(err.response) showMsg(err.response.data.message, "error")
             else alert(err)
@@ -212,7 +212,7 @@ const PatientNew = () => {
             <Box className="sticky">    
             <Typography sx={{ fontWeight: 700}} variant="h5">Patient</Typography>    
             
-            <Button component={Link} to='/manage/patients' size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back To Patients</Button>
+            <Button component={Link} to='/manage/my/patients' size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back To Patients</Button>
             </Box>  
 
             <Paper sx={{p:2, my:3}}>  

@@ -1,0 +1,122 @@
+import React, {useState} from 'react';
+import NotificationBar from '../NotificationBar';
+import { Box, TextField, FormControl, MenuItem, Select, Checkbox,
+    Table, TableBody, TableRow, TableCell,List, ListItem, ListItemText, Typography} from '@mui/material';
+
+import config from '../../config.json';
+import { useSelector} from 'react-redux';
+import dayjs from 'dayjs';
+import { age } from '../utils';
+
+const familyHistoryOptions = [
+    'OSCC',
+    'Cancer excluding OSCC'
+];
+
+const habitOptions = [
+    {value: "Smoking", label: "Smoking"},
+    {value: "Alcohol", label: "Alcohol"},
+    {value: "Betel quid", label: "Betel quid"},
+    {value: "Smokeless tobacco", label: "Smokeless tobacco"}
+]
+
+const frequencyOptions = [
+    {value: "Daily", label: "Daily"},
+    {value: "Weekly", label: "Weekly"},
+    {value: "Bi-weekly", label: "Bi-weekly"},
+    {value: "Monthly", label: "Monthly"},
+    {value: "Occasionally", label: "Occasionally"},
+]
+const durationOptions = [
+    {value: "Short-term", label: "Short-term"},
+    {value: "Long-term", label: "Long-term"},
+    {value: "Short-term Ongoing", label: "Short-term Ongoing"},
+    {value: "Long-term Ongoing", label: "Long-term Ongoing"}
+]
+const SharedPatientProfile = ({data}) => {
+    const [status, setStatus] = useState({msg:"",severity:"success", open:false})
+    const userData = useSelector(state => state.data);
+    
+    return (
+        <div>
+        <Box sx={{ mt: 1 }}>
+            <Table  sx={{border: '1px solid lightgray'}}>
+                <TableBody>
+                    <TableRow>
+                        <TableCell>ID</TableCell>
+                        <TableCell sx={{py:0}}>{data.patient_id}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell>Name</TableCell>
+                        <TableCell sx={{py:0}}>{data.patient_name}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell>DOB</TableCell>
+                        <TableCell sx={{py:0}}>
+                        {data.DOB?dayjs(data.DOB).format("DD/MM/YYYY"):""}
+                        </TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell>Age</TableCell>
+                        <TableCell sx={{py:0}}>{age(data.DOB)}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell>Gender</TableCell>
+                        <TableCell sx={{py:0}}> {data.gender}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell>Contact No</TableCell>
+                        <TableCell sx={{py:0}}>{data.contact_no}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell>Histo Diagnosis</TableCell>
+                        <TableCell sx={{py:0}}>{data.histo_diagnosis}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell>Previous history of cancer</TableCell>
+                        <TableCell sx={{py:0}}>{data.medical_history}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell>Family history of cancer</TableCell>
+                        <TableCell sx={{py:0}}>{data.family_history}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell>Systemic disease</TableCell>
+                        <TableCell sx={{py:0}}>{data.systemic_disease}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell>Risk Habits</TableCell>
+                        <TableCell sx={{py:0}}>
+                        <List>
+                        {
+                           data.risk_factors?.map((item, index)=>{
+                                return(
+                                    <ListItem key={index} disableGutters disablePadding>
+                                    <ListItemText
+                                        primary={<Typography variant='body2' >{item.habit}</Typography>}
+                                        secondary={item.frequency + " | " + item.duration} 
+                                    />
+                                    </ListItem>
+                                )
+                            })
+                        }
+                        </List>
+                        </TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell>Consent Form</TableCell>
+                        <TableCell sx={{py:0, "&:hover" :{color:'var(--primary-color)'}}}><a href={`${config["consentform_path"]}/`+data.consent_form} target="_blank">Consent Form</a></TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell>Created At</TableCell>
+                        <TableCell sx={{py:0}}>{dayjs(data.createdAt).format("DD/MM/YYYY")}</TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>          
+            </Box>
+        <NotificationBar status={status} setStatus={setStatus}/>
+        </div>
+    );
+};
+
+export default SharedPatientProfile;

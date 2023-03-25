@@ -42,7 +42,7 @@ const PatientEntries = () => {
     }
 
     const handleClick = (id) => {
-        navigate(`/manage/entries/${id}`)
+        navigate(`/manage/my/entries/${id}`)
     };
 
     const showMsg = (msg, severity)=>{

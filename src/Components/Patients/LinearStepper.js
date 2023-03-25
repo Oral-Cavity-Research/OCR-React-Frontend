@@ -50,7 +50,7 @@ export default function LinearStepper() {
   };
 
   const handleReset = () => {
-    navigate(`/manage/entries/${entryID}`)
+    navigate(`/manage/my/entries/${entryID}`)
   };
 
   const isStepOptional = (index)=>{

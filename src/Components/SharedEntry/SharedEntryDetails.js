@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { Add, ArrowBack, ArrowLeft, AssignmentInd, Close, Delete, Download, Edit, MenuOpen, MoreVert, People, PictureAsPdf} from '@mui/icons-material';
-import { Avatar, AvatarGroup, Paper, Tooltip, Typography , Stack, Box, Divider, Grid, Slide, Dialog, IconButton, Button, Table, TableRow, TableCell, TableBody, Skeleton, ListItem, ListItemText, List, ListItemAvatar, Menu, MenuItem, ListItemIcon} from '@mui/material';
+import React, { useEffect, useState, useRef } from 'react';
+import { ArrowBack, ArrowLeft, Assignment, AssignmentTurnedIn, Download, Edit, MoreVert, PictureAsPdf, RateReview, SwapHoriz} from '@mui/icons-material';
+import { Avatar, Paper, Tooltip, Typography , Stack, Box, Divider, Grid, Slide, Dialog, IconButton, Button, 
+    Table, TableRow, TableCell, TableBody, Skeleton, ListItem, ListItemText, List, Menu, MenuItem, ListItemIcon, TextField, FormControl, InputLabel, Select} from '@mui/material';
 import { stringAvatar } from '../utils';
-import { styled } from '@mui/material/styles';
 import { useSelector} from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Canvas from '../Annotation/Canvas';
@@ -19,20 +19,6 @@ const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
 
-function within24hrs(date){
-    var diff = new Date() - new Date(date);
-    return diff/(3600 * 1000) < 24;
-}
-
-function timeDuration(start, end){
-    try {
-        const duration = dayjs.duration(new Date(end) - new Date(start), 'minutes');
-        return duration.minutes() + " minutes";
-    } catch (error) {
-        return ""
-    }
-}
-
 function realReportName(filename){
     try {
         return filename.split('_').slice(3).join('_');
@@ -40,6 +26,32 @@ function realReportName(filename){
         return "Test Report";
     }
 }
+
+const provisionalOptions = [
+    {label: "Suspicious of OCA", value: "Suspicious of OCA"},
+    {label: "Suspicious of OPMD", value: "Suspicious of OPMD"},
+    {label: "Suspicious  of OLP/ OSF/ leukoplakia", value: "Suspicious  of OLP/ OSF/ leukoplakia"},
+    {label: "Oral candidal infection", value: "oral candidal infection"},
+    {label: "VBD", value: "VBD"},
+    {label: "Benign ulcers", value: "Benign ulcers"},
+    {label: "Anatomical variation", value: "Anatomical variation"},
+    {label: "Benign disease condition", value: "Benign disease condition"},
+    {label: "Details not enough for a provisional diagnosis", value: "Details not enough for a provisional diagnosis"},
+]
+
+const managementOptions = [
+    {label: "Indicated for immediate biopsy", value: "Indicated for immediate biopsy"},
+    {label: "Indicated for immediate biopsy and toludine blue test / velscope", value: "Indicated for immediate biopsy and toludine blue test / velscope"},
+    {label: "Treat with antifungals and review in two weeks", value: "Treat with antifungals and review in two weeks"},
+    {label: "Habit intervention and symptomatic treatment", value: "Habit intervention and symptomatic treatment"}
+]
+
+
+const referralOptions = [
+    {label: "Immediately refer patient to a specialist center", value: "Immediately refer patient to a specialist center"},
+    {label: "Keep under monthly review", value: "Keep under monthly review"},
+    {label: "2 weeks review and refer if lesion persist ", value: "2 weeks review and refer if lesion persist"}
+]
 
 const details = {
     "_id":"id",
@@ -61,15 +73,7 @@ const details = {
 
 }
 
-const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-    ...theme.typography.body2,
-    padding: theme.spacing(1),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-  }));
-
-const EntryDetails = () => {
+const SharedEntryDetails = () => {
     
     const [status, setStatus] = useState({msg:"",severity:"success", open:false});
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -77,18 +81,29 @@ const EntryDetails = () => {
     const [userData, setUserData] = useState(selectorData);
     const [loading, setLoading] = useState(true);
     const [loadingReviews, setLoadingReviews] = useState(true);
+    const [reviews, setReviews] = useState([]);
     const [saving, setSaving] = useState(false);
-    const [removeReviewer, setRemoveReviewer] = useState({});
-    const [deleting, setDeleting] = useState(false);
-    const [deleteEntry, setDeleteEntry] = useState(false);
     const [openAnnotation, setOpenAnnotation] = useState(false)
     const [imageIndex, setImageIndex] = useState({});
     const [addReviewer, setAddReviewer] = useState(false);
-    const [reviews, setReviews] = useState([]);
     const [assignee, setAssignee] = useState(null);
-    const [data, setData] = useState(null);
+    const [provisionalDiagnosis, setProvisionalDiagnosis] = useState("");
+    const [managementSuggestion, setManagementSuggestion] = useState("");
+    const [referralSuggestion, setReferralSuggestion] = useState("");
+    const [data, setData] = useState({});
     const { id } = useParams();
     const navigate = useNavigate();
+
+    const endRef = useRef(null);
+    const topRef = useRef(null);
+
+    const scrollToBottom = () => {
+        endRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
+
+    const scrollToTop = () => {
+        topRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
 
     const handleOpen = (event) => {
         setAnchorEl(event.currentTarget);
@@ -106,7 +121,7 @@ const EntryDetails = () => {
         setOpenAnnotation(false);
     };
 
-    const getReviews = ()=>{
+    const getReviews = (id)=>{
         setLoadingReviews(true);
         axios.get(`${config['path']}/user/entry/reviews/${id}`,{
             headers: {
@@ -123,12 +138,27 @@ const EntryDetails = () => {
         })
     }
 
-    const removeAssignee = (item)=>{
-        
-        setRemoveReviewer(item);
+    const handleSubmitReview = (event)=>{
+        event.preventDefault();
 
-        axios.post(`${config['path']}/user/entry/reviewer/remove/${id}`,
-        { reviewer_id: item._id },
+        const form = new FormData(event.currentTarget);
+
+        if(provisionalDiagnosis === "" && managementSuggestion === "" &&
+        referralSuggestion === "" && form.get("other_comments")===""){
+            showMsg("Please add your review", "error");
+            return;
+        }
+
+        setSaving(true);
+
+        const toBeSent = {
+            provisional_diagnosis: provisionalDiagnosis,
+            management_suggestions: managementSuggestion,
+            referral_suggestions: referralSuggestion,
+            other_comments: form.get("other_comments")
+        }
+
+        axios.post(`${config['path']}/user/entry/review/${data._id}`, toBeSent,
         {
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
@@ -136,17 +166,17 @@ const EntryDetails = () => {
             },
             withCredentials: true
         }).then(res=>{
-            setData(res.data);
-            setAddReviewer(false);
+            showMsg("Review is addded!", "success");
+            getReviews(data._id);
+            scrollToTop();
         }).catch(err=>{
             if(err.response) showMsg(err.response.data?.message, "error")
             else alert(err.message)
         }).finally(()=>{
-            setRemoveReviewer({})
+            setSaving(false);
         })
-        
-    }
 
+    }
 
     const addAssignee = ()=>{
 
@@ -163,7 +193,7 @@ const EntryDetails = () => {
 
         setSaving(true);
 
-        axios.post(`${config['path']}/user/entry/reviewer/add/${id}`,
+        axios.post(`${config['path']}/user/entry/reviewer/change/${id}`,
         { reviewer_id: assignee._id },
         {
             headers: {
@@ -172,9 +202,7 @@ const EntryDetails = () => {
             },
             withCredentials: true
         }).then(res=>{
-            setData(res.data);
-            showMsg("Reveiwer assigned successfuly!","success");
-            setAddReviewer(false);
+            navigate('/manage/shared/entries')
         }).catch(err=>{
             if(err.response) showMsg(err.response.data?.message, "error")
             else alert(err.message)
@@ -186,7 +214,7 @@ const EntryDetails = () => {
 
 
     const loadData = ()=>{
-        axios.get(`${config['path']}/user/entry/get/${id}`,{
+        axios.get(`${config['path']}/user/entry/shared/data/${id}`,{
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
                 'email': JSON.parse(sessionStorage.getItem("info")).email,
@@ -195,38 +223,16 @@ const EntryDetails = () => {
         }).then(res=>{
             setData(res.data);
             setLoading(false);
+            getReviews(res.data._id);
         }).catch(err=>{
             if(err.response) showMsg(err.response.data?.message, "error")
             else alert(err.message)
         })
-    }
-
-    const handleDelete = ()=>{
-        setDeleting(true)
-        axios.post(`${config['path']}/user/entry/delete/${id}`,
-        {},
-        {
-            headers: {
-                'Authorization': `Bearer ${userData.accessToken.token}`,
-                'email': JSON.parse(sessionStorage.getItem("info")).email,
-            },
-            withCredentials: true
-        }).then(res=>{
-            showMsg("Reveiwers assigned successfuly!","success");
-            navigate('/manage/my/entries');
-        }).catch(err=>{
-            if(err.response) showMsg(err.response.data?.message, "error")
-            else alert(err.message)
-        }).finally(()=>{
-            setDeleting(false);
-        })
-
     }
 
     useEffect(()=>{
         setLoading(true);
         loadData();
-        getReviews();
     },[])
 
     const showMsg = (msg, severity)=>{
@@ -237,8 +243,8 @@ const EntryDetails = () => {
             <div className="inner_content">
                 <div>  
                     <div className="sticky">
-                    <Typography sx={{ fontWeight: 700}} variant="h5">Tele Consultation Entry</Typography>                  
-                    <Button component={Link} to='/manage/my/entries' size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back To Entries</Button>
+                    <Typography sx={{ fontWeight: 700}} variant="h5">Shared Entry</Typography>                  
+                    <Button component={Link} to='/manage/shared/entries' size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back To Entries</Button>
                     </div>
                     {loading && !data?
                     <Paper sx={{p:2, my:3}}>
@@ -258,9 +264,14 @@ const EntryDetails = () => {
                     <>
                     <Paper sx={{p:3, my:3}}>
                     <Stack direction='row' spacing={2} alignItems='center'>
-                        <AssignmentInd sx={{color:'orange', width:'60px',height:'60px'}}/>
+                        {
+                            data.reviewed?
+                            <AssignmentTurnedIn sx={{color:'green', width:'60px',height:'60px'}}/>
+                            :
+                            <Assignment sx={{color:'orange', width:'60px',height:'60px'}}/>
+                        }
                         <Stack direction='column'>
-                            <Tooltip title='Go to patients profile' arrow placement="right"><Typography component={Link} to={`/manage/my/patients/${data.patient._id}`} variant='h5' color='Highlight' sx={{cursor:'pointer'}}>
+                            <Tooltip title='Go to patients profile' arrow placement="right"><Typography component={Link} to={`/manage/patients/${data.patient?.patient_id}`} variant='h5' color='Highlight' sx={{cursor:'pointer'}}>
                                 {data.patient?.patient_name}
                             </Typography></Tooltip>
                             <Typography color='GrayText'>{data.patient?.patient_id}</Typography>
@@ -274,7 +285,6 @@ const EntryDetails = () => {
                             onClick={handleOpen}
                         ><MoreVert/></IconButton>
                     </Stack>
-
                     <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleCloseMenu} onClick={handleCloseMenu}
                         PaperProps={{
                             elevation: 0,
@@ -288,85 +298,45 @@ const EntryDetails = () => {
                             transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                         >
+                        <MenuItem onClick={()=>setAddReviewer(!addReviewer)}>
+                            <ListItemIcon><SwapHoriz/></ListItemIcon>
+                            <ListItemText>Assign Reviewer</ListItemText>
+                        </MenuItem>
                         <MenuItem>
                             <ListItemIcon><Download/></ListItemIcon>
                             <ListItemText>Download</ListItemText>
                         </MenuItem>
-                        <Divider/>
-                        { within24hrs(data.createdAt) &&
-                        <MenuItem onClick={()=>setDeleteEntry(!deleteEntry)}>
-                            <ListItemIcon><Delete fontSize='small'/></ListItemIcon>
-                            <ListItemText>Delete</ListItemText>
-                        </MenuItem>
-                        }
                     </Menu>
 
                     <Divider sx={{my:1}}/>
-                    <Stack direction='column' spacing={1}>
-                        <Typography variant='body2'>Start Time: {dayjs(data.start_time).format("DD/MM/YYYY HH:MM A")}</Typography>
-                        <Typography variant='body2'>Duration: {timeDuration(data.start_time, data.end_time)}</Typography>
-                    </Stack>
-                    <Divider sx={{my:1}}/>
-                    <Typography variant='body2'>Reviewers:</Typography>
-                    <AvatarGroup sx={{width:'fit-content'}}>
-                        {
-                            data.reviewers?.map((reviewer, index)=>{
-                                return(<Tooltip title={reviewer.username} placement="bottom-start" arrow  key={index}><Avatar {...stringAvatar(reviewer.username)}/></Tooltip>)
-                            })
-                        }
-                        
-                        <Avatar sx={{ bgcolor: 'transparent' }}>
-                            <IconButton onClick={()=>setAddReviewer(!addReviewer)}><Add/></IconButton> 
-                        </Avatar>
-                        
-                    </AvatarGroup>
-                
-                    </Paper>
-                    {
-                        deleteEntry && 
-                        <Paper sx={{p:2, my:3}}>
-                        <Box sx={{border: '1px solid red', borderRadius:1, p:2}}>
-                        <Typography>This action will permanently delete the consultation entry and cannot be reversed.
-                        Please be certain before you proceed.</Typography>
-                        <Stack direction='row' spacing={2} my={2}>
-                            <LoadingButton loading={deleting} variant='contained' color='error' onClick={handleDelete}>Delete Entry</LoadingButton>
-                            <Button disabled={deleting} variant='outlined' color='inherit' onClick={()=>setDeleteEntry(false)} >Cancle</Button>
+                    <Stack direction='row' spacing={1} justifyContent='space-between' alignItems='flex-end'>
+                        <Stack direction='column' spacing={1}>
+                        <Typography variant='body2'>Created By: <b>{data.clinician_id?.username} | {data.clinician_id?.reg_no}</b></Typography>
+                        <Typography variant='body2'>Created At: {dayjs(data.createdAt).format("DD/MM/YYYY HH:MM A")}</Typography>
+                        <Typography variant='body2'>Assigned At: {dayjs(data.assignedAt).format("DD/MM/YYYY HH:MM A")}</Typography>
                         </Stack>
-                        </Box>
-                        </Paper>
-                    }
+                        {
+                            !data.reviewed &&
+                            <Button variant='contained' color='success' startIcon={<RateReview/>} onClick={scrollToBottom}>Add review</Button>
+                        }
+                    </Stack>                               
+                    </Paper>
                     {
                     addReviewer &&
                     <Paper sx={{p:2, my:3}}>
 
                     <Stack direction='row' spacing={2} my={2}>
                         <AssigneeDropdown setAssignee={setAssignee}/>
-                        <LoadingButton loading={saving} variant='contained' onClick={addAssignee}>Add</LoadingButton>
+                        <LoadingButton loading={saving} variant='contained' onClick={addAssignee}>Assign</LoadingButton>
                         <Button disabled={saving} variant='outlined' color='inherit' onClick={()=>setAddReviewer(false)} >Close</Button>
-                    </Stack>
-                
-                    {data.reviewers?.length > 0 && 
-                    <List sx={{border:'1px solid lightgray', borderRadius: 1, pl:2}}>
+                    </Stack>  
                     {
-                        data.reviewers?.map((item, index)=>{
-                            return(
-                                <ListItem key={index} disablePadding
-                                    secondaryAction={
-                                        <LoadingButton color='error' loading={removeReviewer._id === item._id} onClick={()=>removeAssignee(item)}>Remove</LoadingButton>
-                                    }
-                                >
-                                <ListItemAvatar>
-                                    <Avatar {...stringAvatar(item.username)}/>
-                                </ListItemAvatar>
-                                <ListItemText
-                                    primary={item.username}
-                                    secondary={item.reg_no} 
-                                />
-                                </ListItem>
-                            )
-                        })
-                    }
-                    </List>}                   
+                        assignee &&
+                        <Box sx={{border:'1px solid lightgray', borderRadius: 1, p:2}}>
+                        <Typography>{assignee.username}</Typography>
+                        <Typography>{assignee.reg_no}</Typography>
+                        </Box>
+                    }            
                     </Paper>
                     }
 
@@ -450,8 +420,9 @@ const EntryDetails = () => {
                         </Stack>
                         
                     )})}
-                   
+                    <div ref={topRef} />
                     </Paper>
+                    
                     <Paper sx={{p:2, my:3}}>
                     {
                         loadingReviews?
@@ -482,6 +453,45 @@ const EntryDetails = () => {
                     }
                     </Stack>
                     </Paper>
+                    <Paper sx={{p:2, my:3}}>
+                    <Box component='form' noValidate onSubmit={handleSubmitReview}>
+
+                    <Stack direction='row' alignItems='center'>
+                        <Avatar {...stringAvatar(userData?.username)}/>
+                        <ArrowLeft/>
+                        <Typography><b>{userData?.username}</b></Typography>
+                    </Stack>
+
+                    <FormControl fullWidth margin='normal'>
+                    <InputLabel id="pd-label" size='small' >Provisional Diagnosis </InputLabel>
+                    <Select labelId="pd-label" size='small' label="Provisional Diagnosis " value={provisionalDiagnosis} onChange={(e)=>setProvisionalDiagnosis(e.target.value)}>
+                        {
+                            provisionalOptions.map((item,index)=>{return(<MenuItem key={index} value={item.value}>{item.label}</MenuItem>)})
+                        }
+                    </Select>
+                    </FormControl>
+                    <FormControl fullWidth margin='normal'>
+                    <InputLabel id="ms-label" size='small' >Management Suggestions</InputLabel>
+                    <Select labelId="ms-label" size='small' label="Management Suggestions" value={managementSuggestion} onChange={(e)=>setManagementSuggestion(e.target.value)}>
+                        {
+                            managementOptions.map((item,index)=>{return(<MenuItem key={index} value={item.value}>{item.label}</MenuItem>)})
+                        }
+                    </Select>
+                    </FormControl>
+                    <FormControl fullWidth margin='normal'>
+                    <InputLabel id="rr-label" size='small' >Referral or Review Suggestions</InputLabel>
+                    <Select labelId="rr-label" size='small' label="Referral or Review Suggestions" value={referralSuggestion} onChange={(e)=>setReferralSuggestion(e.target.value)}>
+                        {
+                            referralOptions.map((item,index)=>{return(<MenuItem key={index} value={item.value}>{item.label}</MenuItem>)})
+                        }
+                    </Select>
+                    </FormControl>
+                    <TextField size='small' margin='normal' fullWidth multiline maxRows={6} label='Other Comments' name="other_comments" />
+                    
+                    <LoadingButton loading={saving} type='submit' variant='contained' sx={{my:3}} >Add Review</LoadingButton>
+                    </Box>
+                    </Paper>
+                    <div ref={endRef} />
                     <Dialog fullScreen open={openAnnotation} onClose={handleClose} TransitionComponent={Transition}>
                         <Canvas imageIndex={imageIndex} open={openAnnotation} setOpen={setOpenAnnotation} data={data} setData={setData} upload={false}/>
                     </Dialog>
@@ -495,4 +505,4 @@ const EntryDetails = () => {
     );
 };
 
-export default EntryDetails;
+export default SharedEntryDetails;

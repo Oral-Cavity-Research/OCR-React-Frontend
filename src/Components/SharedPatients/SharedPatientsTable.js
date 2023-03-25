@@ -1,5 +1,5 @@
 import React, {useEffect, useState } from 'react';
-import { Button, FormControl, LinearProgress, Menu, MenuItem, OutlinedInput, Paper, Stack, 
+import {FormControl, LinearProgress, Menu, MenuItem, OutlinedInput, Paper, Stack, 
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from '@mui/material';
 import { InputAdornment, IconButton} from '@mui/material';
 import { ArrowDownward, ArrowUpward, Close, FilterList, Search } from '@mui/icons-material';
@@ -14,11 +14,11 @@ import { LoadingButton } from '@mui/lab';
 
 const filtOptions = ["All","ID","Name","Age","Gender","Created Date","Updated Date"]
 
-const PatientsTable = () => {
+const SharedPatientsTable = () => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [filt, setFilt] = React.useState("All");
     const open = Boolean(anchorEl);
-    const [search, setSearch] = useState('') // Initialize it with an empty filter
+    const [search, setSearch] = useState('')
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
     const [status, setStatus] = useState({msg:"",severity:"success", open:false});
@@ -61,11 +61,7 @@ const PatientsTable = () => {
     }
 
     const handleClick = (id) => {
-        navigate(`/manage/my/patients/${id}`)
-    };
-
-    const handleAddNew = () => {
-        navigate(`/manage/my/patients/new`);
+        navigate(`/manage/shared/patients/${id}`)
     };
 
     const showMsg = (msg, severity)=>{
@@ -118,53 +114,7 @@ const PatientsTable = () => {
             setLoading(false);
         })
     }
-    
-    // function searchCall(name){
-    //     axios.get(`${config['path']}/user/patient/search`,{
-    //         headers: {
-    //             'Authorization': `Bearer ${userData.accessToken.token}`,
-    //             'email': JSON.parse(sessionStorage.getItem("info")).email,
-    //         },
-    //         params: {
-    //             "query" : name,
-    //             "field" : "patient_id"
-    //         },
-    //         withCredentials: true
-    //     }).then(res=>{
-    //         setOptions(res.data);
-    //     }).catch(err=>{
-    //         if(err.response) showMsg(err.response.data.message, "error")
-    //         else alert(err)
-            
-    //     })
-    // };
 
-    // const onInputChange = (event, value, reason) => {
-    //     if(value){
-    //         searchCall(value);
-    //     }else{
-    //         setOptions([]);
-    //     }
-    // };   
-
-    // useEffect(()=>{
-
-    //     setLoading(true);
-
-    //     axios.get(`${config['path']}/user/patient/all`,
-    //     { headers: {
-    //         'Authorization': `Bearer ${userData.accessToken.token}`,
-    //         'email': JSON.parse(sessionStorage.getItem("info")).email,
-    //     }}
-    //     ).then(res=>{
-    //         setData(res.data.patients);
-    //         setLoading(false);
-    //     }).catch(err=>{
-    //         if(err.response) showMsg(err.response.data.message, "error")
-    //         else alert(err)
-            
-    //     })
-    // },[])
   
     function highlightSearchText(text, search) {
         try {
@@ -181,11 +131,8 @@ const PatientsTable = () => {
         <div className="inner_content">
         <div>
         <div className="sticky">
-            <Typography sx={{ fontWeight: 700}} variant="h5">Patients</Typography> 
+            <Typography sx={{ fontWeight: 700}} variant="h5">Shared Patients</Typography> 
         </div>
-            
-                <Button sx={{mt:2}} variant='contained'onClick={handleAddNew}>Add New</Button>
-                
                 <Paper sx={{p:2, my:3}}>
         
                 <Stack direction='row' justifyContent='space-between' mb={2}>
@@ -285,21 +232,9 @@ const PatientsTable = () => {
                 </Stack>
                 </Paper>
                 <NotificationBar status={status} setStatus={setStatus}/>  
-                {/* <Autocomplete
-                    sx={{mt:2}}
-                    options={options}
-                    onInputChange={onInputChange}
-                    getOptionLabel={(option) => option.patient_id}
-                    style={{ width: 300 }}
-                    noOptionsText="No Patients"
-                    onChange={(event, value) => {navigate(`/manage/my/patients/${value._id}`)}} 
-                    renderInput={(params) => (
-                    <TextField {...params} label="Search By ID" variant="outlined" />
-                    )}
-                />    */}
         </div>
     </div> 
     );
 };
 
-export default PatientsTable;
+export default SharedPatientsTable;
