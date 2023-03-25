@@ -1,8 +1,8 @@
 import React, {useEffect, useState } from 'react';
-import {LinearProgress, Menu, MenuItem, Paper, Stack, 
+import {Chip, LinearProgress, Menu, MenuItem, Paper, Stack, 
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from '@mui/material';
 import {IconButton} from '@mui/material';
-import {FilterList} from '@mui/icons-material';
+import {CheckCircle, Circle, FilterList} from '@mui/icons-material';
 import {useNavigate } from 'react-router-dom';
 import NotificationBar from '../NotificationBar';
 import axios from 'axios';
@@ -11,11 +11,11 @@ import { useSelector} from 'react-redux';
 import dayjs from 'dayjs';
 import { LoadingButton } from '@mui/lab';
 
-const filtOptions = ["Not Reviewed","Reviewed"]
+const filtOptions = ["All","Not Reviewed","Reviewed"]
 
 const SharedEntries = () => {
     const [anchorEl, setAnchorEl] = React.useState(null);
-    const [filt, setFilt] = React.useState("Created Date");
+    const [filt, setFilt] = React.useState("Not Reviewed");
     const open = Boolean(anchorEl);
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState([]);
@@ -138,7 +138,12 @@ const SharedEntries = () => {
                     {data.map((item,index)=>{ 
                         return(
                         <TableRow key={index} sx={{cursor:'pointer', '&:hover':{background: '#f8f8f8'}}} onClick={()=>handleClick(item._id)}>
-                            <TableCell>{item.checked?"true": <div className="text-danger-glow blink"></div>}</TableCell>
+                            <TableCell>
+                            <Stack direction='row' alignItems='center' spacing={1}>
+                                {!item.reviewed? <Circle fontSize='small' className="text-danger-glow blink" color='error'/>:<CheckCircle fontSize='small' color='success'/>}
+                                {!item.checked && <Chip size='small' label="New" />}
+                            </Stack>
+                            </TableCell>
                             <TableCell>{item.telecon_entry?.patient?.patient_id}</TableCell>
                             <TableCell>{item.telecon_entry?.patient?.patient_name}</TableCell>
                             <TableCell>{dayjs( new Date(item.createdAt)).format('DD/MM/YYYY h:mm A')}</TableCell>

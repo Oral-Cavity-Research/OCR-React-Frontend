@@ -53,26 +53,6 @@ const referralOptions = [
     {label: "2 weeks review and refer if lesion persist ", value: "2 weeks review and refer if lesion persist"}
 ]
 
-const details = {
-    "_id":"id",
-    "patient": {
-        "name":"patient name",
-        "patient_id":"patient_id",
-    },
-    "assignees": [{"name":"P Silva", "availability":false},{"name":"M Perera", "availability":true}],
-    "images":["1","2","3"],
-    "Complaint":"",
-    "startTime":"",
-    "endTime":"",
-    "findings":"findings findings findings new findings are shown here findings findings findings new findings are shown here findings findings findings new findings are shown here findings findings findings new findings are shown here",
-    "currentHabits":"",
-    "reports":"",
-    "reviews": ["1","2","3","4","5"],
-    "createdAt": "2023-05-06 5.00 am",
-    "updatedAt": "2023-05-10 10.14 pm"
-
-}
-
 const SharedEntryDetails = () => {
     
     const [status, setStatus] = useState({msg:"",severity:"success", open:false});
@@ -120,6 +100,21 @@ const SharedEntryDetails = () => {
     const handleClose = () => {
         setOpenAnnotation(false);
     };
+
+    const markAsRead = (data)=>{
+        if(data.checked) return;
+
+        axios.post(`${config['path']}/user/entry/mark/${id}`,{},
+        {
+            headers: {
+                'Authorization': `Bearer ${userData.accessToken.token}`,
+                'email': JSON.parse(sessionStorage.getItem("info")).email,
+            },
+            withCredentials: true
+        }).then(res=>{
+        }).catch(err=>{
+        })
+    }
 
     const getReviews = (id)=>{
         setLoadingReviews(true);
@@ -186,7 +181,7 @@ const SharedEntryDetails = () => {
 
         const containsReviewer = data.reviewers?.some(obj => obj._id === assignee._id);
         if(containsReviewer){
-            showMsg("Reveiwer assigned successfuly!","success");
+            showMsg("Reviewer assigned successfuly!","success");
             setAddReviewer(false);
             return;
         }
@@ -224,6 +219,7 @@ const SharedEntryDetails = () => {
             setData(res.data);
             setLoading(false);
             getReviews(res.data._id);
+            markAsRead(res.data);
         }).catch(err=>{
             if(err.response) showMsg(err.response.data?.message, "error")
             else alert(err.message)
@@ -246,7 +242,7 @@ const SharedEntryDetails = () => {
                     <Typography sx={{ fontWeight: 700}} variant="h5">Shared Entry</Typography>                  
                     <Button component={Link} to='/manage/shared/entries' size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back To Entries</Button>
                     </div>
-                    {loading && !data?
+                    {loading ?
                     <Paper sx={{p:2, my:3}}>
                     <Stack direction='row' spacing={2} alignItems='center' sx={{my:3}}>
                         <Skeleton variant="rounded" width={60} height={60} />

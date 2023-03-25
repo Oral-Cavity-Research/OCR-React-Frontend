@@ -41,34 +41,6 @@ function realReportName(filename){
     }
 }
 
-const details = {
-    "_id":"id",
-    "patient": {
-        "name":"patient name",
-        "patient_id":"patient_id",
-    },
-    "assignees": [{"name":"P Silva", "availability":false},{"name":"M Perera", "availability":true}],
-    "images":["1","2","3"],
-    "Complaint":"",
-    "startTime":"",
-    "endTime":"",
-    "findings":"findings findings findings new findings are shown here findings findings findings new findings are shown here findings findings findings new findings are shown here findings findings findings new findings are shown here",
-    "currentHabits":"",
-    "reports":"",
-    "reviews": ["1","2","3","4","5"],
-    "createdAt": "2023-05-06 5.00 am",
-    "updatedAt": "2023-05-10 10.14 pm"
-
-}
-
-const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-    ...theme.typography.body2,
-    padding: theme.spacing(1),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-  }));
-
 const EntryDetails = () => {
     
     const [status, setStatus] = useState({msg:"",severity:"success", open:false});
@@ -156,7 +128,7 @@ const EntryDetails = () => {
 
         const containsReviewer = data.reviewers?.some(obj => obj._id === assignee._id);
         if(containsReviewer){
-            showMsg("Reveiwer assigned successfuly!","success");
+            showMsg("Reviewer assigned successfuly!","success");
             setAddReviewer(false);
             return;
         }
@@ -173,7 +145,7 @@ const EntryDetails = () => {
             withCredentials: true
         }).then(res=>{
             setData(res.data);
-            showMsg("Reveiwer assigned successfuly!","success");
+            showMsg("Reviewer assigned successfuly!","success");
             setAddReviewer(false);
         }).catch(err=>{
             if(err.response) showMsg(err.response.data?.message, "error")
@@ -212,7 +184,7 @@ const EntryDetails = () => {
             },
             withCredentials: true
         }).then(res=>{
-            showMsg("Reveiwers assigned successfuly!","success");
+            showMsg("Reviewers assigned successfuly!","success");
             navigate('/manage/my/entries');
         }).catch(err=>{
             if(err.response) showMsg(err.response.data?.message, "error")
