@@ -1,6 +1,5 @@
 import "./featuredInfo.css";
 import "@fortawesome/fontawesome-free/css/all.css";
-import Button from "react";
 
 export default function Card({ icon, value, title }) {
   return (
