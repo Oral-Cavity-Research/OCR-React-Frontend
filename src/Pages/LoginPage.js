@@ -77,10 +77,12 @@ const LoginPage =()=>{
                 accessToken: data.accessToken,
                 reg_no: data.others.reg_no
               }))
-            if(response.data.others.permissions.includes(100)){
-                navigate("/adminportal/requests");
-            }else{
+            if(response.data.others.permissions.includes(200)){
+                navigate("/manage/shared/patients");
+            }else if(response.data.others.permissions.includes(300)){
                 navigate("/manage/my/patients");
+            }else{
+                navigate("/adminportal/requests");
             }
         })
         .catch(function (error) {

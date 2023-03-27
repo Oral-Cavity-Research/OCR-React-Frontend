@@ -145,7 +145,7 @@ const SharedEntries = () => {
                             </TableCell>
                             <TableCell>{item.telecon_entry?.patient?.patient_id}</TableCell>
                             <TableCell>{item.telecon_entry?.patient?.patient_name}</TableCell>
-                            <TableCell>{dayjs( new Date(item.createdAt)).format('DD/MM/YYYY h:mm A')}</TableCell>
+                            <TableCell>{dayjs( new Date(item.createdAt)).format('DD/MM/YYYY')}</TableCell>
                             <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>{item.telecon_entry?.clinician_id?.username}</TableCell>
                         </TableRow>
                     )})}

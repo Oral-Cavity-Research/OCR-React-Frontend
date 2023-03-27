@@ -139,8 +139,8 @@ const UploadPage = ({entryID, btnRef, setDone, setLoading}) => {
         <Box>
             <input hidden accept="image/png, image/jpeg" ref={hidenInput} multiple type="file" onChange={selectFiles}/>
             <button hidden ref={btnRef} onClick={handleSubmit}>Save</button>
-            <Stack spacing={2} direction='row' sx={{mb:2}}>
-                <Button variant='outlined' onClick={handleSelection}>Add images</Button>  
+            <Stack spacing={2} direction='row' sx={{mb:5}}>
+                <Button variant='contained' color="success" onClick={handleSelection}>Add images</Button>  
             </Stack>
                     
             <Grid container spacing={2}>
