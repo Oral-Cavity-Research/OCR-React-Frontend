@@ -2,6 +2,7 @@ import { Paper, Typography, Grid } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useSelector } from "react-redux";
 import config from "../../../config.json";
 import PieChart from "../../Dashboard/PieChart.js";
 import Card from "../../Dashboard/FeaturedInfo.js";
@@ -11,10 +12,16 @@ const Dashboard = () => {
   const [doctors, setDoctors] = useState(0);
   const [patients, setPatients] = useState(0);
   const [images, setImages] = useState(0);
+  const userData = useSelector((state) => state.data);
 
   const getPercentages = (e) => {
     axios
-      .get(`${config["path"]}/dashboard/percentages/`)
+      .get(`${config["path"]}/dashboard/percentages/`, {
+        headers: {
+          Authorization: `Bearer ${userData.accessToken.token}`,
+          email: JSON.parse(sessionStorage.getItem("info")).email,
+        },
+      })
       .then((response) => {
         // Format the data for recharts
         const formattedData = response.data.map((item) => {
@@ -31,7 +38,12 @@ const Dashboard = () => {
 
   const getTotals = (e) => {
     axios
-      .get(`${config["path"]}/dashboard/totals/`)
+      .get(`${config["path"]}/dashboard/totals/`, {
+        headers: {
+          Authorization: `Bearer ${userData.accessToken.token}`,
+          email: JSON.parse(sessionStorage.getItem("info")).email,
+        },
+      })
       .then((response) => {
         console.log(response.data);
         setDoctors(response.data.doctors);
