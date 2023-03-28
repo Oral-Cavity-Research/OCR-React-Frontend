@@ -206,7 +206,7 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
 
     }else{
 
-      axios.post(`${config['path']}/image/data/update`,
+      axios.post(`${config['path']}/image/update`,
         {
           _id: data[imageIndex]._id,
           location:location,
@@ -219,14 +219,13 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
             'Authorization': 'BEARER '+ JSON.parse(sessionStorage.getItem("info")).atoken,
             'email': JSON.parse(sessionStorage.getItem("info")).email,
         }}).then(res=>{
-          showMsg(res.data.message, "success")
-          var temp = [...data]
-          temp[imageIndex].annotation = updated
-          temp[imageIndex].location= location
-          temp[imageIndex].clinical_diagnosis = clinicalDiagnosis
-          temp[imageIndex].lesions_appear = lesion
-    
-          setData(temp);
+          showMsg("Image Data Updated", "success")
+          // var temp = [...data]
+          // temp[imageIndex].annotation = updated
+          // temp[imageIndex].location= location
+          // temp[imageIndex].clinical_diagnosis = clinicalDiagnosis
+          // temp[imageIndex].lesions_appear = lesion
+          // setData(temp);
           setOpen(false);
         }).catch(err=>{
             if(err.response) showMsg(err.response.data.message, "error")

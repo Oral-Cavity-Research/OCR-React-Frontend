@@ -95,7 +95,7 @@ const UploadTests = ({entryID, btnRef, setDone, setLoading}) => {
         <Box>
             <input hidden accept="application/pdf" ref={hidenInput} multiple type="file" onChange={selectFiles}/>
             <button hidden ref={btnRef} onClick={handleSubmit}/>
-            <Stack spacing={2} direction='row' sx={{my:3}}>
+            <Stack spacing={2} direction='row' sx={{mb:5}}>
                 <Button variant='contained' color='success' onClick={handleSelection}>Add Reports</Button>
             </Stack>
                     

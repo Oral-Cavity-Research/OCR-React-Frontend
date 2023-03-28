@@ -120,10 +120,11 @@ const SharedPatientEntries = () => {
                         <TableRow>
                             <TableCell>Patient ID</TableCell>
                             <TableCell>Patient Name</TableCell>
-                            <TableCell>Created Date</TableCell>
-                            <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>Images/Reviews</TableCell>
+                            <TableCell>Images/Reviews</TableCell>
                             <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>Updated Date</TableCell>
                             <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>Reviewers</TableCell>
+                            {filt === "Updated Date"?<TableCell>Updated Date</TableCell>
+                            :<TableCell>Created Date</TableCell> }
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -139,7 +140,7 @@ const SharedPatientEntries = () => {
                             <TableCell>{item.patient?.patient_id}</TableCell>
                             <TableCell>{item.patient?.patient_name}</TableCell>
                             <TableCell>{dayjs( new Date(item.createdAt)).format('DD/MM/YYYY h:mm A')}</TableCell>
-                            <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>
+                            <TableCell>
                                 <Stack direction='row' spacing={1} alignItems='center'>
                                     <Image color={item.images?.length > 0? "primary":"disabled"} fontSize='small'/>
                                     <Typography variant='body2'>{item.images?.length}</Typography>
@@ -147,9 +148,8 @@ const SharedPatientEntries = () => {
                                     <Typography variant='body2'>{item.reviews?.length ? item.reviews.length: 0}</Typography>
                                 </Stack>
                             </TableCell>
-                            <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>{dayjs( new Date(item.updatedAt)).format('DD/MM/YYYY h:mm A')}</TableCell>
                             <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>
-                            <AvatarGroup max={3}>
+                            <AvatarGroup max={3} sx={{width:'fit-content'}}>
                                 {
                                     item.reviewers?.map((reviewer, index)=>{
                                         return(
@@ -159,6 +159,9 @@ const SharedPatientEntries = () => {
                                 }
                             </AvatarGroup>
                             </TableCell>
+                            {filt === "Updated Date"?
+                            <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>{dayjs( new Date(item.updatedAt)).format('DD/MM/YYYY')}</TableCell>
+                            :<TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>{dayjs( new Date(item.createdAt)).format('DD/MM/YYYY')}</TableCell>}
                         </TableRow>
                     )})}
                     </TableBody>

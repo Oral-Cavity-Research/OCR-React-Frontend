@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Add, ArrowBack, ArrowLeft, AssignmentInd, Close, Delete, Download, Edit, MenuOpen, MoreVert, People, PictureAsPdf} from '@mui/icons-material';
 import { Avatar, AvatarGroup, Paper, Tooltip, Typography , Stack, Box, Divider, Grid, Slide, Dialog, IconButton, Button, Table, TableRow, TableCell, TableBody, Skeleton, ListItem, ListItemText, List, ListItemAvatar, Menu, MenuItem, ListItemIcon} from '@mui/material';
 import { stringAvatar } from '../utils';
-import { styled } from '@mui/material/styles';
 import { useSelector} from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Canvas from '../Annotation/Canvas';
@@ -12,8 +11,6 @@ import config from '../../config.json';
 import NotificationBar from '../NotificationBar';
 import AssigneeDropdown from '../AssigneeDropDown';
 import { LoadingButton } from '@mui/lab';
-import duration from 'dayjs/plugin/duration';
-dayjs.extend(duration);
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -26,8 +23,8 @@ function within24hrs(date){
 
 function timeDuration(start, end){
     try {
-        const duration = dayjs.duration(new Date(end) - new Date(start), 'minutes');
-        return duration.minutes() + " minutes";
+        const duration = (new Date(end) - new Date(start))/(1000 * 60);
+        return Math.round(duration) + " minutes";
     } catch (error) {
         return ""
     }
@@ -78,6 +75,22 @@ const EntryDetails = () => {
         setOpenAnnotation(false);
     };
 
+
+    const markAsRead = (data)=>{
+        if(!data.updated) return;
+
+        axios.post(`${config['path']}/user/entry/open/${id}`,{},
+        {
+            headers: {
+                'Authorization': `Bearer ${userData.accessToken.token}`,
+                'email': JSON.parse(sessionStorage.getItem("info")).email,
+            },
+            withCredentials: true
+        }).then(res=>{
+        }).catch(err=>{
+        })
+    }
+
     const getReviews = ()=>{
         setLoadingReviews(true);
         axios.get(`${config['path']}/user/entry/reviews/${id}`,{
@@ -108,8 +121,8 @@ const EntryDetails = () => {
             },
             withCredentials: true
         }).then(res=>{
-            setData(res.data);
             setAddReviewer(false);
+            loadData();
         }).catch(err=>{
             if(err.response) showMsg(err.response.data?.message, "error")
             else alert(err.message)
@@ -144,9 +157,9 @@ const EntryDetails = () => {
             },
             withCredentials: true
         }).then(res=>{
-            setData(res.data);
             showMsg("Reviewer assigned successfuly!","success");
             setAddReviewer(false);
+            loadData();
         }).catch(err=>{
             if(err.response) showMsg(err.response.data?.message, "error")
             else alert(err.message)
@@ -167,6 +180,7 @@ const EntryDetails = () => {
         }).then(res=>{
             setData(res.data);
             setLoading(false);
+            markAsRead(res.data);
         }).catch(err=>{
             if(err.response) showMsg(err.response.data?.message, "error")
             else alert(err.message)
@@ -200,6 +214,17 @@ const EntryDetails = () => {
         loadData();
         getReviews();
     },[])
+
+    useEffect(()=>{
+        if(!addReviewer) setAssignee(null);
+    },[addReviewer])
+
+
+    useEffect(()=>{
+        if(!openAnnotation){
+            loadData();
+        }
+    },[openAnnotation])
 
     const showMsg = (msg, severity)=>{
         setStatus({msg, severity, open:true})
@@ -264,7 +289,6 @@ const EntryDetails = () => {
                             <ListItemIcon><Download/></ListItemIcon>
                             <ListItemText>Download</ListItemText>
                         </MenuItem>
-                        <Divider/>
                         { within24hrs(data.createdAt) &&
                         <MenuItem onClick={()=>setDeleteEntry(!deleteEntry)}>
                             <ListItemIcon><Delete fontSize='small'/></ListItemIcon>
@@ -275,7 +299,7 @@ const EntryDetails = () => {
 
                     <Divider sx={{my:1}}/>
                     <Stack direction='column' spacing={1}>
-                        <Typography variant='body2'>Start Time: {dayjs(data.start_time).format("DD/MM/YYYY HH:MM A")}</Typography>
+                        <Typography variant='body2'>Start Time: {dayjs(data.start_time).format("DD/MM/YYYY HH:mm A")}</Typography>
                         <Typography variant='body2'>Duration: {timeDuration(data.start_time, data.end_time)}</Typography>
                     </Stack>
                     <Divider sx={{my:1}}/>
@@ -316,6 +340,14 @@ const EntryDetails = () => {
                         <LoadingButton loading={saving} variant='contained' onClick={addAssignee}>Add</LoadingButton>
                         <Button disabled={saving} variant='outlined' color='inherit' onClick={()=>setAddReviewer(false)} >Close</Button>
                     </Stack>
+                    {
+                        assignee &&
+                        <Box sx={{border:'1px solid lightgray', borderRadius: 1, p:2, my:2}}>
+                        <Typography color='error'>Click ADD to add the reviewer:</Typography>
+                        <Typography>{assignee.username}</Typography>
+                        <Typography>{assignee.reg_no}</Typography>
+                        </Box>
+                    }    
                 
                     {data.reviewers?.length > 0 && 
                     <List sx={{border:'1px solid lightgray', borderRadius: 1, pl:2}}>
@@ -455,7 +487,7 @@ const EntryDetails = () => {
                     </Stack>
                     </Paper>
                     <Dialog fullScreen open={openAnnotation} onClose={handleClose} TransitionComponent={Transition}>
-                        <Canvas imageIndex={imageIndex} open={openAnnotation} setOpen={setOpenAnnotation} data={data} setData={setData} upload={false}/>
+                        <Canvas imageIndex={imageIndex} open={openAnnotation} setOpen={setOpenAnnotation} data={data.images} setData={setData} upload={false}/>
                     </Dialog>
                     </>
                     }

@@ -2,7 +2,7 @@ import React, {useEffect, useState } from 'react';
 import { Avatar, AvatarGroup, Button, FormControl, LinearProgress, Menu, MenuItem, OutlinedInput, Paper, Stack, 
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography} from '@mui/material';
 import {IconButton} from '@mui/material';
-import {FilterList, Image, Message} from '@mui/icons-material';
+import {Circle, FilterList, Image, Message} from '@mui/icons-material';
 import {useNavigate } from 'react-router-dom';
 import NotificationBar from '../NotificationBar';
 import axios from 'axios';
@@ -120,12 +120,12 @@ const Entries = () => {
                 <Table>
                     <TableHead>
                         <TableRow>
+                            <TableCell></TableCell>
                             <TableCell>Patient ID</TableCell>
                             <TableCell>Patient Name</TableCell>
-                            <TableCell>Created Date</TableCell>
-                            <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>Images/Reviews</TableCell>
-                            <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>Updated Date</TableCell>
+                            <TableCell>Images/Reviews</TableCell>
                             <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>Reviewers</TableCell>
+                            { filt === "Updated Date" ? <TableCell>Updated Date</TableCell>: <TableCell>Created Date</TableCell>}
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -138,10 +138,11 @@ const Entries = () => {
                     {data.map((item,index)=>{ 
                         return(
                         <TableRow key={index} sx={{cursor:'pointer', '&:hover':{background: '#f8f8f8'}}} onClick={()=>handleClick(item._id)}>
+                            <TableCell>{item.updated? <Circle fontSize='small' className="text-danger-glow blink" color='error'/>:""}</TableCell>
                             <TableCell>{item.patient?.patient_id}</TableCell>
                             <TableCell>{item.patient?.patient_name}</TableCell>
-                            <TableCell>{dayjs( new Date(item.createdAt)).format('DD/MM/YYYY h:mm A')}</TableCell>
-                            <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>
+                            
+                            <TableCell>
                                 <Stack direction='row' spacing={1} alignItems='center'>
                                     <Image color={item.images?.length > 0? "primary":"disabled"} fontSize='small'/>
                                     <Typography variant='body2'>{item.images?.length}</Typography>
@@ -149,9 +150,8 @@ const Entries = () => {
                                     <Typography variant='body2'>{item.reviews?.length ? item.reviews.length: 0}</Typography>
                                 </Stack>
                             </TableCell>
-                            <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>{dayjs( new Date(item.updatedAt)).format('DD/MM/YYYY h:mm A')}</TableCell>
                             <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>
-                            <AvatarGroup max={3}>
+                            <AvatarGroup max={3} sx={{width:'fit-content'}}>
                                 {
                                     item.reviewers?.map((reviewer, index)=>{
                                         return(
@@ -161,6 +161,9 @@ const Entries = () => {
                                 }
                             </AvatarGroup>
                             </TableCell>
+
+                            { filt === "Updated Date" ? <TableCell>{dayjs( new Date(item.updatedAt)).format('DD/MM/YYYY')}</TableCell>
+                            : <TableCell>{dayjs( new Date(item.createdAt)).format('DD/MM/YYYY')}</TableCell>}
                         </TableRow>
                     )})}
                     </TableBody>

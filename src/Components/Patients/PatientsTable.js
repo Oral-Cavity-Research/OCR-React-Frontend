@@ -249,8 +249,8 @@ const PatientsTable = () => {
                             <TableCell>Patient Name</TableCell>
                             <TableCell>Age</TableCell>
                             <TableCell>Gender</TableCell>
-                            {filt === "Created Date" && <TableCell>Created Date</TableCell>}
-                            {filt === "Updated Date" && <TableCell>Updated Date</TableCell>}
+                            {filt === "Updated Date" ? <TableCell>Updated Date</TableCell>
+                            : <TableCell>Created Date</TableCell>}
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -267,8 +267,8 @@ const PatientsTable = () => {
                             <TableCell>{highlightSearchText(item.patient_name, search)}</TableCell>
                             <TableCell>{age(dayjs(item.DOB))}</TableCell>
                             <TableCell>{highlightSearchText(item.gender, search)}</TableCell>
-                            {filt === "Created Date" && <TableCell>{dayjs(item.createdAt).format('DD/MM/YYYY')}</TableCell>}
-                            {filt === "Updated Date" && <TableCell>{dayjs(item.updatedAt).format('DD/MM/YYYY')}</TableCell>}
+                            {filt === "Updated Date" ? <TableCell>{dayjs(item.createdAt).format('DD/MM/YYYY')}</TableCell>
+                            : <TableCell>{dayjs(item.updatedAt).format('DD/MM/YYYY')}</TableCell>}
                         </TableRow>
                     )})}
                     </TableBody>

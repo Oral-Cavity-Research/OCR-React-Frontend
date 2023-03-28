@@ -50,17 +50,14 @@ function App() {
       }
     })
   }
-  // useEffect(() => {
-  //   if (userData.accessToken.token == null){
-  //     silentRefresh();
-  //   }
-  // }, [])
+
   useEffect(() => {
       setTimeout(() => {
         silentRefresh();
       }, 1000*60*2);
 
   });
+  
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route path='/' element={<Outlet/>}>
@@ -68,30 +65,32 @@ function App() {
         <Route index element={<LoginPage/>}/>
         <Route path='/login' element={<LoginPage/>}/>
 
-        <Route path='/adminportal' element={<ProtectedRoute allowed={[100]}><AdminPage/></ProtectedRoute>}>
+        <Route path='/adminportal' element={<Outlet/>}>
 
-            <Route path='/adminportal/requests' element={<Outlet/>}>
+            <Route path='/adminportal/requests' element={<ProtectedRoute allowed={[100]}><AdminPage/></ProtectedRoute>}>
               <Route index element={<RequestsTable/>}/>
               <Route path='/adminportal/requests/:id' element={<RequestDetails/>}/>
             </Route>
 
-            <Route path='/adminportal/permissions' element={<Outlet/>}>
+            <Route path='/adminportal/permissions' element={<ProtectedRoute allowed={[109]}><AdminPage/></ProtectedRoute>}>
               <Route index element={<UserPermissions/>}/>
               <Route path='/adminportal/permissions/new' element={<NewUserPermission/>}/>
               <Route path='/adminportal/permissions/:id' element={<EditUserPermission/>}/>
             </Route>
 
-            <Route path='/adminportal/users' element={<Outlet/>}>
+            <Route path='/adminportal/users' element={<ProtectedRoute allowed={[106, 107]}><AdminPage/></ProtectedRoute>}>
               <Route index element={<UsersTable/>}/>
               <Route path='/adminportal/users/:id' element={<UserDetails/>}/>
             </Route>
 
-            <Route path='/adminportal/hospitals' element={<HospitalTable/>} ></Route>
-            <Route path='/adminportal/hospitals/new' element={<HospiatalNew/>} ></Route>
-            <Route path='/adminportal/hospitals/:id' element={<HospitalDetails/>} ></Route>
-            <Route path='/adminportal/hospitals/:id/edit' element={<HospitalTable/>} ></Route>
+            <Route path='/adminportal/hospitals' element={<ProtectedRoute allowed={[101]}><AdminPage/></ProtectedRoute>}>
+              <Route index element={<HospitalTable/>} ></Route>
+              <Route path='/adminportal/hospitals/new' element={<HospiatalNew/>} ></Route>
+              <Route path='/adminportal/hospitals/:id' element={<HospitalDetails/>} ></Route>
+              <Route path='/adminportal/hospitals/:id/edit' element={<HospitalTable/>} ></Route>
+            </Route>
 
-            <Route path='/adminportal/dashboard' element={<Dashboard/>} ></Route>
+            <Route path='/adminportal/dashboard' element={<ProtectedRoute allowed={[110]}><Dashboard/></ProtectedRoute>} ></Route>
         </Route>
 
         <Route path='/manage' element={<ProtectedRoute allowed={[100,200]}><Manage/></ProtectedRoute>}>
@@ -112,7 +111,7 @@ function App() {
             </Route>          
         </Route>
 
-        <Route path='/profile' element={<ProtectedRoute allowed={[100,200,300]}><UserProfile/></ProtectedRoute> }/>         
+        <Route path='/profile' element={<ProtectedRoute allowed={[100, 101, 106, 107, 109, 110, 111,200,300]}><UserProfile/></ProtectedRoute> }/>         
         <Route path='/*' element={<NotFound/>}/>
 
       </Route>

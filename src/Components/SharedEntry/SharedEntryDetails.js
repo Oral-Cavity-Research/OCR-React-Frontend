@@ -231,6 +231,12 @@ const SharedEntryDetails = () => {
         loadData();
     },[])
 
+    useEffect(()=>{
+        if(!openAnnotation){
+            loadData();
+        }
+    },[openAnnotation])
+
     const showMsg = (msg, severity)=>{
         setStatus({msg, severity, open:true})
     }
@@ -489,7 +495,7 @@ const SharedEntryDetails = () => {
                     </Paper>
                     <div ref={endRef} />
                     <Dialog fullScreen open={openAnnotation} onClose={handleClose} TransitionComponent={Transition}>
-                        <Canvas imageIndex={imageIndex} open={openAnnotation} setOpen={setOpenAnnotation} data={data} setData={setData} upload={false}/>
+                        <Canvas imageIndex={imageIndex} open={openAnnotation} setOpen={setOpenAnnotation} data={data.images} setData={setData} upload={false}/>
                     </Dialog>
                     </>
                     }
