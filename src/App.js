@@ -93,7 +93,7 @@ function App() {
             <Route path='/adminportal/dashboard' element={<ProtectedRoute allowed={[110]}><Dashboard/></ProtectedRoute>} ></Route>
         </Route>
 
-        <Route path='/manage' element={<ProtectedRoute allowed={[100,200]}><Manage/></ProtectedRoute>}>
+        <Route path='/manage' element={<ProtectedRoute allowed={[100,200, 300]}><Manage/></ProtectedRoute>}>
             <Route index element={<Entries/>}/>
             <Route path='/manage/my/entries' element={<Entries/>}/>
             <Route path='/manage/my/entries/:id' element={<EntryDetails/>}/>

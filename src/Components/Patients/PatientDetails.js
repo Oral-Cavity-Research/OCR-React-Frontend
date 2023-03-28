@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
-import { ArrowBack} from '@mui/icons-material';
-import { Box, Stack, Avatar, Typography, Skeleton,Tab, Button, Paper} from '@mui/material';
-import {TabContext,TabList,TabPanel} from '@mui/lab';
+import { ArrowBack, Download} from '@mui/icons-material';
+import { Box, Stack, Avatar, Typography, Skeleton,Tab, Button, Paper } from '@mui/material';
+import {TabContext,TabList,TabPanel, LoadingButton } from '@mui/lab';
 import { stringAvatar } from '../utils';
 import config from '../../config.json'
 import axios from 'axios';
@@ -11,6 +11,8 @@ import PatientProfile from './PatientProfile';
 import NotificationBar from '../NotificationBar';
 import PatientsEntries from './PatientsEntries';
 import LinearStepper from './LinearStepper';
+import * as FileSaver from 'file-saver';
+import XLSX from 'sheetjs-style';
 
 
 const PatientDetails = () => {
@@ -23,6 +25,9 @@ const PatientDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const userData = useSelector(state => state.data);
+    const [entries, setEntries] = React.useState({});
+    const [buttonLoading, setButtonLoading ] = useState(false);
+
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
@@ -49,6 +54,44 @@ const PatientDetails = () => {
         })
 
     },[])
+
+    const getEntries = async () => {
+        axios.get(`${config['path']}/user/entry/get/patient/${id}`,{
+            params: { },
+            headers: {
+                'Authorization': `Bearer ${userData.accessToken.token}`,
+                'email': JSON.parse(sessionStorage.getItem("info")).email,
+            },
+            withCredentials: true
+        }).then(res=>{
+            setEntries(res.data);
+        }).catch(err=>{
+            if(err.response) showMsg(err.response.data.message, "error")
+            else alert(err)
+        })
+    };
+
+    const handleDownload = async (patientData, entries) => {
+        setButtonLoading(true);
+        const ents = entries;
+        const da = [patientData];
+        delete da._id;
+        const riskFac = patientData.risk_factors;
+        delete da.risk_factors;
+        const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+        const fileExtension = '.xlsx';
+
+        const ws = XLSX.utils.json_to_sheet(riskFac);
+        const wp = XLSX.utils.json_to_sheet(da);
+        const wq = XLSX.utils.json_to_sheet(ents);
+        const wb = { 
+            Sheets: { 'data': wp, 'Risk Factors' : ws, 'Entries': wq }, SheetNames: ['data', 'Risk Factors', 'Entries']
+        };
+        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const data = new Blob([excelBuffer], {type: fileType});
+        FileSaver.saveAs(data, patientData.patient_name + fileExtension);
+        setButtonLoading(false);
+    }
 
    
     return (
@@ -84,6 +127,11 @@ const PatientDetails = () => {
                 </Stack>
             </Stack>
             <Box sx={{ width: '100%', typography: 'body1' }}>
+            <Stack direction='row' justifyContent='flex-end'>
+                    <LoadingButton  size='small' variant='contained' endIcon={<Download/>}
+                    loading={loading}
+                    onClick={(e) => getEntries().then(handleDownload(data, entries))}>Download</LoadingButton >
+            </Stack>
             <TabContext value={value}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider'}}>
                 <TabList onChange={handleChange} aria-label="lab API tabs example" variant='standard'>
