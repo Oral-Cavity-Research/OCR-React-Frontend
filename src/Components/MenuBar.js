@@ -140,6 +140,7 @@ function MenuBar({permissions,username, availability, roleName}) {
               sx: {
                 overflow: 'visible',
                 filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                minWidth: '200px',
                 mt: 1.5,
                 '& .MuiAvatar-root': {
                   width: 32,
@@ -165,28 +166,21 @@ function MenuBar({permissions,username, availability, roleName}) {
             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
           >
               {
-                MenuOptions.recruiter.map((item,index)=>{
+                MenuOptions.menu.map((item,index)=>{
+                  if(permissions?.some(p => item.allowed?.includes(p)))
                   return(<MenuItem key={index}>
                     <Typography textAlign="center"><Link to={item.path} replace>{item.name}</Link></Typography>
                   </MenuItem>)
                 })
-                }
-                {permissions.includes(100) && 
-               
-                MenuOptions.admin.map((item,index)=>{
-                  return(<MenuItem key={index}>
-                    <Typography textAlign="center"><Link to={item.path} replace>{item.name}</Link></Typography>
-                  </MenuItem>)
-                })               
-                }
-                              
+              }
+                                          
           </Menu>
             <Box sx={{ flexGrow: 0, display: { xs: 'none', sm: 'flex'}}}>
-                <Button sx={{ my: 2, color: 'white', display: 'block', m:0}} component={NavLink} to="/manage/my/patients"> 
+                <Button sx={{ my: 2, color: 'white', display: 'block', m:0}} component={NavLink} to="/manage"> 
                     Manage
                 </Button>
-                { permissions.includes(100) &&
-                  <Button sx={{ my: 2, color: 'white', display: 'block', m:0}} component={NavLink} to="/adminportal/requests">
+                { permissions?.some(p => MenuOptions.adminPermissions?.includes(p)) &&
+                  <Button sx={{ my: 2, color: 'white', display: 'block', m:0}} component={NavLink} to="/adminportal">
                     Admin
                 </Button>}
             </Box>
@@ -248,12 +242,12 @@ function MenuBar({permissions,username, availability, roleName}) {
           <Typography color='GrayText'>{roleName}</Typography>
         </Box>
         <Divider sx={{my:1}}/>
-        <MenuItem sx={{width:'200px'}}>
-          <AccountBox sx={{mx:1}}/><Typography onClick={GoToProfile}> Profile</Typography>
+        <MenuItem sx={{width:'200px'}} onClick={GoToProfile}>
+          <AccountBox color='action' sx={{mx:1}}/><Typography> Profile</Typography>
         </MenuItem>
         <Divider/>
-        <MenuItem sx={{width:'200px'}}>
-          <LogoutOutlined sx={{mx:1}}/><Typography onClick={Logout}> Logout</Typography>
+        <MenuItem sx={{width:'200px'}} onClick={Logout}>
+          <LogoutOutlined color='action' sx={{mx:1}}/><Typography> Logout</Typography>
         </MenuItem>
       </Menu>
         </Toolbar>

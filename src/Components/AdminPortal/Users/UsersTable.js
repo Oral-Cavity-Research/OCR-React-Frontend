@@ -121,7 +121,7 @@ const UsersTable = () => {
         <div className="inner_content">
         <div>  
         <Box className='sticky'>
-        <Typography sx={{ fontWeight: 700}} variant="h5">Users</Typography> 
+        <Typography sx={{ fontWeight: 700}} variant="h5">Clinicians</Typography> 
         </Box>
         <Paper sx={{p:2, my:3}}>    
         <Stack direction='row' justifyContent='space-between' sx={{mb:2}}>
@@ -183,7 +183,7 @@ const UsersTable = () => {
                 components={{
                     NoRowsOverlay: () => (
                       <Stack height="100%" alignItems="center" justifyContent="center">
-                        No {role==="All"?"Users":role}
+                        No {role==="All"?"Clinicians":role}
                       </Stack>
                     ),
                     NoResultsOverlay: () => (

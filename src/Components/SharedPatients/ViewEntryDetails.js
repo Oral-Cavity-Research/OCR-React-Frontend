@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import {ArrowBack, ArrowLeft, AssignmentInd, Edit, PictureAsPdf, Visibility} from '@mui/icons-material';
+import {ArrowBack, ArrowLeft, AssignmentInd, Edit, PictureAsPdf} from '@mui/icons-material';
 import { Avatar, AvatarGroup, Paper, Tooltip, Typography , Stack, Box, Divider, Grid, Slide, Dialog, 
-    IconButton, Button, Table, TableRow, TableCell, TableBody, Skeleton, ListItem, ListItemText, List, Chip} from '@mui/material';
+    IconButton, Button, Table, TableRow, TableBody, Skeleton, ListItem, ListItemText, List, Chip, TableContainer} from '@mui/material';
+import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import { stringAvatar } from '../utils';
 import { useSelector} from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -247,10 +248,34 @@ const ViewEntryDetails = () => {
                                     <ArrowLeft/>
                                     <Box>
                                         <Typography variant='body2'><strong>{item.reviewer_id?.username}</strong> | {item.reviewer_id?.reg_no}</Typography>
-                                        {item.provisional_diagnosis !== "" && <Typography variant='body2'>Provisional Diagnosis: {item.provisional_diagnosis}</Typography>}
-                                        {item.management_suggestions !== "" && <Typography variant='body2'>Management Suggestions: {item.management_suggestions}</Typography>}
-                                        {item.referral_suggestions !== "" && <Typography variant='body2'>Referral Suggestions: {item.referral_suggestions}</Typography>}
-                                        {item.other_comments !== "" && <Typography variant='body2'>Comments: {item.other_comments}</Typography>}
+                                        <TableContainer>
+                                        <Table
+                                        sx={{
+                                            [`& .${tableCellClasses.root}`]: {
+                                              borderBottom: "none"
+                                            }
+                                          }}
+                                        >
+                                            <TableBody>
+                                                {item.provisional_diagnosis !== "" && <TableRow>
+                                                    <TableCell sx={{py:0}}>Provisional Diagnosis</TableCell>
+                                                    <TableCell sx={{py:0}}>{item.provisional_diagnosis}</TableCell>
+                                                </TableRow>}
+                                                {item.management_suggestions !== "" && <TableRow>
+                                                    <TableCell sx={{py:0}}>Management Suggestions</TableCell>
+                                                    <TableCell sx={{py:0}}>{item.management_suggestions}</TableCell>
+                                                </TableRow>}
+                                                {item.referral_suggestions !== "" && <TableRow>
+                                                    <TableCell sx={{py:0}}>Referral Suggestions</TableCell>
+                                                    <TableCell sx={{py:0}}>{item.referral_suggestions}</TableCell>
+                                                </TableRow>}
+                                                {item.other_comments !== "" && <TableRow>
+                                                    <TableCell sx={{py:0}}>Comments</TableCell>
+                                                    <TableCell sx={{py:0}}>{item.other_comments}</TableCell>
+                                                </TableRow>}
+                                            </TableBody>
+                                        </Table>
+                                        </TableContainer>
                                     </Box>
                                 </Stack>
                             )

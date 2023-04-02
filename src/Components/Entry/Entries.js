@@ -138,7 +138,7 @@ const Entries = () => {
                     {data.map((item,index)=>{ 
                         return(
                         <TableRow key={index} sx={{cursor:'pointer', '&:hover':{background: '#f8f8f8'}}} onClick={()=>handleClick(item._id)}>
-                            <TableCell>{item.updated? <Circle fontSize='small' className="text-danger-glow blink" color='error'/>:""}</TableCell>
+                            <TableCell>{item.updated? <Circle fontSize='small' className="text-danger-glow blink" color='success'/>:""}</TableCell>
                             <TableCell>{item.patient?.patient_id}</TableCell>
                             <TableCell>{item.patient?.patient_name}</TableCell>
                             

@@ -122,8 +122,8 @@ const NewEntry = ({entryID, setEntryID, btnRef, setDone, setLoading}) => {
 
            <Stack direction='row' spacing={2}>
            <FormControl fullWidth>
-            <InputLabel id="habit-label" size='small' >Habit</InputLabel>
-            <Select labelId='habit-label' size='small' label="Habit" value={habit} onChange={(e)=>setHabit(e.target.value)}>
+            <InputLabel id="habit-label" size='small' >Current Habits</InputLabel>
+            <Select labelId='habit-label' size='small' label="Current Habits" value={habit} onChange={(e)=>setHabit(e.target.value)}>
                 {
                     habitOptions.map((item,index)=>{return(<MenuItem key={index} value={item.value}>{item.label}</MenuItem>)})
                 }
