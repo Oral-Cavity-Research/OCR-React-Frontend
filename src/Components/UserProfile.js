@@ -30,7 +30,7 @@ const UserProfile = () => {
     const [loading, setLoading] = useState(true);
     const [hospital, setHospital] = useState("");
     const [hospitalList, setHospitalList] = useState([]);
-    const [availability, setAvailability] = useState(data.availability);
+    const [availability, setAvailability] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [state, setState] = useState(0);
     const formRef = useRef();
@@ -65,7 +65,7 @@ const UserProfile = () => {
     const fetchData = ()=>{
         const _id = JSON.parse(sessionStorage.getItem("info"))._id
 
-        axios.get(`${config['path']}/admin/users/${_id}`,
+        axios.get(`${config['path']}/user/self`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,
@@ -74,6 +74,7 @@ const UserProfile = () => {
         }
         ).then(res=>{
             setData(res.data);
+            setAvailability(res.data.availability)
             setValue(res.data.contact_no? res.data.contact_no:'+94');
             setLoading(false);
         }).catch(err=>{

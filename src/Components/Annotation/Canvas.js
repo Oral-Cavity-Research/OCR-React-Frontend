@@ -725,14 +725,14 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
           </Select>
         
           <Typography fontSize='small' sx={{color:'white'}}>Clinical Diagnosis</Typography>
-          <Select fullWidth size='small' value={clinicalDiagnosis} labelId="diagnosis" label="Clinical Diagnosis" onChange={(e)=>setClinicalDiagnosis(e.target.value)} sx={{backgroundColor: "white", mb:1}}>
+          <Select fullWidth size='small' value={clinicalDiagnosis} labelId="diagnosis" onChange={(e)=>setClinicalDiagnosis(e.target.value)} sx={{backgroundColor: "white", mb:1}}>
             {diagnosis.map((name, index) =>{
               return (<MenuItem key={index} value={name}>{name}</MenuItem>)
             })}
           </Select>
 
           <Typography fontSize='small' sx={{color:'white'}}>Lesion Present</Typography>
-          <Select fullWidth size='small'  value={lesion} labelId="lesion" label="Lesion Appear" onChange={(e)=>setLesion(e.target.value)} sx={{backgroundColor: "white", mb:1}}>
+          <Select fullWidth size='small'  value={lesion} labelId="lesion" onChange={(e)=>setLesion(e.target.value)} sx={{backgroundColor: "white", mb:1}}>
               <MenuItem value={false}>False</MenuItem>
               <MenuItem value={true}>True</MenuItem>
           </Select>

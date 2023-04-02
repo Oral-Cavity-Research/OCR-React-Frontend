@@ -23,16 +23,17 @@ const ProtectedRoute = ({allowed, children}) => {
                 if (data) {
                     dispatch(setUserData({
                         _id: data.ref._id,
-                        username: data.ref.username,
-                        email: data.ref.email,
-                        role: data.body.role,
-                        permissions: data.body.permissions,
+                        username: data.ref?.username,
+                        email: data.ref?.email,
+                        role: data.ref?.role,
+                        permissions: data.permissions,
                         accessToken: data.accessToken,
                         reg_no: data.ref.reg_no
                       }))
                 }
             });
         }
+        // res();
         setIsLoading(false);
 	}, []);
 

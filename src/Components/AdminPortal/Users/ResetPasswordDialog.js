@@ -69,7 +69,7 @@ export default function ResetPasswordDialog({user, setIsReset}) {
                 onChange={(e)=>handlePasswordChange(e)}
                 endAdornment={
                 <InputAdornment position="end">
-                    <IconButton aria-label="toggle password visibility" onClick={handleClickShowPassword} onMouseDown={handleMouseDownPassword} edge="end">
+                    <IconButton onClick={handleClickShowPassword} onMouseDown={handleMouseDownPassword} edge="end">
                     {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                 </InputAdornment>

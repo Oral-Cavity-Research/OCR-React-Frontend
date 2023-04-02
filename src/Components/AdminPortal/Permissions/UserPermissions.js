@@ -93,7 +93,6 @@ const UserPermissions = () => {
             <Stack direction='row' justifyContent='flex-end' sx={{mb:2}}>
             <FormControl sx={{width: '30ch' }} variant="outlined">
             <OutlinedInput
-                id="outlined-adornment-password"
                 placeholder='Search by name'
                 size='small'
                 inputProps={{ maxLength: 20}}
@@ -101,7 +100,6 @@ const UserPermissions = () => {
                 endAdornment={
                 <InputAdornment position="end">
                     <IconButton
-                    aria-label="toggle password visibility"
                     edge="end"
                     >
                     <Search/>
@@ -125,7 +123,7 @@ const UserPermissions = () => {
                     loading={loading}   // you need to set your boolean loading
 
                     filterModel={{
-                        items: [{ columnField: 'username', operatorValue: 'contains', value: filt }]
+                        items: [{ columnField: 'role', operatorValue: 'contains', value: filt }]
                     }}
                     sx={{
                         cursor:'pointer',

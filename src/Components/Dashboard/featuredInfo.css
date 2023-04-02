@@ -3,8 +3,8 @@
     /* background-color: blanchedalmond; */
     
     display: grid;
-  grid-template-columns: 2fr 2fr;
-  gap: 100px;
+    grid-template-columns: 2fr 2fr;
+    gap: 40px;
     padding: 40px;
   
 

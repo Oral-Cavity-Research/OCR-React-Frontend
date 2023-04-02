@@ -1,11 +1,27 @@
 {
-    "admin":[
-        {"path":"/adminportal/requests", "name":"Requests"},
-        {"path":"/adminportal/reviewers", "name":"Reviewers"},
-        {"path":"/adminportal/hospitals", "name":"Hospitals"}
+    "menu":[
+        {"path":"/adminportal/requests", "name":"Requests", "allowed":[100]},
+        {"path":"/adminportal/users", "name":"Clinicians", "allowed":[106,107]},
+        {"path":"/adminportal/hospitals", "name":"Hospitals", "allowed":[101]},
+        {"path":"/adminportal/permissions", "name":"Permissions", "allowed":[109]},
+        {"path":"/adminportal/dashboard", "name":"Dashboard", "allowed":[110]},
+        {"path":"/manage/my/entries", "name":"Entries", "allowed":[300]},
+        {"path":"/manage/my/patients", "name":"Patients", "allowed":[300]},
+        {"path":"/manage/shared/entries", "name":"Assigned Entries", "allowed":[200]}
     ],
-    "recruiter":[
-        {"path":"/manage/my/patients", "name":"Patients"},
-        {"path":"/manage/my/entries", "name":"Entries"}
-    ]
+    "admin":[
+        {"path":"/adminportal/requests", "name":"Requests", "allowed":[100]},
+        {"path":"/adminportal/users", "name":"Clinicians", "allowed":[106,107]},
+        {"path":"/adminportal/hospitals", "name":"Hospitals", "allowed":[101]},
+        {"path":"/adminportal/permissions", "name":"Permissions", "allowed":[109]},
+        {"path":"/adminportal/dashboard", "name":"Dashboard", "allowed":[110]}
+    ],
+    "my":[
+        {"path":"/manage/my/entries", "name":"Entries", "allowed":[300]},
+        {"path":"/manage/my/patients", "name":"Patients", "allowed":[300]}
+    ],
+    "shared":[
+        {"path":"/manage/shared/entries", "name":"Assigned Entries", "allowed":[200]}
+    ],
+    "adminPermissions":[100,101,106,107,109,110]
 }

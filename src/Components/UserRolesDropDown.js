@@ -46,7 +46,6 @@ export default function UserRolesDropdown({setValue}) {
   return (
     <Autocomplete
       size='small'
-      id="asynchronous-demo"
       fullWidth
       open={open}
       onOpen={() => {

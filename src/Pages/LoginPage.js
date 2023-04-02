@@ -67,7 +67,7 @@ const LoginPage =()=>{
             var data = response.data
             const object = {_id: data.others._id,username: data.others.username, email: data.others.email, role: data.others.role, availability:data.others.availability, permissions: data.others.permissions, reg_no: data.others.reg_no, atoken: data.accessToken.token }
             sessionStorage.setItem("info",JSON.stringify(object))
-
+            console.log(data)
             dispatch(setUserData({
                 _id: data.others._id,
                 username: data.others.username,
@@ -78,11 +78,11 @@ const LoginPage =()=>{
                 reg_no: data.others.reg_no
               }))
             if(response.data.others.permissions.includes(200)){
-                navigate("/manage/shared/patients");
+                navigate("/manage/shared/entries");
             }else if(response.data.others.permissions.includes(300)){
                 navigate("/manage/my/patients");
             }else{
-                navigate("/adminportal/requests");
+                navigate("/adminportal");
             }
         })
         .catch(function (error) {

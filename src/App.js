@@ -44,6 +44,7 @@ function App() {
           username: data.ref.username,
           email: data.ref.email,
           roles: data.ref.role,
+          permissions: data.permissions,
           accessToken: data.accessToken,
           reg_no: data.ref.reg_no
         }));
@@ -66,7 +67,7 @@ function App() {
         <Route path='/login' element={<LoginPage/>}/>
 
         <Route path='/adminportal' element={<Outlet/>}>
-
+            <Route index element={<ProtectedRoute allowed={[100, 101, 106, 107, 109, 110, 111,200,300]}><AdminPage/></ProtectedRoute>}/>
             <Route path='/adminportal/requests' element={<ProtectedRoute allowed={[100]}><AdminPage/></ProtectedRoute>}>
               <Route index element={<RequestsTable/>}/>
               <Route path='/adminportal/requests/:id' element={<RequestDetails/>}/>
@@ -90,10 +91,13 @@ function App() {
               <Route path='/adminportal/hospitals/:id/edit' element={<HospitalTable/>} ></Route>
             </Route>
 
-            <Route path='/adminportal/dashboard' element={<ProtectedRoute allowed={[110]}><Dashboard/></ProtectedRoute>} ></Route>
+            <Route path='/adminportal/dashboard' element={<ProtectedRoute allowed={[110]}><AdminPage/></ProtectedRoute>}>
+              <Route index element={<Dashboard/>}></Route>
+            </Route>
         </Route>
 
-        <Route path='/manage' element={<ProtectedRoute allowed={[100,200]}><Manage/></ProtectedRoute>}>
+        <Route path='/manage' element={<ProtectedRoute allowed={[200,300]}><Manage/></ProtectedRoute>}></Route>
+        <Route path='/manage/my' element={<ProtectedRoute allowed={[300]}><Manage/></ProtectedRoute>}>
             <Route index element={<Entries/>}/>
             <Route path='/manage/my/entries' element={<Entries/>}/>
             <Route path='/manage/my/entries/:id' element={<EntryDetails/>}/>
@@ -103,12 +107,13 @@ function App() {
                 <Route  index path="/manage/my/patients/new" element={<PatientNew/>}></Route>
                 <Route path="/manage/my/patients/:id" element={<PatientDetails/>}></Route>
             </Route>
-            <Route path ='/manage/shared' element={<Outlet/>}>
-              <Route index path='/manage/shared/entries' element={<SharedEntries/>}/>
-              <Route path='/manage/shared/entries/view/:id' element={<ViewEntryDetails/>}/>
-              <Route path='/manage/shared/entries/:id' element={<SharedEntryDetails/>}/>
-              <Route path="/manage/shared/patients/:id" element={<SharedPatientDetails/>}></Route> 
-            </Route>          
+        </Route>
+        <Route path='/manage/shared' element={<ProtectedRoute allowed={[200]}><Manage/></ProtectedRoute>}>
+          <Route index element={<SharedEntries/>}/>
+          <Route path='/manage/shared/entries' element={<SharedEntries/>}/>
+          <Route path='/manage/shared/entries/view/:id' element={<ViewEntryDetails/>}/>
+          <Route path='/manage/shared/entries/:id' element={<SharedEntryDetails/>}/>
+          <Route path="/manage/shared/patients/:id" element={<SharedPatientDetails/>}></Route> 
         </Route>
 
         <Route path='/profile' element={<ProtectedRoute allowed={[100, 101, 106, 107, 109, 110, 111,200,300]}><UserProfile/></ProtectedRoute> }/>         
