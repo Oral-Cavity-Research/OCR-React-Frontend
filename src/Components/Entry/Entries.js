@@ -1,8 +1,8 @@
 import React, {useEffect, useState } from 'react';
-import { Avatar, AvatarGroup, Button, FormControl, LinearProgress, Menu, MenuItem, OutlinedInput, Paper, Stack, 
+import { Avatar, AvatarGroup, Badge, LinearProgress, Menu, MenuItem, Paper, Stack, 
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography} from '@mui/material';
 import {IconButton} from '@mui/material';
-import {Circle, FilterList, Image, Message} from '@mui/icons-material';
+import {Circle, FilterList, Image, Message, Notifications} from '@mui/icons-material';
 import {useNavigate } from 'react-router-dom';
 import NotificationBar from '../NotificationBar';
 import axios from 'axios';
@@ -11,7 +11,7 @@ import { useSelector} from 'react-redux';
 import dayjs from 'dayjs';
 import { LoadingButton } from '@mui/lab';
 
-const filtOptions = ["Created Date","Updated Date","Assigned", "Unassigned", "Reviewed", "Unreviewed"]
+const filtOptions = ["Newly Reviewed", "Reviewed", "Unassigned", "Assigned", "Unreviewed", "Created Date","Updated Date"]
 
 const Entries = () => {
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -23,6 +23,7 @@ const Entries = () => {
     const userData = useSelector(state => state.data);
     const [page, setPage] = useState(1);
     const [noMore, setNoMore] = useState(false);
+    const [newReviews, setNewReviews] = useState(0);
     const navigate = useNavigate();
 
     
@@ -94,11 +95,26 @@ const Entries = () => {
         })
     }      
 
+    useEffect(()=>{
+        axios.get(`${config['path']}/user/entry/count/newreviews`,{
+            headers: {
+                'Authorization': `Bearer ${userData.accessToken.token}`,
+                'email': JSON.parse(sessionStorage.getItem("info")).email,
+            },
+            withCredentials: true
+        }).then(res=>{
+            setNewReviews(res.data.count);
+        }).catch(err=>{
+            if(err.response) showMsg(err.response.data?.message, "error")
+            else alert(err)
+        })
+    },[])
+
     return (
         <div className="inner_content">
         <div>
         <div className="sticky">
-            <Typography sx={{ fontWeight: 700}} variant="h5">Consultation Entries</Typography> 
+            <Typography sx={{ fontWeight: 700}} variant="h5">Tele Consultation Entries</Typography> 
         </div>                
                 <Paper sx={{p:2, my:3}}>
                 <Stack direction='row' alignItems='center' spacing={1} mb={2}>
@@ -110,6 +126,12 @@ const Entries = () => {
                         onClick={handleOpen}
                     ><FilterList/></IconButton>
                     <Typography variant='body2' color='GrayText'>{filt}</Typography>
+                    <div style={{flex:1}}></div>
+                    <IconButton size='small' onClick={()=>handleFilter("Newly Reviewed")}>
+                        <Badge badgeContent={newReviews} max={99} color='error'>
+                            <Notifications/>
+                        </Badge>
+                    </IconButton>
                 </Stack>
 
                 <Menu id="fade-menu" MenuListProps={{ 'aria-labelledby': 'fade-button'}} anchorEl={anchorEl} open={open} onClose={handleClose}>

@@ -2,7 +2,7 @@ import React, { useRef, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import { ArrowBack, Close,PersonAddAlt1 } from '@mui/icons-material';
 import { Box, Stack, Typography,Button, Paper, TextField, FormControl, MenuItem, Select, Checkbox,
-    ListItem, IconButton, ListItemText, InputLabel, List} from '@mui/material';
+    ListItem, IconButton, ListItemText, InputLabel, List, Divider} from '@mui/material';
 import SignaturePad from 'react-signature-canvas';
 import {pdf,Document,Page,Text,Image,View, StyleSheet} from "@react-pdf/renderer";
 import { useSelector} from 'react-redux';
@@ -375,8 +375,8 @@ const PatientNew = () => {
                         }
                     </List>}
                 </Stack>
-                <Box sx={{border:'1px solid lightgray', background:'#fbfbfb', borderRadius:1, p:2}}>
-                <Typography variant="h6"><b>Patient Data Collection Consent Form</b></Typography>
+                <Box sx={{border:'2px dashed lightgray', background:'#fbfbfb', borderRadius:1, p:2, mt:5}}>
+                <Typography color='red' variant="h6"><b>Patient Data Collection Consent Form</b></Typography>
                 <br/>
                 <Typography>I, <span style={{color:'var(--primary-color)'}}>{name}</span> [ <span style={{color:'var(--primary-color)'}}>{pId}</span> ], hereby consent to the collection of my personal health information by OCR Tool for the purpose of data collection and analysis.</Typography>
                 <br/>

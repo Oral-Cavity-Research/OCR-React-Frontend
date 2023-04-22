@@ -1,8 +1,8 @@
 import React, {useEffect, useState } from 'react';
-import {Chip, LinearProgress, Menu, MenuItem, Paper, Stack, 
+import {Badge, Chip, LinearProgress, Menu, MenuItem, Paper, Stack, 
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from '@mui/material';
 import {IconButton} from '@mui/material';
-import {CheckCircle, Circle, FilterList} from '@mui/icons-material';
+import {CheckCircle, Circle, FilterList, Notifications} from '@mui/icons-material';
 import {useNavigate } from 'react-router-dom';
 import NotificationBar from '../NotificationBar';
 import axios from 'axios';
@@ -23,6 +23,7 @@ const SharedEntries = () => {
     const userData = useSelector(state => state.data);
     const [page, setPage] = useState(1);
     const [noMore, setNoMore] = useState(false);
+    const [newEntries, setNewEntries] = useState(0);
     const navigate = useNavigate();
 
     
@@ -92,7 +93,23 @@ const SharedEntries = () => {
         }).finally(()=>{
             setLoading(false);
         })
-    }      
+    }  
+    
+    useEffect(()=>{
+        axios.get(`${config['path']}/user/entry/count/newentries`,{
+            headers: {
+                'Authorization': `Bearer ${userData.accessToken.token}`,
+                'email': JSON.parse(sessionStorage.getItem("info")).email,
+            },
+            withCredentials: true
+        }).then(res=>{
+            setNewEntries(res.data.count);
+        }).catch(err=>{
+            if(err.response) showMsg(err.response.data?.message, "error")
+            else alert(err)
+        })
+    },[])
+
 
     return (
         <div className="inner_content">
@@ -110,6 +127,12 @@ const SharedEntries = () => {
                         onClick={handleOpen}
                     ><FilterList/></IconButton>
                     <Typography variant='body2' color='GrayText'>{filt}</Typography>
+                    <div style={{flex:1}}></div>
+                    <IconButton size='small' onClick={()=>handleFilter("Not Reviewed")}>
+                        <Badge badgeContent={newEntries} max={99} color='error'>
+                            <Notifications/>
+                        </Badge>
+                    </IconButton>
                 </Stack>
 
                 <Menu id="fade-menu" MenuListProps={{ 'aria-labelledby': 'fade-button'}} anchorEl={anchorEl} open={open} onClose={handleClose}>

@@ -8,8 +8,6 @@ import { useNavigate, NavLink } from 'react-router-dom';
 import axios from "axios";
 import config from '../config.json';
 import { useSelector, useDispatch } from 'react-redux';
-import { trySilentRefresh } from '../utils/authUtils';
-import {setAccessToken } from '../Reducers/userDataSlice';
 import { AccountBox, LogoutOutlined} from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import colors from './ColorPalete';
@@ -95,25 +93,6 @@ function MenuBar({permissions,username, availability, roleName}) {
       navigate("/login");
     });
   }
-  useEffect(() => {
-		// Silence refresh.
-		setInterval(async () => {
-			const res = await trySilentRefresh().then((data) => {
-				if (data) {
-					dispatch(setAccessToken(data.accessToken));
-          const object = {_id: data.ref._id,username: data.ref.username, email: data.ref.email,availability: data.ref.availability, role: data.ref.role, permissions: data.body.permissions, reg_no: data.ref.reg_no, atoken: data.accessToken.token }
-          sessionStorage.setItem("info",JSON.stringify(object))
-					return true;
-				}
-				return false;
-			});
-
-			if (!res) {
-				localStorage.setItem('loggedOut', 'Your session has been expired! Please log in again.');
-				Logout();
-			}
-		}, timeout);
-	}, []);
 
   return (
     <AppBar position="fixed">
