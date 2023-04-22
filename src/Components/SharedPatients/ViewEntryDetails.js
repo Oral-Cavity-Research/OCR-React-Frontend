@@ -105,7 +105,7 @@ const ViewEntryDetails = () => {
             <div className="inner_content">
                 <div>  
                     <div className="sticky">
-                    <Typography sx={{ fontWeight: 700}} variant="h5">Tele Consultation Entry</Typography>                  
+                    <Typography sx={{ fontWeight: 700}} variant="h5">Previous Records</Typography>                  
                     <Button onClick={() => navigate(-1)} size='small' startIcon={<ArrowBack/>} sx={{p:0}}>Go Back</Button>
                     </div>
                     {loading && !data?

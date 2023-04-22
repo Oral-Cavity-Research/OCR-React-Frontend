@@ -160,13 +160,6 @@ const NewEntry = ({entryID, setEntryID, btnRef, setDone, setLoading}) => {
                 })
             }
             </List>}
-
-            {/* <Box sx={{border:'1px solid lightgray', borderRadius: 1, p:2}}>
-                <UploadPage entryID={entryID} hidenButton={hiddenButtonImage}/>
-            </Box>
-            <Box sx={{border:'1px solid lightgray', borderRadius: 1, p:2}}>
-                <UploadTests entryID={entryID} hidenButton={hiddenButtonReport}/>
-            </Box> */}
         </Stack>
         <button hidden ref={btnRef} type='submit' >Save Entry</button>
         </Box>
