@@ -5,7 +5,6 @@ import { Search } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useSelector} from 'react-redux';
 import { DataGrid } from '@mui/x-data-grid';
-import config from '../../../config.json'
 import axios from 'axios';
 import NotificationBar from '../../NotificationBar';
 
@@ -47,7 +46,7 @@ const UserPermissions = () => {
 
     useEffect(()=>{
 
-        axios.get(`${config['path']}/admin/roles`,
+        axios.get(`${process.env.REACT_APP_BE_URL}/admin/roles`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,
@@ -62,7 +61,7 @@ const UserPermissions = () => {
     },[])
 
     useEffect(()=>{
-        axios.get(`${config['path']}/admin/option/permissions`,
+        axios.get(`${process.env.REACT_APP_BE_URL}/admin/option/permissions`,
         { headers: {
             'Authorization':  `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,

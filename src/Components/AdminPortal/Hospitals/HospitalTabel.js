@@ -1,7 +1,6 @@
 import React, { useState, useEffect} from 'react';
 import {Box, Button, FormControl, IconButton, InputAdornment, LinearProgress, OutlinedInput, Paper} from '@mui/material';
 import {Typography, Stack} from '@mui/material';
-import config from '../../../config.json'
 import axios from 'axios';
 import NotificationBar from '../../NotificationBar';
 import { DataGrid } from '@mui/x-data-grid';
@@ -59,7 +58,7 @@ const HospitalTable = () => {
     useEffect(()=>{
         setLoading(true);
         setUserData(selectorData);
-        axios.get(`${config['path']}/user/self/hospitals`,
+        axios.get(`${process.env.REACT_APP_BE_URL}/user/self/hospitals`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,

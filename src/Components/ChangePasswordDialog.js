@@ -1,11 +1,10 @@
 import React, {useState} from 'react';
 import {Button, Stack} from '@mui/material';
-import { FormControl, InputLabel, InputAdornment, IconButton, OutlinedInput, Typography } from '@mui/material';
+import { FormControl, InputLabel, InputAdornment, IconButton, OutlinedInput} from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { PasswordStrengthIndicator, passwordStrength } from './utils';
 import LoadingButton from '@mui/lab/LoadingButton';
 import NotificationBar from './NotificationBar';
-import config from './../config.json';
 import axios from 'axios';
 import { useSelector} from 'react-redux';
 
@@ -50,7 +49,7 @@ export default function ChangePasswordDialog({setShowPassword}) {
       
         setState(1);
 
-        axios.post(`${config['path']}/user/self/password`,
+        axios.post(`${process.env.REACT_APP_BE_URL}/user/self/password`,
         {
             cpassword: Cpassword,
             npassword: Npassword

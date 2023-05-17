@@ -6,7 +6,6 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import background_img from '../Assets/background.jpeg';
 import logo from '../Assets/logo.svg'
 import axios from 'axios';
-import config from '../config.json';
 import { useNavigate } from "react-router-dom";
 import NotificationBar from '../Components/NotificationBar';
 import { useDispatch } from 'react-redux';
@@ -59,7 +58,7 @@ const LoginPage =()=>{
         
         setLoading(true);
 
-        axios.post(`${config['path']}/auth/login`, {
+        axios.post(`${process.env.REACT_APP_BE_URL}/auth/login`, {
             email: data.get('email'),
             password: data.get('password')
         }, { withCredentials: true })
@@ -131,7 +130,7 @@ const LoginPage =()=>{
         
 
         setLoading(true)
-        axios.post(`${config['path']}/auth/signup`, {
+        axios.post(`${process.env.REACT_APP_BE_URL}/auth/signup`, {
                 username: data.get('username'),
                 email: data.get('signup email'),
                 reg_no: data.get('regNo'),

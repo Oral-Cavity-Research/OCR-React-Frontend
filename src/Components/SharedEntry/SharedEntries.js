@@ -6,7 +6,6 @@ import {CheckCircle, Circle, FilterList, Notifications} from '@mui/icons-materia
 import {useNavigate } from 'react-router-dom';
 import NotificationBar from '../NotificationBar';
 import axios from 'axios';
-import config from '../../config.json';
 import { useSelector} from 'react-redux';
 import dayjs from 'dayjs';
 import { LoadingButton } from '@mui/lab';
@@ -55,7 +54,7 @@ const SharedEntries = () => {
     const loadMore = () => {
         setLoading(true);
         setNoMore(false);
-        axios.get(`${config['path']}/user/entry/shared/all`,{
+        axios.get(`${process.env.REACT_APP_BE_URL}/user/entry/shared/all`,{
             params: { page: page + 1, filter: filt},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
@@ -77,7 +76,7 @@ const SharedEntries = () => {
     const getData = ()=>{
         setLoading(true);
         setNoMore(false);
-        axios.get(`${config['path']}/user/entry/shared/all`,{
+        axios.get(`${process.env.REACT_APP_BE_URL}/user/entry/shared/all`,{
             params: { page: 1, filter: filt},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
@@ -96,7 +95,7 @@ const SharedEntries = () => {
     }  
     
     useEffect(()=>{
-        axios.get(`${config['path']}/user/entry/count/newentries`,{
+        axios.get(`${process.env.REACT_APP_BE_URL}/user/entry/count/newentries`,{
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
                 'email': JSON.parse(sessionStorage.getItem("info")).email,

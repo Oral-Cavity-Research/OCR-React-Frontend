@@ -2,7 +2,6 @@ import React, { useState, useEffect} from 'react';
 import {Box, FormControl, IconButton, LinearProgress, OutlinedInput, Paper} from '@mui/material';
 import {InputAdornment} from '@mui/material';
 import {Avatar, Typography, Stack} from '@mui/material';
-import config from '../../../config.json'
 import axios from 'axios';
 import NotificationBar from '../../NotificationBar';
 import { stringAvatar} from '../../utils';
@@ -65,7 +64,7 @@ const RequestsTable = () => {
     useEffect(()=>{
         setLoading(true);
         setUserData(selectorData);
-        axios.get(`${config['path']}/admin/requests`,
+        axios.get(`${process.env.REACT_APP_BE_URL}/admin/requests`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,

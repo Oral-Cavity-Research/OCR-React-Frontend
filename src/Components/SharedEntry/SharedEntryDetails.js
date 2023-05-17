@@ -47,7 +47,6 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import Canvas from "../Annotation/Canvas";
 import axios from "axios";
 import dayjs from "dayjs";
-import config from "../../config.json";
 import NotificationBar from "../NotificationBar";
 import AssigneeDropdown from "../AssigneeDropDown";
 import { LoadingButton } from "@mui/lab";
@@ -173,7 +172,7 @@ const SharedEntryDetails = () => {
 
     axios
       .post(
-        `${config["path"]}/user/entry/mark/${id}`,
+        `${process.env.REACT_APP_BE_URL}/user/entry/mark/${id}`,
         {},
         {
           headers: {
@@ -190,7 +189,7 @@ const SharedEntryDetails = () => {
   const getReviews = (id) => {
     setLoadingReviews(true);
     axios
-      .get(`${config["path"]}/user/entry/reviews/${id}`, {
+      .get(`${process.env.REACT_APP_BE_URL}/user/entry/reviews/${id}`, {
         headers: {
           Authorization: `Bearer ${userData.accessToken.token}`,
           email: JSON.parse(sessionStorage.getItem("info")).email,
@@ -232,7 +231,7 @@ const SharedEntryDetails = () => {
     };
 
     axios
-      .post(`${config["path"]}/user/entry/review/${data._id}`, toBeSent, {
+      .post(`${process.env.REACT_APP_BE_URL}/user/entry/review/${data._id}`, toBeSent, {
         headers: {
           Authorization: `Bearer ${userData.accessToken.token}`,
           email: JSON.parse(sessionStorage.getItem("info")).email,
@@ -271,7 +270,7 @@ const SharedEntryDetails = () => {
 
     axios
       .post(
-        `${config["path"]}/user/entry/reviewer/change/${id}`,
+        `${process.env.REACT_APP_BE_URL}/user/entry/reviewer/change/${id}`,
         { reviewer_id: assignee._id },
         {
           headers: {
@@ -295,7 +294,7 @@ const SharedEntryDetails = () => {
 
   const loadData = () => {
     axios
-      .get(`${config["path"]}/user/entry/shared/data/${id}`, {
+      .get(`${process.env.REACT_APP_BE_URL}/user/entry/shared/data/${id}`, {
         headers: {
           Authorization: `Bearer ${userData.accessToken.token}`,
           email: JSON.parse(sessionStorage.getItem("info")).email,
@@ -593,7 +592,7 @@ const SharedEntryDetails = () => {
                     <div className="imageDiv">
                       <div className="grid_image">
                         <img
-                          src={`${config["image_path"]}/${item.image_name}`}
+                          src={`${process.env.REACT_APP_IMAGE_PATH}/${item.image_name}`}
                           alt="Failed to Load"
                         />
                         {item.annotation.length === 0 && (
@@ -661,7 +660,7 @@ const SharedEntryDetails = () => {
                       variant="body2"
                     >
                       <a
-                        href={`${config["report_path"]}/` + item.report_name}
+                        href={`${process.env.REACT_APP_REPORT_PATH}/` + item.report_name}
                         target="_blank"
                       >
                         {realReportName(item.report_name)}

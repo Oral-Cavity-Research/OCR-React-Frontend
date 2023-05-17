@@ -2,11 +2,10 @@ import React, { useRef, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import { ArrowBack, Close,PersonAddAlt1 } from '@mui/icons-material';
 import { Box, Stack, Typography,Button, Paper, TextField, FormControl, MenuItem, Select, Checkbox,
-    ListItem, IconButton, ListItemText, InputLabel, List, Divider} from '@mui/material';
+    ListItem, IconButton, ListItemText, InputLabel, List} from '@mui/material';
 import SignaturePad from 'react-signature-canvas';
 import {pdf,Document,Page,Text,Image,View, StyleSheet} from "@react-pdf/renderer";
 import { useSelector} from 'react-redux';
-import config from '../../config.json'
 import axios from 'axios';
 import dayjs from 'dayjs';
 import NotificationBar from '../NotificationBar';
@@ -223,7 +222,7 @@ const PatientNew = () => {
         }
 
         try {
-            const res = await axios.get(`${config['path']}/user/patient/check/${form.get("patient_id")}`,
+            const res = await axios.get(`${process.env.REACT_APP_BE_URL}/user/patient/check/${form.get("patient_id")}`,
             { headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
                 'email': JSON.parse(sessionStorage.getItem("info")).email,
@@ -253,7 +252,7 @@ const PatientNew = () => {
 
     const uploadData = (upload)=>{
 
-        axios.post(`${config['path']}/user/upload/patient`, upload,
+        axios.post(`${process.env.REACT_APP_BE_URL}/user/upload/patient`, upload,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,

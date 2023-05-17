@@ -3,7 +3,6 @@ import { Box, Button, CircularProgress, Stack, TextField, Table, TableBody, Tabl
 import {Delete, Edit} from '@mui/icons-material';
 import { MuiTelInput } from 'mui-tel-input';
 import axios from 'axios';
-import config from '../../../config.json'
 import LoadingButton from '@mui/lab/LoadingButton';
 import NotificationBar from '../../NotificationBar';
 import DeleteHospitalDialog from './DeleteHospitalDialog';
@@ -59,7 +58,7 @@ const View = ({data}) => {
         }
 
         setLoading(true);
-        axios.post(`${config['path']}/admin/hospitals/update/${id}`, tobesend,
+        axios.post(`${process.env.REACT_APP_BE_URL}/admin/hospitals/update/${id}`, tobesend,
         { headers: {
             'Authorization': 'BEARER '+ JSON.parse(sessionStorage.getItem("info")).atoken,
             'email': JSON.parse(sessionStorage.getItem("info")).email,

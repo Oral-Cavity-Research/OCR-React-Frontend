@@ -6,7 +6,6 @@ import Canvas from './Annotation/Canvas';
 import DeleteImage from './Patients/DeleteImage';
 import NotificationBar from './NotificationBar';
 import axios from 'axios';
-import config from '../config.json';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -53,7 +52,7 @@ const ImagesSearch = () => {
     useEffect(()=>{
 
         setLoading(true)
-        axios.get(`${config['path']}/image/all`,
+        axios.get(`${process.env.REACT_APP_BE_URL}/image/all`,
         { headers: {
             'Authorization': 'BEARER '+ JSON.parse(sessionStorage.getItem("info")).atoken,
             'email': JSON.parse(sessionStorage.getItem("info")).email,
@@ -80,7 +79,7 @@ const ImagesSearch = () => {
                 <Grid item key={index} xs={4} md={3} lg={2}>
                     <div className='imageDiv'>
                         <div className='grid_image'>
-                            <img src={`${config["image_path"]}/${item.image_name}`} alt="Failed to Load"/>
+                            <img src={`${process.env.REACT_APP_IMAGE_PATH}/${item.image_name}`} alt="Failed to Load"/>
                             {item.annotation.length === 0 && <div className='overlay'>
                             <svg onClick={()=>handleDoubleClick(index)}>
                                 <polygon points="0,0,70,0,70,70"/>

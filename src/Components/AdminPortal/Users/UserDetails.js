@@ -4,7 +4,6 @@ import { ArrowBack } from '@mui/icons-material';
 import { Box, Stack, Avatar, Typography, Skeleton, Button, Divider, 
          Table, TableBody, TableCell, TableRow, Paper} from '@mui/material';
 import { stringAvatar } from '../../utils';
-import config from '../../../config.json'
 import axios from 'axios';
 import NotificationBar from '../../NotificationBar';
 import ResetPasswordDialog from './ResetPasswordDialog';
@@ -31,7 +30,7 @@ const UserDetails = () => {
     useEffect(()=>{
 
         setLoading(true);
-        axios.get(`${config['path']}/admin/users/${id}`,
+        axios.get(`${process.env.REACT_APP_BE_URL}/admin/users/${id}`,
         { headers: {
             'Authorization':  `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,
@@ -47,7 +46,7 @@ const UserDetails = () => {
     },[])
 
     useEffect(()=>{
-        axios.get(`${config['path']}/admin/option/permissions`,
+        axios.get(`${process.env.REACT_APP_BE_URL}/admin/option/permissions`,
         { headers: {
             'Authorization':  `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,
@@ -74,7 +73,7 @@ const UserDetails = () => {
       
         setState(1);
 
-        axios.post(`${config['path']}/admin/update/user/${data._id}`,
+        axios.post(`${process.env.REACT_APP_BE_URL}/admin/update/user/${data._id}`,
         {
           username: username,
           role: [role]

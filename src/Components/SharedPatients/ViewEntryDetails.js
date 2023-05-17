@@ -9,7 +9,6 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import Canvas from '../Annotation/Canvas';
 import axios from 'axios';
 import dayjs from 'dayjs';
-import config from '../../config.json';
 import NotificationBar from '../NotificationBar';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(duration);
@@ -60,7 +59,7 @@ const ViewEntryDetails = () => {
 
     const getReviews = ()=>{
         setLoadingReviews(true);
-        axios.get(`${config['path']}/user/entry/reviews/${id}`,{
+        axios.get(`${process.env.REACT_APP_BE_URL}/user/entry/reviews/${id}`,{
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
                 'email': JSON.parse(sessionStorage.getItem("info")).email,
@@ -76,7 +75,7 @@ const ViewEntryDetails = () => {
     }
 
     const loadData = ()=>{
-        axios.get(`${config['path']}/user/entry/shared/${id}`,{
+        axios.get(`${process.env.REACT_APP_BE_URL}/user/entry/shared/${id}`,{
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
                 'email': JSON.parse(sessionStorage.getItem("info")).email,
@@ -195,7 +194,7 @@ const ViewEntryDetails = () => {
                         <Grid item key={index} xs={4} md={3} lg={2}>
                             <div className='imageDiv'>
                                 <div className='grid_image'>
-                                    <img src={`${config["image_path"]}/${item.image_name}`} alt="Failed to Load"/>
+                                    <img src={`${process.env.REACT_APP_IMAGE_PATH}/${item.image_name}`} alt="Failed to Load"/>
                                     <Stack direction='row' sx={{position:'absolute', bottom:10, right:0}}>
                                         <IconButton onClick={()=>handleDoubleClick(index)} size='small' sx={{ color:'transparent'}} className='iconBackground'><Edit fontSize='small'/></IconButton>
                                     </Stack>
@@ -223,7 +222,7 @@ const ViewEntryDetails = () => {
                         return(
                         <Stack direction='row' sx={{my:2}} alignItems='center' spacing={2} key={index}>
                             <PictureAsPdf color='error'/>
-                            <Typography sx={{ "&:hover" :{color:'var(--primary-color)'} }} variant='body2'><a href={`${config["report_path"]}/`+item.report_name} target="_blank">{realReportName(item.report_name)}</a></Typography>
+                            <Typography sx={{ "&:hover" :{color:'var(--primary-color)'} }} variant='body2'><a href={`${process.env.REACT_APP_REPORT_PATH}/`+item.report_name} target="_blank">{realReportName(item.report_name)}</a></Typography>
                         </Stack>
                         
                     )})}

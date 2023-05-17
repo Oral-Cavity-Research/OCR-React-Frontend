@@ -3,7 +3,6 @@ import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import CircularProgress from '@mui/material/CircularProgress';
 import axios from 'axios';
-import config from '../config.json';
 
 export default function HospitalDropdown() {
   const [open, setOpen] = React.useState(false);
@@ -17,7 +16,7 @@ export default function HospitalDropdown() {
     }
 
     (async () => {
-    axios.get(`${config['path']}/user/self/hospitals`).then(resp =>{
+    axios.get(`${process.env.REACT_APP_BE_URL}/user/self/hospitals`).then(resp =>{
         setOptions(resp.data);
         for(let i = 0; i < resp.data.length; i++){
             options[i] = resp.data[i]['name']

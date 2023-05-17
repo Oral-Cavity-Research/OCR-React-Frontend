@@ -7,7 +7,6 @@ import Help from './Help';
 import ButtonPanel from './ButtonPanel';
 import MenuItem from '@mui/material/MenuItem';
 import axios from 'axios';
-import config from '../../config.json';
 import { LoadingButton } from '@mui/lab';
 import NotificationBar from '../NotificationBar';
 
@@ -206,7 +205,7 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
 
     }else{
 
-      axios.post(`${config['path']}/image/update`,
+      axios.post(`${process.env.REACT_APP_BE_URL}/image/update`,
         {
           _id: data[imageIndex]._id,
           location:location,
@@ -751,7 +750,7 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
           {upload?
           <img className="main_img" onLoad={(e)=>{get_dimensions(e)}}  width={size.width} height={size.height} src={imageIndex>=0 && `${data[imageIndex].img}`} alt="failed to load"/> 
             :
-          <img className="main_img" onLoad={(e)=>{get_dimensions(e)}}  width={size.width} height={size.height} src={imageIndex>=0 && `${config['image_path']}/${data[imageIndex].image_name}`} alt="failed to load"/> 
+          <img className="main_img" onLoad={(e)=>{get_dimensions(e)}}  width={size.width} height={size.height} src={imageIndex>=0 && `${process.env.REACT_APP_IMAGE_PATH}/${data[imageIndex].image_name}`} alt="failed to load"/> 
           
         }
         </div>

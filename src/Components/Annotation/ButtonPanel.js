@@ -1,6 +1,6 @@
 import React from 'react';
 import {IconButton, Divider, Tooltip} from '@mui/material';
-import {Preview,ZoomIn,CropFree,ZoomOut,Close, CancelOutlined, HelpOutline, Style, Save} from '@mui/icons-material';
+import {Preview,ZoomIn,CropFree,ZoomOut,Close, CancelOutlined, HelpOutline, Style} from '@mui/icons-material';
 import {ArrowUpward, ArrowDownward, ArrowBack, ArrowForward, Opacity, Check} from '@mui/icons-material';
 import {Label, LabelOff} from '@mui/icons-material';
 

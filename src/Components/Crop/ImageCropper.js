@@ -8,7 +8,6 @@ import { Warning } from '@mui/icons-material';
 import NotificationBar from '../NotificationBar';
 import { LoadingButton } from '@mui/lab';
 import axios from 'axios';
-import config from '../../config.json';
 
 export default function ImageCropper({imageIndex,data,setData,open,setOpen,selectedFiles, setSelectedFiles, upload}) {
   const imgRef = useRef(null)
@@ -86,7 +85,7 @@ export default function ImageCropper({imageIndex,data,setData,open,setOpen,selec
         form.append('data', JSON.stringify({_id:data[imageIndex]._id}));
        
         
-        axios.post(`${config['path']}/images/update`, form,
+        axios.post(`${process.env.REACT_APP_BE_URL}/images/update`, form,
         { headers: {
             'Authorization': 'BEARER '+ JSON.parse(sessionStorage.getItem("info")).atoken,
             'Content-Type': 'multipart/form-data',
@@ -119,7 +118,7 @@ export default function ImageCropper({imageIndex,data,setData,open,setOpen,selec
       if(upload){
         setImgSrc(data[imageIndex].img);
       }else{
-        setImgSrc(`${config["image_path"]}/${data[imageIndex].image_name}`);
+        setImgSrc(`${process.env.REACT_APP_IMAGE_PATH}/${data[imageIndex].image_name}`);
       }
     }
   },[open])

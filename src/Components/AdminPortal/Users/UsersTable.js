@@ -2,7 +2,6 @@ import React, { useState, useEffect} from 'react';
 import {Box, FormControl, IconButton, LinearProgress, Menu, MenuItem, OutlinedInput, Paper} from '@mui/material';
 import { InputAdornment} from '@mui/material';
 import {Avatar, Typography, Stack} from '@mui/material';
-import config from '../../../config.json'
 import axios from 'axios';
 import NotificationBar from '../../NotificationBar';
 import { stringAvatar} from '../../utils';
@@ -81,7 +80,7 @@ const UsersTable = () => {
 
         setLoading(true);
 
-        axios.get(`${config['path']}/admin/users/role/${role}`,
+        axios.get(`${process.env.REACT_APP_BE_URL}/admin/users/role/${role}`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,
@@ -98,7 +97,7 @@ const UsersTable = () => {
 
     useEffect(()=>{
 
-        axios.get(`${config['path']}/admin/roles`,
+        axios.get(`${process.env.REACT_APP_BE_URL}/admin/roles`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,

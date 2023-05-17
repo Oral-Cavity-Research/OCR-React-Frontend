@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState} from 'react';
 import { Box, Stack, Avatar, Typography, TextField, Skeleton,
        Grid, Paper, Badge, Select, MenuItem, FormControl, InputLabel, Button} from '@mui/material';
 import { stringAvatar } from './utils';
-import config from '../config.json'
 import axios from 'axios';
 import NotificationBar from './NotificationBar';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -44,7 +43,7 @@ const UserProfile = () => {
     useEffect(()=>{
         
         setLoading(true);
-        axios.get(`${config['path']}/user/self/hospitals`,
+        axios.get(`${process.env.REACT_APP_BE_URL}/user/self/hospitals`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,
@@ -65,7 +64,7 @@ const UserProfile = () => {
     const fetchData = ()=>{
         const _id = JSON.parse(sessionStorage.getItem("info"))._id
 
-        axios.get(`${config['path']}/user/self`,
+        axios.get(`${process.env.REACT_APP_BE_URL}/user/self`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,
@@ -99,7 +98,7 @@ const UserProfile = () => {
 
         setState(1);
 
-        axios.post(`${config['path']}/user/self/update`,
+        axios.post(`${process.env.REACT_APP_BE_URL}/user/self/update`,
         toBeSend,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,

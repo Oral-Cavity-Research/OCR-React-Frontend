@@ -4,7 +4,6 @@ import Autocomplete from '@mui/material/Autocomplete';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useSelector} from 'react-redux';
 import axios from 'axios';
-import config from '../config.json';
 import NotificationBar from './NotificationBar';
 
 export default function AssigneeDropdown({setAssignee}) {
@@ -30,7 +29,7 @@ export default function AssigneeDropdown({setAssignee}) {
     }
 
     (async () => {
-    axios.get(`${config['path']}/user/patient/reviewer/all`,
+    axios.get(`${process.env.REACT_APP_BE_URL}/user/patient/reviewer/all`,
     { headers: {
       'Authorization': `Bearer ${userData.accessToken.token}`,
       'email': JSON.parse(sessionStorage.getItem("info")).email,

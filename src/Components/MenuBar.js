@@ -1,12 +1,11 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import{ AppBar, Menu,Container,Avatar,MenuItem, Divider} from '@mui/material';
-import{ Box,Toolbar,IconButton,Typography, Button, Switch, Badge} from '@mui/material';
+import{ Box,Toolbar,IconButton,Typography, Button,Badge} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link } from 'react-router-dom';
 import logo from '../Assets/logo.svg';
 import { useNavigate, NavLink } from 'react-router-dom';
 import axios from "axios";
-import config from '../config.json';
 import { useSelector, useDispatch } from 'react-redux';
 import { AccountBox, LogoutOutlined} from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
@@ -55,10 +54,8 @@ function MenuBar({permissions,username, availability, roleName}) {
   const open2 = Boolean(anchorElNav);
 
   const userData = useSelector(state => state.data);
-  const dispatch = useDispatch();
 
   const navigate = useNavigate();
-  const timeout = 1000 * 60 * 60 * 2;
   
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -81,7 +78,7 @@ function MenuBar({permissions,username, availability, roleName}) {
 
   const Logout = ()=>{
     
-    axios.post(`${config['path']}/auth/revokeToken`, {},
+    axios.post(`${process.env.REACT_APP_BE_URL}/auth/revokeToken`, {},
     { headers: {
       'Authorization': `Bearer ${userData.accessToken.token}`,
       'email': userData.email,

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import { Box, Stack, TextField, FormControl, MenuItem, Select, 
-    List, ListItem, IconButton, ListItemText, InputLabel, Button, ListItemAvatar, Avatar} from '@mui/material';
+    List, ListItem, IconButton, ListItemText, InputLabel, Button} from '@mui/material';
 import { Close} from '@mui/icons-material';
 import dayjs from 'dayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -9,7 +9,6 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import NotificationBar from '../NotificationBar';
 import { useSelector} from 'react-redux';
 import axios from 'axios';
-import config from '../../config.json';
 import { useParams } from 'react-router-dom';
 
 const habitOptions = [
@@ -71,7 +70,7 @@ const NewEntry = ({entryID, setEntryID, btnRef, setDone, setLoading}) => {
             complaint,findings,current_habits
         }
 
-        axios.post(`${config['path']}/user/entry/add/${id}`, upload,
+        axios.post(`${process.env.REACT_APP_BE_URL}/user/entry/add/${id}`, upload,
         {headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,

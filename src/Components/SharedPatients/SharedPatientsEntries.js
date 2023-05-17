@@ -1,12 +1,11 @@
 import React, {useEffect, useState } from 'react';
-import { Avatar, AvatarGroup, Button, FormControl, LinearProgress, Menu, MenuItem, OutlinedInput, Paper, Stack, 
+import { Avatar, AvatarGroup, LinearProgress, Menu, MenuItem, Stack, 
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography} from '@mui/material';
 import {IconButton} from '@mui/material';
 import {FilterList, Image, Message} from '@mui/icons-material';
 import {useNavigate, useParams } from 'react-router-dom';
 import NotificationBar from '../NotificationBar';
 import axios from 'axios';
-import config from '../../config.json';
 import { useSelector} from 'react-redux';
 import dayjs from 'dayjs';
 import { LoadingButton } from '@mui/lab';
@@ -56,7 +55,7 @@ const SharedPatientEntries = () => {
     const loadMore = () => {
         setLoading(true);
         setNoMore(false);
-        axios.get(`${config['path']}/user/entry/shared/patient/${id}`,{
+        axios.get(`${process.env.REACT_APP_BE_URL}/user/entry/shared/patient/${id}`,{
             params: { page: page + 1, filter: filt},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
@@ -78,7 +77,7 @@ const SharedPatientEntries = () => {
     const getData = ()=>{
         setLoading(true);
         setNoMore(false);
-        axios.get(`${config['path']}/user/entry/shared/patient/${id}`,{
+        axios.get(`${process.env.REACT_APP_BE_URL}/user/entry/shared/patient/${id}`,{
             params: { page: 1, filter: filt},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,

@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState} from 'react';
+import React, { useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import { ArrowBack, Download} from '@mui/icons-material';
 import { Box, Stack, Avatar, Typography, Skeleton,Tab, Button, Paper } from '@mui/material';
 import {TabContext,TabList,TabPanel, LoadingButton } from '@mui/lab';
 import { stringAvatar } from '../utils';
-import config from '../../config.json'
 import axios from 'axios';
 import { useSelector} from 'react-redux';
 import PatientProfile from './PatientProfile';
@@ -40,7 +39,7 @@ const PatientDetails = () => {
     useEffect(()=>{
 
         setLoading(true);
-        axios.get(`${config['path']}/user/patient/${id}`,
+        axios.get(`${process.env.REACT_APP_BE_URL}/user/patient/${id}`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
             'email': JSON.parse(sessionStorage.getItem("info")).email,
@@ -58,7 +57,7 @@ const PatientDetails = () => {
 
     const handleDownload = async (patientData) => {
         setButtonLoading(true);
-        axios.get(`${config['path']}/user/entry/get/patient/${id}`,{
+        axios.get(`${process.env.REACT_APP_BE_URL}/user/entry/get/patient/${id}`,{
             params: { },
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,

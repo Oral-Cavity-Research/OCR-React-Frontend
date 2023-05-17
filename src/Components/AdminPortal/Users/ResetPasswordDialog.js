@@ -1,11 +1,10 @@
 import React, {useState} from 'react';
 import {Box, Button, Stack, } from '@mui/material';
-import { FormControl, InputLabel, InputAdornment, IconButton, OutlinedInput, Typography } from '@mui/material';
+import { FormControl, InputLabel, InputAdornment, IconButton, OutlinedInput} from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { PasswordStrengthIndicator, passwordStrength } from '../../utils';
 import LoadingButton from '@mui/lab/LoadingButton';
 import NotificationBar from '../../NotificationBar';
-import config from '../../../config.json';
 import axios from 'axios';
 import { useSelector} from 'react-redux';
 
@@ -41,7 +40,7 @@ export default function ResetPasswordDialog({user, setIsReset}) {
       
         setState(1);
 
-        axios.post(`${config['path']}/admin/reset/user/${user._id}`,
+        axios.post(`${process.env.REACT_APP_BE_URL}/admin/reset/user/${user._id}`,
         {
             password: password
         },
