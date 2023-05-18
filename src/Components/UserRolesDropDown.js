@@ -3,7 +3,6 @@ import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import CircularProgress from '@mui/material/CircularProgress';
 import axios from 'axios';
-import config from '../config.json';
 import { useSelector} from 'react-redux';
 
 export default function UserRolesDropdown({setValue}) {
@@ -20,10 +19,10 @@ export default function UserRolesDropdown({setValue}) {
     }
 
     (async () => {
-    axios.get(`${config['path']}/admin/roles`,
+    axios.get(`${process.env.REACT_APP_BE_URL}/admin/roles`,
     { headers: {
         'Authorization':  `Bearer ${userData.accessToken.token}`,
-        'email': JSON.parse(sessionStorage.getItem("info")).email,
+        'email': userData.email,
     }}).then(resp =>{
         setOptions(resp.data);
     }).catch(function (error) {

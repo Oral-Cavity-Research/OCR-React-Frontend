@@ -6,7 +6,6 @@ import { ArrowDownward, ArrowUpward, Close, FilterList, Search } from '@mui/icon
 import {useNavigate } from 'react-router-dom';
 import NotificationBar from '../NotificationBar';
 import axios from 'axios';
-import config from '../../config.json';
 import { useSelector} from 'react-redux';
 import dayjs from 'dayjs';
 import { age } from '../utils';
@@ -79,11 +78,11 @@ const PatientsTable = () => {
     const loadMore = () => {
         setLoading(true);
         setNoMore(false);
-        axios.get(`${config['path']}/user/patient/get`,{
+        axios.get(`${process.env.REACT_APP_BE_URL}/user/patient/get`,{
             params: { page: page + 1, search: search, filter: filt, sort:sort},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
-                'email': JSON.parse(sessionStorage.getItem("info")).email,
+                'email': userData.email,
             },
             withCredentials: true
         }).then(res=>{
@@ -101,11 +100,11 @@ const PatientsTable = () => {
     const getData = ()=>{
         setLoading(true);
         setNoMore(false);
-        axios.get(`${config['path']}/user/patient/get`,{
+        axios.get(`${process.env.REACT_APP_BE_URL}/user/patient/get`,{
             params: { page: 1, search: search, filter: filt, sort: sort},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
-                'email': JSON.parse(sessionStorage.getItem("info")).email,
+                'email': userData.email,
             },
             withCredentials: true
         }).then(res=>{
@@ -120,10 +119,10 @@ const PatientsTable = () => {
     }
     
     // function searchCall(name){
-    //     axios.get(`${config['path']}/user/patient/search`,{
+    //     axios.get(`${process.env.REACT_APP_BE_URL}/user/patient/search`,{
     //         headers: {
     //             'Authorization': `Bearer ${userData.accessToken.token}`,
-    //             'email': JSON.parse(sessionStorage.getItem("info")).email,
+    //             'email': userData.email,
     //         },
     //         params: {
     //             "query" : name,
@@ -151,10 +150,10 @@ const PatientsTable = () => {
 
     //     setLoading(true);
 
-    //     axios.get(`${config['path']}/user/patient/all`,
+    //     axios.get(`${process.env.REACT_APP_BE_URL}/user/patient/all`,
     //     { headers: {
     //         'Authorization': `Bearer ${userData.accessToken.token}`,
-    //         'email': JSON.parse(sessionStorage.getItem("info")).email,
+    //         'email': userData.email,
     //     }}
     //     ).then(res=>{
     //         setData(res.data.patients);
@@ -209,7 +208,6 @@ const PatientsTable = () => {
                 
                 <FormControl sx={{width: '30ch' }} variant="outlined">
                     <OutlinedInput
-                        id="outlined-adornment-password"
                         placeholder='Search'
                         size='small'
                         inputProps={{ maxLength: 20}}

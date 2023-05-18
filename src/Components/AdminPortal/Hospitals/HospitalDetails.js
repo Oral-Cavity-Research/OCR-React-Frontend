@@ -1,9 +1,8 @@
 import React, { useEffect, useState} from 'react';
-import { Link, useNavigate, useParams} from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 import { ArrowBack, LocalHospital } from '@mui/icons-material';
 import { Box, Stack, Typography, Skeleton, Button, Paper} from '@mui/material';
 import { useSelector} from 'react-redux';
-import config from '../../../config.json'
 import axios from 'axios';
 import NotificationBar from '../../NotificationBar';
 import View from './View';
@@ -20,10 +19,10 @@ const HospiatalDetails = () => {
 
     useEffect(()=>{
         setLoading(true);
-        axios.get(`${config['path']}/admin/hospitals/${id}`,
+        axios.get(`${process.env.REACT_APP_BE_URL}/admin/hospitals/${id}`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             setData(res.data);

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import { Box, Stack, TextField, FormControl, MenuItem, Select, 
-    List, ListItem, IconButton, ListItemText, InputLabel, Button, ListItemAvatar, Avatar} from '@mui/material';
+    List, ListItem, IconButton, ListItemText, InputLabel, Button, Typography} from '@mui/material';
 import { Close} from '@mui/icons-material';
 import dayjs from 'dayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -9,7 +9,6 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import NotificationBar from '../NotificationBar';
 import { useSelector} from 'react-redux';
 import axios from 'axios';
-import config from '../../config.json';
 import { useParams } from 'react-router-dom';
 
 const habitOptions = [
@@ -54,7 +53,6 @@ const NewEntry = ({entryID, setEntryID, btnRef, setDone, setLoading}) => {
     const handleSubmit = (event)=>{
         event.preventDefault();
 
-        setLoading(true);
         const formData = new FormData(event.currentTarget);
         const complaint = formData.get('complaint');
         const findings = formData.get('findings');
@@ -71,10 +69,12 @@ const NewEntry = ({entryID, setEntryID, btnRef, setDone, setLoading}) => {
             complaint,findings,current_habits
         }
 
-        axios.post(`${config['path']}/user/entry/add/${id}`, upload,
+        setLoading(true);
+        
+        axios.post(`${process.env.REACT_APP_BE_URL}/user/entry/add/${id}`, upload,
         {headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             setEntryID(res.data._id);
@@ -100,6 +100,7 @@ const NewEntry = ({entryID, setEntryID, btnRef, setDone, setLoading}) => {
         <>
         <Box component='form' noValidate my={3} onSubmit={handleSubmit}>
         <Stack spacing={3}>
+            <Typography p={1} bgcolor={'#ececec'}>Findings</Typography>
             <Stack direction='row' spacing={2}>
                 <LocalizationProvider dateAdapter={AdapterDayjs} >
                     <DateTimePicker format='DD/MM/YYYY HH:mm:ss A' label="Start Time"  value={startTime} onChange={(newValue) => setStartTime(newValue)}
@@ -119,7 +120,7 @@ const NewEntry = ({entryID, setEntryID, btnRef, setDone, setLoading}) => {
             </Stack>
            <TextField fullWidth required size='small' name='complaint' multiline maxRows={4} label="Presenting complaint"/> 
            <TextField fullWidth required size='small' name='findings' multiline maxRows={4} label="Examination findings"/>
-
+           <Typography p={1} bgcolor={'#ececec'}>Current Habits</Typography>
            <Stack direction='row' spacing={2}>
            <FormControl fullWidth>
             <InputLabel id="habit-label" size='small' >Current Habits</InputLabel>
@@ -137,7 +138,7 @@ const NewEntry = ({entryID, setEntryID, btnRef, setDone, setLoading}) => {
                 }
             </Select>
             </FormControl>
-            <Button onClick={handleAddRisk} variant='outlined' color='inherit' >Add</Button>
+            <Button onClick={handleAddRisk} variant='contained'>Add</Button>
             </Stack>
             {riskHabits.length > 0 && 
             <List sx={{border:'1px solid lightgray', borderRadius: 1, pl:2}}>

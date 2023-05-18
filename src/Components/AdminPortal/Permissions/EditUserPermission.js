@@ -1,9 +1,8 @@
 import React, { useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
-import { ArrowBack, CheckBox, CheckBoxOutlineBlank, Edit, LocalHospital, LockPerson, Square } from '@mui/icons-material';
+import { ArrowBack, CheckBox, CheckBoxOutlineBlank, Edit, LockPerson } from '@mui/icons-material';
 import { Box, Stack, Typography, Skeleton, Button, Paper, FormLabel, FormGroup, FormControl, FormControlLabel, Checkbox, Divider, CircularProgress} from '@mui/material';
 import { useSelector} from 'react-redux';
-import config from '../../../config.json'
 import axios from 'axios';
 import NotificationBar from '../../NotificationBar';
 import { LoadingButton } from '@mui/lab';
@@ -23,10 +22,10 @@ const EditUserPermission = () => {
 
     useEffect(()=>{
         setLoading(true);
-        axios.get(`${config['path']}/admin/roles/${id}`,
+        axios.get(`${process.env.REACT_APP_BE_URL}/admin/roles/${id}`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             setData(res.data);
@@ -39,10 +38,10 @@ const EditUserPermission = () => {
     },[])
 
     useEffect(()=>{
-        axios.get(`${config['path']}/admin/option/permissions`,
+        axios.get(`${process.env.REACT_APP_BE_URL}/admin/option/permissions`,
         { headers: {
             'Authorization':  `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then((res)=>{
             setPermissions(res.data.options);
@@ -75,10 +74,10 @@ const EditUserPermission = () => {
             return;
         }
 
-        axios.post(`${config['path']}/admin/roles/${data._id}`, upload,
+        axios.post(`${process.env.REACT_APP_BE_URL}/admin/roles/${data._id}`, upload,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             showMsg(res.data.message,"success");

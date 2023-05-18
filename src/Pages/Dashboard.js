@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import config from '../config.json';
 import PieChart from "../Components/Dashboard/PieChart.js";
 
 function Dasboard() {
@@ -10,7 +9,7 @@ function Dasboard() {
 
   const generateData = (e) => {
     axios
-      .get(`${config['path']}/dashboard/percentages/`)
+      .get(`${process.env.REACT_APP_BE_URL}/dashboard/percentages/`)
       .then((response) => {
         // Format the data for recharts
         const formattedData = response.data.map((item) => {

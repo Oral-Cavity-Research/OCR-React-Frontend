@@ -2,7 +2,6 @@ import React, { useState, useEffect} from 'react';
 import {Box, FormControl, IconButton, LinearProgress, OutlinedInput, Paper} from '@mui/material';
 import {InputAdornment} from '@mui/material';
 import {Avatar, Typography, Stack} from '@mui/material';
-import config from '../../../config.json'
 import axios from 'axios';
 import NotificationBar from '../../NotificationBar';
 import { stringAvatar} from '../../utils';
@@ -65,10 +64,10 @@ const RequestsTable = () => {
     useEffect(()=>{
         setLoading(true);
         setUserData(selectorData);
-        axios.get(`${config['path']}/admin/requests`,
+        axios.get(`${process.env.REACT_APP_BE_URL}/admin/requests`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             setRequests(res.data);
@@ -92,7 +91,6 @@ const RequestsTable = () => {
         <Stack direction='row' justifyContent='flex-end' sx={{mb:2}} >
         <FormControl sx={{width: '30ch' }} variant="outlined">
           <OutlinedInput
-            id="outlined-adornment-password"
             placeholder='Search by name'
             size='small'
             inputProps={{ maxLength: 20}}
@@ -100,7 +98,6 @@ const RequestsTable = () => {
             endAdornment={
               <InputAdornment position="end">
                 <IconButton
-                  aria-label="toggle password visibility"
                   edge="end"
                 >
                   <Search/>

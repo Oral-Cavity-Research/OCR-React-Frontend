@@ -7,9 +7,9 @@ import Help from './Help';
 import ButtonPanel from './ButtonPanel';
 import MenuItem from '@mui/material/MenuItem';
 import axios from 'axios';
-import config from '../../config.json';
 import { LoadingButton } from '@mui/lab';
 import NotificationBar from '../NotificationBar';
+import { useSelector } from 'react-redux';
 
 // global variables 
 // todo: check whether we could use useStates instead
@@ -160,6 +160,7 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
   const [location, setLocation] = useState(data[imageIndex].location)
   const [clinicalDiagnosis, setClinicalDiagnosis] = useState(data[imageIndex].clinical_diagnosis);
   const [lesion, setLesion] = useState(data[imageIndex].lesions_appear);
+  const userData = useSelector(state => state.data);
 
   const handleChange = (event) => {
     setSelection(event.target.value);
@@ -206,7 +207,7 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
 
     }else{
 
-      axios.post(`${config['path']}/image/update`,
+      axios.post(`${process.env.REACT_APP_BE_URL}/image/update`,
         {
           _id: data[imageIndex]._id,
           location:location,
@@ -216,8 +217,8 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
 
         },
         { headers: {
-            'Authorization': 'BEARER '+ JSON.parse(sessionStorage.getItem("info")).atoken,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'Authorization': `Bearer ${userData.accessToken.token}`,
+            'email': userData.email,
         }}).then(res=>{
           showMsg("Image Data Updated", "success")
           // var temp = [...data]
@@ -751,7 +752,7 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
           {upload?
           <img className="main_img" onLoad={(e)=>{get_dimensions(e)}}  width={size.width} height={size.height} src={imageIndex>=0 && `${data[imageIndex].img}`} alt="failed to load"/> 
             :
-          <img className="main_img" onLoad={(e)=>{get_dimensions(e)}}  width={size.width} height={size.height} src={imageIndex>=0 && `${config['image_path']}/${data[imageIndex].image_name}`} alt="failed to load"/> 
+          <img className="main_img" onLoad={(e)=>{get_dimensions(e)}}  width={size.width} height={size.height} src={imageIndex>=0 && `${process.env.REACT_APP_IMAGE_PATH}/${data[imageIndex].image_name}`} alt="failed to load"/> 
           
         }
         </div>

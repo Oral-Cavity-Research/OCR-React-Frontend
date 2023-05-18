@@ -1,13 +1,12 @@
-import React, {useState, useEffect} from 'react';
-import{ AppBar, Menu,Container,Avatar,MenuItem, Divider} from '@mui/material';
-import{ Box,Toolbar,IconButton,Typography, Button, Switch, Badge} from '@mui/material';
+import React, {useState} from 'react';
+import{ AppBar, Menu,Container,Avatar,MenuItem, Divider, ButtonBase} from '@mui/material';
+import{ Box,Toolbar,IconButton,Typography, Button,Badge} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link } from 'react-router-dom';
 import logo from '../Assets/logo.svg';
 import { useNavigate, NavLink } from 'react-router-dom';
 import axios from "axios";
-import config from '../config.json';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector} from 'react-redux';
 import { AccountBox, LogoutOutlined} from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import colors from './ColorPalete';
@@ -24,41 +23,15 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
   }
 }));
 
-function stringToColor(string) {
-  let i, hash = 0;
-  let color = '#';
+function MenuBar() {
 
-  for (i = 0; i < string.length; i += 1) {
-    hash = string.charCodeAt(i) + ((hash << 5) - hash);
-  }
-
-  for (i = 0; i < 3; i += 1) {
-    const value = (hash >> (i * 8)) & 0xff;
-    color += `00${value.toString(16)}`.slice(-2);
-  }
-
-  return color;
-}
-
-
-function stringAvatar(name) {
-  return {
-  sx: {bgcolor: stringToColor(name), width: 32, height: 32},
-  children: `${name.split(' ')[0][0]}`,
-  };
-}
-
-function MenuBar({permissions,username, availability, roleName}) {
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
+  const userData = useSelector(state => state.data);
   const open = Boolean(anchorElUser);
   const open2 = Boolean(anchorElNav);
 
-  const userData = useSelector(state => state.data);
-  const dispatch = useDispatch();
-
   const navigate = useNavigate();
-  const timeout = 1000 * 60 * 60 * 2;
   
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -81,7 +54,7 @@ function MenuBar({permissions,username, availability, roleName}) {
 
   const Logout = ()=>{
     
-    axios.post(`${config['path']}/auth/revokeToken`, {},
+    axios.post(`${process.env.REACT_APP_BE_URL}/auth/revokeToken`, {},
     { headers: {
       'Authorization': `Bearer ${userData.accessToken.token}`,
       'email': userData.email,
@@ -89,7 +62,6 @@ function MenuBar({permissions,username, availability, roleName}) {
       withCredentials: true}
     )
     .then(()=>{
-      sessionStorage.removeItem("info")
       navigate("/login");
     });
   }
@@ -146,7 +118,7 @@ function MenuBar({permissions,username, availability, roleName}) {
           >
               {
                 MenuOptions.menu.map((item,index)=>{
-                  if(permissions?.some(p => item.allowed?.includes(p)))
+                  if(userData.permissions?.some(p => item.allowed?.includes(p)))
                   return(<MenuItem key={index}>
                     <Typography textAlign="center"><Link to={item.path} replace>{item.name}</Link></Typography>
                   </MenuItem>)
@@ -158,7 +130,7 @@ function MenuBar({permissions,username, availability, roleName}) {
                 <Button sx={{ my: 2, color: 'white', display: 'block', m:0}} component={NavLink} to="/manage"> 
                     Manage
                 </Button>
-                { permissions?.some(p => MenuOptions.adminPermissions?.includes(p)) &&
+                { userData.permissions?.some(p => MenuOptions.adminPermissions?.includes(p)) &&
                   <Button sx={{ my: 2, color: 'white', display: 'block', m:0}} component={NavLink} to="/adminportal">
                     Admin
                 </Button>}
@@ -166,20 +138,19 @@ function MenuBar({permissions,username, availability, roleName}) {
 
       <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
           
-          <Button
+          <ButtonBase
             onClick={handleOpenUserMenu}
             size="small"
-            sx={{ m:0, ml: 2, borderRadius: 5, p:0}}
+            sx={{ m:0, borderRadius: 100, p:0}}
             aria-controls={open ? 'account-menu' : undefined}
             aria-haspopup="true"
             aria-expanded={open ? 'true' : undefined}
             color="inherit"
           >
-            <Typography sx={{ m: 1, textTransform: 'none', display: { xs: 'none', sm: 'block'}}}>{username}</Typography>
-              <StyledBadge overlap="circular" anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} variant="dot" color={availability?'success':'error'}>
-                <Avatar {...stringAvatar(username)}/>
+              <StyledBadge overlap="circular" anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} variant="dot" color={userData.availability?'success':'error'}>
+                <Avatar src={userData.picture} alt={userData.username?userData.username:""}></Avatar>
               </StyledBadge>
-          </Button>
+          </ButtonBase>
       </Box>
       <Menu
         anchorEl={anchorElUser}
@@ -217,8 +188,8 @@ function MenuBar({permissions,username, availability, roleName}) {
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
         <Box sx={{mx:3, my:1}}>
-          <Typography><strong>{username}</strong></Typography>
-          <Typography color='GrayText'>{roleName}</Typography>
+          <Typography><strong>{userData.username}</strong></Typography>
+          <Typography color='GrayText'>{userData.role}</Typography>
         </Box>
         <Divider sx={{my:1}}/>
         <MenuItem sx={{width:'200px'}} onClick={GoToProfile}>

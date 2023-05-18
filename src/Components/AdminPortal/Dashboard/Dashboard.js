@@ -3,7 +3,6 @@ import { Box } from "@mui/system";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
-import config from "../../../config.json";
 import PieChart from "../../Dashboard/PieChart.js";
 import Card from "../../Dashboard/FeaturedInfo.js";
 
@@ -16,10 +15,10 @@ const Dashboard = () => {
 
   const getPercentages = (e) => {
     axios
-      .get(`${config["path"]}/dashboard/percentages/`, {
+      .get(`${process.env.REACT_APP_BE_URL}/dashboard/percentages/`, {
         headers: {
           Authorization: `Bearer ${userData.accessToken.token}`,
-          email: JSON.parse(sessionStorage.getItem("info")).email,
+          email: userData.email,
         },
       })
       .then((response) => {
@@ -38,14 +37,13 @@ const Dashboard = () => {
 
   const getTotals = (e) => {
     axios
-      .get(`${config["path"]}/dashboard/totals/`, {
+      .get(`${process.env.REACT_APP_BE_URL}/dashboard/totals/`, {
         headers: {
           Authorization: `Bearer ${userData.accessToken.token}`,
-          email: JSON.parse(sessionStorage.getItem("info")).email,
+          email: userData.email,
         },
       })
       .then((response) => {
-        console.log(response.data);
         setDoctors(response.data.doctors);
         setPatients(response.data.patients);
         setImages(response.data.images);

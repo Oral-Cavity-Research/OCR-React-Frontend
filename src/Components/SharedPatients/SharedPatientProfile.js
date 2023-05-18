@@ -1,8 +1,6 @@
 import React, {useState} from 'react';
 import NotificationBar from '../NotificationBar';
 import { Box,Table, TableBody, TableRow, TableCell,List, ListItem, ListItemText, Typography} from '@mui/material';
-
-import config from '../../config.json';
 import dayjs from 'dayjs';
 import { age } from '../utils';
 
@@ -77,7 +75,7 @@ const SharedPatientProfile = ({data}) => {
                     </TableRow>
                     <TableRow>
                         <TableCell>Consent Form</TableCell>
-                        <TableCell sx={{py:0, "&:hover" :{color:'var(--primary-color)'}}}><a href={`${config["consentform_path"]}/`+data.consent_form} target="_blank">Consent Form</a></TableCell>
+                        <TableCell sx={{py:0, "&:hover" :{color:'var(--primary-color)'}}}><a href={`${process.env.REACT_APP_CONSENTFORM_PATH}/`+data.consent_form} target="_blank">Consent Form</a></TableCell>
                     </TableRow>
                     <TableRow>
                         <TableCell>Created At</TableCell>

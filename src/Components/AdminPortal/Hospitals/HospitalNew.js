@@ -1,9 +1,8 @@
 import React, { useState} from 'react';
-import { Link, useNavigate} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import { ArrowBack, LocalHospital } from '@mui/icons-material';
 import { Box, Stack, Typography,Button, Paper, TextField} from '@mui/material';
 import { useSelector} from 'react-redux';
-import config from '../../../config.json'
 import axios from 'axios';
 import NotificationBar from '../../NotificationBar';
 import { MuiTelInput } from 'mui-tel-input';
@@ -39,10 +38,10 @@ const HospiatalNew = () => {
         const upload = {name,category,city,address, contact_no:value}
 
         setLoading(true);
-        axios.post(`${config['path']}/admin/hospital`, upload,
+        axios.post(`${process.env.REACT_APP_BE_URL}/admin/hospital`, upload,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             showMsg("Hospital added successfuly", "success");

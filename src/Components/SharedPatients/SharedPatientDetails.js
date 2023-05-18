@@ -1,10 +1,9 @@
 import React, { useEffect, useState} from 'react';
-import { Link, useNavigate, useParams} from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 import { ArrowBack} from '@mui/icons-material';
 import { Box, Stack, Avatar, Typography, Skeleton,Tab, Button, Paper} from '@mui/material';
 import {TabContext,TabList,TabPanel} from '@mui/lab';
 import { stringAvatar } from '../utils';
-import config from '../../config.json'
 import axios from 'axios';
 import { useSelector} from 'react-redux';
 import NotificationBar from '../NotificationBar';
@@ -34,10 +33,10 @@ const SharedPatientDetails = () => {
     useEffect(()=>{
 
         setLoading(true);
-        axios.get(`${config['path']}/user/patient/shared/${id}`,
+        axios.get(`${process.env.REACT_APP_BE_URL}/user/patient/shared/${id}`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             setData(res.data);

@@ -1,5 +1,4 @@
 import React from "react";
-import config from "../../config.json";
 import dayjs from "dayjs";
 
 import {
@@ -87,7 +86,7 @@ const PDFFile = ({ data, duration, reviews }) => {
       <View key={i} style={styles.row}>
         <View style={styles.imageContainer}>
           <Image
-            src={`${config["image_path"]}/${data.images[i].image_name}`}
+            src={`${process.env.REACT_APP_IMAGE_PATH}/${data.images[i].image_name}`}
             alt="Failed to Load"
             style={styles.image}
           />
@@ -95,7 +94,7 @@ const PDFFile = ({ data, duration, reviews }) => {
         {data.images[i + 1] && (
           <View style={styles.imageContainer}>
             <Image
-              src={`${config["image_path"]}/${data.images[i + 1].image_name}`}
+              src={`${process.env.REACT_APP_IMAGE_PATH}/${data.images[i + 1].image_name}`}
               alt="Failed to Load"
               style={styles.image}
             />
@@ -155,7 +154,7 @@ const PDFFile = ({ data, duration, reviews }) => {
             <View style={styles.text}>
               {data.reviewers.map((reviewer, index) => (
                 <Text style={styles.content} key={index}>
-                  {reviewer.username}
+                  {reviewer?.username? reviewer.username: "Clinician"}
                 </Text>
               ))}
             </View>
@@ -209,7 +208,7 @@ const PDFFile = ({ data, duration, reviews }) => {
             {reviews.map((review, index) => (
               <View style={styles.text} key={index}>
                 <View style={styles.reviewer_name}>
-                  <Text>by {review.reviewer_id.username} -</Text>
+                  <Text>by {review?.reviewer_id?.username ? review.reviewer_id.username: ""} -</Text>
                 </View>
                 <View>
                   {review.provisional_diagnosis !== "" && (

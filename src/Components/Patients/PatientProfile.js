@@ -3,11 +3,10 @@ import NotificationBar from '../NotificationBar';
 import { Box, Stack, TextField, Button, FormControl, MenuItem, Select, Checkbox,
     Table, TableBody, TableRow, TableCell, CircularProgress, List, ListItem, IconButton, ListItemText, InputLabel, Typography} from '@mui/material';
 import {LoadingButton } from '@mui/lab';
-import config from '../../config.json'
 import axios from 'axios';
 import { useSelector} from 'react-redux';
 import { MuiTelInput } from 'mui-tel-input';
-import {Close, Done, Edit} from '@mui/icons-material';
+import {Close, Edit} from '@mui/icons-material';
 import dayjs from 'dayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -180,10 +179,10 @@ const PatientProfile = ({data}) => {
 
         setLoading(true);
 
-        axios.post(`${config['path']}/user/patient/update/${data._id}`, updated,
+        axios.post(`${process.env.REACT_APP_BE_URL}/user/patient/update/${data._id}`, updated,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             showMsg("Patient details updated successfully", "success");
@@ -358,7 +357,7 @@ const PatientProfile = ({data}) => {
                     </TableRow>
                     <TableRow>
                         <TableCell>Consent Form</TableCell>
-                        <TableCell sx={{py:0, "&:hover" :{color:'var(--primary-color)'}}}><a href={`${config["consentform_path"]}/`+data.consent_form} target="_blank">Consent Form</a></TableCell>
+                        <TableCell sx={{py:0, "&:hover" :{color:'var(--primary-color)'}}}><a href={`${process.env.REACT_APP_CONSENTFORM_PATH}/`+data.consent_form} target="_blank">Consent Form</a></TableCell>
                     </TableRow>
                     <TableRow>
                         <TableCell>Created At</TableCell>

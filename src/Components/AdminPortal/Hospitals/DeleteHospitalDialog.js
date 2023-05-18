@@ -1,9 +1,6 @@
 import React, {useState} from 'react';
 import Button from '@mui/material/Button';
-import DialogTitle from '@mui/material/DialogTitle';
-import Dialog from '@mui/material/Dialog';
-import { DialogContent,DialogActions, TextField, Typography, Stack, Box } from '@mui/material';
-import config from '../../../config.json';
+import {TextField, Typography, Stack, Box } from '@mui/material';
 import axios from 'axios';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useNavigate } from 'react-router-dom';
@@ -34,11 +31,11 @@ export default function DeleteHospitalDialog({hospital, setIsDelete}) {
       
         setState(1);
 
-        axios.post(`${config['path']}/admin/hospitals/delete/${hospital._id}`,
+        axios.post(`${process.env.REACT_APP_BE_URL}/admin/hospitals/delete/${hospital._id}`,
         {},
         { headers: {
-            'Authorization': 'BEARER '+ JSON.parse(sessionStorage.getItem("info")).atoken,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'Authorization': `Bearer ${userData.accessToken.token}`,
+            'email': userData.email,
         }}).then(res=>{
             navigate("/adminportal/hospitals");
         }).catch(err=>{

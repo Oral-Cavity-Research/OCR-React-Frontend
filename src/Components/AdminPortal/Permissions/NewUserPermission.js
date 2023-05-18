@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import { Box, Button, FormControl, FormControlLabel, FormGroup, FormLabel, Paper, TextField, 
     Typography, Checkbox, Stack } from '@mui/material';
-import config from '../../../config.json'
 import axios from 'axios';
 import NotificationBar from '../../NotificationBar';
 import {useNavigate } from 'react-router-dom';
@@ -46,10 +45,10 @@ const NewUserPermission = () => {
             return;
         }
 
-        axios.post(`${config['path']}/admin/roles`, upload,
+        axios.post(`${process.env.REACT_APP_BE_URL}/admin/roles`, upload,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             showMsg(res.data.message,"success");
@@ -64,10 +63,10 @@ const NewUserPermission = () => {
     }
 
     useEffect(()=>{
-        axios.get(`${config['path']}/admin/option/permissions`,
+        axios.get(`${process.env.REACT_APP_BE_URL}/admin/option/permissions`,
         { headers: {
             'Authorization':  `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then((res)=>{
             setPermissions(res.data.options);

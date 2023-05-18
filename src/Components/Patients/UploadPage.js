@@ -6,7 +6,6 @@ import NotificationBar from '../NotificationBar';
 import ImageCropper from '../Crop/ImageCropper';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import config from '../../config.json';
 import { useSelector} from 'react-redux';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -95,11 +94,11 @@ const UploadPage = ({entryID, btnRef, setDone, setLoading}) => {
 
         form.append('data',JSON.stringify(temp))
        
-        axios.post(`${config['path']}/user/upload/images/${entryID}`, form,
+        axios.post(`${process.env.REACT_APP_BE_URL}/user/upload/images/${entryID}`, form,
         {headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
             'Content-Type': 'multipart/form-data',
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             setSelectedFiles([]);

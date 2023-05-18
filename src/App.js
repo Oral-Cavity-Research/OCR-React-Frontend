@@ -30,6 +30,9 @@ import SharedEntries from './Components/SharedEntry/SharedEntries';
 import SharedEntryDetails from './Components/SharedEntry/SharedEntryDetails';
 import ViewEntryDetails from './Components/SharedPatients/ViewEntryDetails';
 import Dashboard from './Components/AdminPortal/Dashboard/Dashboard';
+import SignupPage from './Pages/SignupPage';
+import AdminDefaultPage from './Pages/AdminDefaultPage';
+import ManageDefault from './Pages/ManageDefault';
 
 
 function App() {
@@ -40,13 +43,8 @@ function App() {
     trySilentRefresh().then(data => {
       if(data){
         dispatch(setUserData({
-          _id: data.ref._id,
-          username: data.ref.username,
-          email: data.ref.email,
-          roles: data.ref.role,
-          permissions: data.permissions,
-          accessToken: data.accessToken,
-          reg_no: data.ref.reg_no
+          ...userData,
+          accessToken: data.accessToken
         }));
       }
     })
@@ -65,9 +63,10 @@ function App() {
 
         <Route index element={<LoginPage/>}/>
         <Route path='/login' element={<LoginPage/>}/>
+        <Route path='/signup' element={<SignupPage/>}/>
 
         <Route path='/adminportal' element={<Outlet/>}>
-            <Route index element={<ProtectedRoute allowed={[100, 101, 106, 107, 109, 110, 111,200,300]}><AdminPage/></ProtectedRoute>}/>
+            <Route index element={<ProtectedRoute allowed={[100, 101, 106, 107, 109, 110, 111,200,300]}><AdminDefaultPage/></ProtectedRoute>}/>
             <Route path='/adminportal/requests' element={<ProtectedRoute allowed={[100]}><AdminPage/></ProtectedRoute>}>
               <Route index element={<RequestsTable/>}/>
               <Route path='/adminportal/requests/:id' element={<RequestDetails/>}/>
@@ -96,7 +95,7 @@ function App() {
             </Route>
         </Route>
 
-        <Route path='/manage' element={<ProtectedRoute allowed={[200,300]}><Manage/></ProtectedRoute>}></Route>
+        <Route path='/manage' element={<ProtectedRoute allowed={[200,300]}><ManageDefault/></ProtectedRoute>}></Route>
         <Route path='/manage/my' element={<ProtectedRoute allowed={[300]}><Manage/></ProtectedRoute>}>
             <Route index element={<Entries/>}/>
             <Route path='/manage/my/entries' element={<Entries/>}/>
@@ -117,7 +116,8 @@ function App() {
         </Route>
 
         <Route path='/profile' element={<ProtectedRoute allowed={[100, 101, 106, 107, 109, 110, 111,200,300]}><UserProfile/></ProtectedRoute> }/>         
-        <Route path='/*' element={<NotFound/>}/>
+      
+      <Route path='/*' element={<NotFound/>}/>
 
       </Route>
     )

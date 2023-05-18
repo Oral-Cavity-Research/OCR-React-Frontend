@@ -1,16 +1,13 @@
 import axios from "axios";
-import config from '../config.json';
-
 
 const trySilentRefresh = async () => {
     try {
-        const res = await axios.post(`${config['path']}/auth/refreshToken`,{}, { withCredentials: true });
+        const res = await axios.post(`${process.env.REACT_APP_BE_URL}/auth/refreshToken`,{}, { withCredentials: true });
         if (res.data.success) {
             return res.data;
         }
         return null;
     } catch (err) {
-        const mute = err;
     }
 };
 

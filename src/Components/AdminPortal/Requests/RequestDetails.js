@@ -4,7 +4,6 @@ import { ArrowBack} from '@mui/icons-material';
 import { Box, Stack, Avatar, Typography, TextField,
      Skeleton, Button, Table, TableBody, TableCell, TableRow, Paper} from '@mui/material';
 import { stringAvatar } from '../../utils';
-import config from '../../../config.json'
 import axios from 'axios';
 import NotificationBar from '../../NotificationBar';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -28,10 +27,10 @@ const RequestDetails = () => {
     useEffect(()=>{
 
         setLoading(true);
-        axios.get(`${config['path']}/admin/requests/${id}`,
+        axios.get(`${process.env.REACT_APP_BE_URL}/admin/requests/${id}`,
         { headers: {
             'Authorization':  `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             setData(res.data);
@@ -54,15 +53,15 @@ const RequestDetails = () => {
 
         setState(1);
 
-        axios.post(`${config['path']}/admin/accept/${data._id}`,
+        axios.post(`${process.env.REACT_APP_BE_URL}/admin/accept/${data._id}`,
         {
           username: data.username,
           role: formData.get('role'),
           reason: formData.get('reason')
         },
         { headers: {
-            'Authorization': 'BEARER '+ JSON.parse(sessionStorage.getItem("info")).atoken,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'Authorization': `Bearer ${userData.accessToken.token}`,
+            'email': userData.email,
         }}
         ).then(res=>{
             showMsg(res.data.message, "success");
@@ -82,13 +81,13 @@ const RequestDetails = () => {
        
         setState(2);
         
-        axios.post(`${config['path']}/admin/requests/${data._id}`,
+        axios.post(`${process.env.REACT_APP_BE_URL}/admin/requests/${data._id}`,
         {
             reason: reason
         },
         { headers: {
-            'Authorization': 'BEARER '+ JSON.parse(sessionStorage.getItem("info")).atoken,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'Authorization': `Bearer ${userData.accessToken.token}`,
+            'email': userData.email,
         }}
         ).then(res=>{
             showMsg(res.data.message, "success")
@@ -105,10 +104,10 @@ const RequestDetails = () => {
     }
 
     useEffect(()=>{
-        axios.get(`${config['path']}/admin/option/permissions`,
+        axios.get(`${process.env.REACT_APP_BE_URL}/admin/option/permissions`,
         { headers: {
             'Authorization':  `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then((res)=>{
             var parsed_json = res.data.options;

@@ -6,7 +6,6 @@ import {Circle, FilterList, Image, Message, Notifications} from '@mui/icons-mate
 import {useNavigate } from 'react-router-dom';
 import NotificationBar from '../NotificationBar';
 import axios from 'axios';
-import config from '../../config.json';
 import { useSelector} from 'react-redux';
 import dayjs from 'dayjs';
 import { LoadingButton } from '@mui/lab';
@@ -55,11 +54,11 @@ const Entries = () => {
     const loadMore = () => {
         setLoading(true);
         setNoMore(false);
-        axios.get(`${config['path']}/user/entry/get`,{
+        axios.get(`${process.env.REACT_APP_BE_URL}/user/entry/get`,{
             params: { page: page + 1, filter: filt},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
-                'email': JSON.parse(sessionStorage.getItem("info")).email,
+                'email': userData.email,
             },
             withCredentials: true
         }).then(res=>{
@@ -77,11 +76,11 @@ const Entries = () => {
     const getData = ()=>{
         setLoading(true);
         setNoMore(false);
-        axios.get(`${config['path']}/user/entry/get`,{
+        axios.get(`${process.env.REACT_APP_BE_URL}/user/entry/get`,{
             params: { page: 1, filter: filt},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
-                'email': JSON.parse(sessionStorage.getItem("info")).email,
+                'email': userData.email,
             },
             withCredentials: true
         }).then(res=>{
@@ -96,10 +95,10 @@ const Entries = () => {
     }      
 
     useEffect(()=>{
-        axios.get(`${config['path']}/user/entry/count/newreviews`,{
+        axios.get(`${process.env.REACT_APP_BE_URL}/user/entry/count/newreviews`,{
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
-                'email': JSON.parse(sessionStorage.getItem("info")).email,
+                'email': userData.email,
             },
             withCredentials: true
         }).then(res=>{
