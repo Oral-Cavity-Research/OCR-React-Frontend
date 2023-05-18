@@ -34,8 +34,8 @@ export default function DeleteHospitalDialog({hospital, setIsDelete}) {
         axios.post(`${process.env.REACT_APP_BE_URL}/admin/hospitals/delete/${hospital._id}`,
         {},
         { headers: {
-            'Authorization': 'BEARER '+ JSON.parse(sessionStorage.getItem("info")).atoken,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'Authorization': `Bearer ${userData.accessToken.token}`,
+            'email': userData.email,
         }}).then(res=>{
             navigate("/adminportal/hospitals");
         }).catch(err=>{

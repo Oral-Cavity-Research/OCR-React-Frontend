@@ -48,7 +48,7 @@ const NewUserPermission = () => {
         axios.post(`${process.env.REACT_APP_BE_URL}/admin/roles`, upload,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             showMsg(res.data.message,"success");
@@ -66,7 +66,7 @@ const NewUserPermission = () => {
         axios.get(`${process.env.REACT_APP_BE_URL}/admin/option/permissions`,
         { headers: {
             'Authorization':  `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then((res)=>{
             setPermissions(res.data.options);

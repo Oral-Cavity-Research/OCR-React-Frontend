@@ -32,7 +32,7 @@ export default function AssigneeDropdown({setAssignee}) {
     axios.get(`${process.env.REACT_APP_BE_URL}/user/patient/reviewer/all`,
     { headers: {
       'Authorization': `Bearer ${userData.accessToken.token}`,
-      'email': JSON.parse(sessionStorage.getItem("info")).email,
+      'email': userData.email,
     }}
     ).then(resp =>{
         setOptions(resp.data);

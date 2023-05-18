@@ -30,7 +30,7 @@ const RequestDetails = () => {
         axios.get(`${process.env.REACT_APP_BE_URL}/admin/requests/${id}`,
         { headers: {
             'Authorization':  `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             setData(res.data);
@@ -60,8 +60,8 @@ const RequestDetails = () => {
           reason: formData.get('reason')
         },
         { headers: {
-            'Authorization': 'BEARER '+ JSON.parse(sessionStorage.getItem("info")).atoken,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'Authorization': `Bearer ${userData.accessToken.token}`,
+            'email': userData.email,
         }}
         ).then(res=>{
             showMsg(res.data.message, "success");
@@ -86,8 +86,8 @@ const RequestDetails = () => {
             reason: reason
         },
         { headers: {
-            'Authorization': 'BEARER '+ JSON.parse(sessionStorage.getItem("info")).atoken,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'Authorization': `Bearer ${userData.accessToken.token}`,
+            'email': userData.email,
         }}
         ).then(res=>{
             showMsg(res.data.message, "success")
@@ -107,7 +107,7 @@ const RequestDetails = () => {
         axios.get(`${process.env.REACT_APP_BE_URL}/admin/option/permissions`,
         { headers: {
             'Authorization':  `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then((res)=>{
             var parsed_json = res.data.options;

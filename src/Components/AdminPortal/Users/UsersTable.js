@@ -83,7 +83,7 @@ const UsersTable = () => {
         axios.get(`${process.env.REACT_APP_BE_URL}/admin/users/role/${role}`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             setUsers(res.data)
@@ -100,7 +100,7 @@ const UsersTable = () => {
         axios.get(`${process.env.REACT_APP_BE_URL}/admin/roles`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             var options = ["All"]
@@ -141,7 +141,6 @@ const UsersTable = () => {
 
             <FormControl sx={{width: '30ch' }} variant="outlined">
             <OutlinedInput
-                id="outlined-adornment-password"
                 placeholder='Search by name'
                 size='small'
                 inputProps={{ maxLength: 20}}
@@ -149,7 +148,6 @@ const UsersTable = () => {
                 endAdornment={
                 <InputAdornment position="end">
                     <IconButton
-                    aria-label="toggle password visibility"
                     edge="end"
                     >
                     <Search/>

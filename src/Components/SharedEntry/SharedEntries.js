@@ -58,7 +58,7 @@ const SharedEntries = () => {
             params: { page: page + 1, filter: filt},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
-                'email': JSON.parse(sessionStorage.getItem("info")).email,
+                'email': userData.email,
             },
             withCredentials: true
         }).then(res=>{
@@ -80,7 +80,7 @@ const SharedEntries = () => {
             params: { page: 1, filter: filt},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
-                'email': JSON.parse(sessionStorage.getItem("info")).email,
+                'email': userData.email,
             },
             withCredentials: true
         }).then(res=>{
@@ -98,7 +98,7 @@ const SharedEntries = () => {
         axios.get(`${process.env.REACT_APP_BE_URL}/user/entry/count/newentries`,{
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
-                'email': JSON.parse(sessionStorage.getItem("info")).email,
+                'email': userData.email,
             },
             withCredentials: true
         }).then(res=>{

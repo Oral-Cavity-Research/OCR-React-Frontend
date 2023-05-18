@@ -34,8 +34,8 @@ export default function DeleteUserDialog({user, setIsDelete}) {
         axios.post(`${process.env.REACT_APP_BE_URL}/admin/delete/user/${user._id}`,
         {},
         { headers: {
-            'Authorization': 'BEARER '+ JSON.parse(sessionStorage.getItem("info")).atoken,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'Authorization': `Bearer ${userData.accessToken.token}`,
+            'email': userData.email,
         }}).then(res=>{
             navigate("/adminportal/reviewers");
         }).catch(err=>{

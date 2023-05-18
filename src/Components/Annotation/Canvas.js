@@ -9,6 +9,7 @@ import MenuItem from '@mui/material/MenuItem';
 import axios from 'axios';
 import { LoadingButton } from '@mui/lab';
 import NotificationBar from '../NotificationBar';
+import { useSelector } from 'react-redux';
 
 // global variables 
 // todo: check whether we could use useStates instead
@@ -159,6 +160,7 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
   const [location, setLocation] = useState(data[imageIndex].location)
   const [clinicalDiagnosis, setClinicalDiagnosis] = useState(data[imageIndex].clinical_diagnosis);
   const [lesion, setLesion] = useState(data[imageIndex].lesions_appear);
+  const userData = useSelector(state => state.data);
 
   const handleChange = (event) => {
     setSelection(event.target.value);
@@ -215,8 +217,8 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
 
         },
         { headers: {
-            'Authorization': 'BEARER '+ JSON.parse(sessionStorage.getItem("info")).atoken,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'Authorization': `Bearer ${userData.accessToken.token}`,
+            'email': userData.email,
         }}).then(res=>{
           showMsg("Image Data Updated", "success")
           // var temp = [...data]

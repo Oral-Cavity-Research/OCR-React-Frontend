@@ -7,6 +7,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import NotificationBar from '../../NotificationBar';
 import DeleteHospitalDialog from './DeleteHospitalDialog';
 import { useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const EditableText = ({disabled,defaultValue,name}) => (
     <TextField disabled={disabled} defaultValue={defaultValue} name={name} variant='standard' fullWidth
@@ -31,6 +32,7 @@ const View = ({data}) => {
     const [status, setStatus] = useState({msg:"",severity:"success", open:false}) ;
     const [loading, setLoading] = useState(false);
     const [isDelete, setIsDelete] = useState(false);
+    const userData = useSelector(state => state.data);
     const { id } = useParams();
 
     const handleChange = (newValue) => {
@@ -60,8 +62,8 @@ const View = ({data}) => {
         setLoading(true);
         axios.post(`${process.env.REACT_APP_BE_URL}/admin/hospitals/update/${id}`, tobesend,
         { headers: {
-            'Authorization': 'BEARER '+ JSON.parse(sessionStorage.getItem("info")).atoken,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'Authorization': `Bearer ${userData.accessToken.token}`,
+            'email': userData.email,
         }}
         ).then(res=>{
             setLoading(false);

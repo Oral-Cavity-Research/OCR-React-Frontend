@@ -59,7 +59,7 @@ const PatientEntries = () => {
             params: { page: page + 1, filter: filt},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
-                'email': JSON.parse(sessionStorage.getItem("info")).email,
+                'email': userData.email,
             },
             withCredentials: true
         }).then(res=>{
@@ -81,7 +81,7 @@ const PatientEntries = () => {
             params: { page: 1, filter: filt},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
-                'email': JSON.parse(sessionStorage.getItem("info")).email,
+                'email': userData.email,
             },
             withCredentials: true
         }).then(res=>{

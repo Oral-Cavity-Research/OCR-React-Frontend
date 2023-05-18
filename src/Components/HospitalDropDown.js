@@ -58,7 +58,6 @@ export default function HospitalDropdown() {
         <TextField
           size='small'
           {...params}
-          margin="normal"
           name='hospital'
           label="Hospital"
           required

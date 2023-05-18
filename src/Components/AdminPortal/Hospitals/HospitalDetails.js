@@ -22,7 +22,7 @@ const HospiatalDetails = () => {
         axios.get(`${process.env.REACT_APP_BE_URL}/admin/hospitals/${id}`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             setData(res.data);

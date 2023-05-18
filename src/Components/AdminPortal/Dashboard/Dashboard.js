@@ -18,7 +18,7 @@ const Dashboard = () => {
       .get(`${process.env.REACT_APP_BE_URL}/dashboard/percentages/`, {
         headers: {
           Authorization: `Bearer ${userData.accessToken.token}`,
-          email: JSON.parse(sessionStorage.getItem("info")).email,
+          email: userData.email,
         },
       })
       .then((response) => {
@@ -40,7 +40,7 @@ const Dashboard = () => {
       .get(`${process.env.REACT_APP_BE_URL}/dashboard/totals/`, {
         headers: {
           Authorization: `Bearer ${userData.accessToken.token}`,
-          email: JSON.parse(sessionStorage.getItem("info")).email,
+          email: userData.email,
         },
       })
       .then((response) => {

@@ -1,12 +1,10 @@
 import React, { useEffect, useRef, useState} from 'react';
 import { Box, Stack, Avatar, Typography, TextField, Skeleton,
-       Grid, Paper, Badge, Select, MenuItem, FormControl, InputLabel, Button} from '@mui/material';
-import { stringAvatar } from './utils';
+       Grid, Paper, Badge, Select, MenuItem, FormControl, InputLabel} from '@mui/material';
 import axios from 'axios';
 import NotificationBar from './NotificationBar';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useSelector} from 'react-redux';
-import ChangePasswordDialog from './ChangePasswordDialog';
 import { styled } from '@mui/material/styles';
 import { MuiTelInput } from 'mui-tel-input';
 import dayjs from 'dayjs';
@@ -30,7 +28,6 @@ const UserProfile = () => {
     const [hospital, setHospital] = useState("");
     const [hospitalList, setHospitalList] = useState([]);
     const [availability, setAvailability] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
     const [state, setState] = useState(0);
     const formRef = useRef();
     const userData = useSelector(state => state.data);
@@ -46,7 +43,7 @@ const UserProfile = () => {
         axios.get(`${process.env.REACT_APP_BE_URL}/user/self/hospitals`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         },
             withCredentials: true
         }
@@ -62,12 +59,10 @@ const UserProfile = () => {
     },[])
 
     const fetchData = ()=>{
-        const _id = JSON.parse(sessionStorage.getItem("info"))._id
-
         axios.get(`${process.env.REACT_APP_BE_URL}/user/self`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         },
             withCredentials: true
         }
@@ -102,17 +97,10 @@ const UserProfile = () => {
         toBeSend,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             setData(res.data)
-            let newData = JSON.parse(sessionStorage.getItem("info"))
-            newData.username = res.data.username;
-            newData.designation = res.data.designation;
-            newData.hospital = res.data.hospital;
-            newData.contact_no = res.data.contact_no;
-            newData.availability = res.data.availability;
-            sessionStorage.setItem("info", JSON.stringify(newData));
             showMsg("User details updated successfully", "success");
         }).catch(err=>{
             if(err.response) showMsg(err.response.data.message, "error")
@@ -148,7 +136,11 @@ const UserProfile = () => {
                        <Stack direction='column' spacing={1} alignItems='center'>
                             
                             <StyledBadge overlap="circular" anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} variant="dot" color={data.availability?'success':'error'}>
-                            <Avatar {...stringAvatar(data.username, 60)}/>
+                            <Avatar 
+                            src={userData.picture} 
+                            alt={userData.username?userData.username:""}
+                            sx={{ width: 60, height: 60 }}
+                            ></Avatar>
                             </StyledBadge>
                             <Typography variant='h6'>{data.username}</Typography>
                             <Typography color='GrayText'>{data.reg_no}</Typography>
@@ -200,13 +192,7 @@ const UserProfile = () => {
                     </Stack>
                     <Stack direction='row' spacing={2} sx={{my:3}}>
                         <LoadingButton onClick={handleUpdate} loading={state=== 1} variant="contained" disabled={state!==0}>Update</LoadingButton>
-                        <Button onClick={()=>{setShowPassword(true)}}>Change Password</Button>
                     </Stack>
-                    { showPassword && 
-                        <Box sx={{border:'1px solid red', borderRadius:1, p:2}}>
-                        <ChangePasswordDialog setShowPassword={setShowPassword}/>
-                        </Box>
-                    }
                     </Box>
                     </Paper>
             }

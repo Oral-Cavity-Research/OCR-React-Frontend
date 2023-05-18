@@ -36,7 +36,7 @@ const SharedPatientDetails = () => {
         axios.get(`${process.env.REACT_APP_BE_URL}/user/patient/shared/${id}`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             setData(res.data);

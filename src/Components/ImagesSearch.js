@@ -54,8 +54,8 @@ const ImagesSearch = () => {
         setLoading(true)
         axios.get(`${process.env.REACT_APP_BE_URL}/image/all`,
         { headers: {
-            'Authorization': 'BEARER '+ JSON.parse(sessionStorage.getItem("info")).atoken,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'Authorization': `Bearer ${userData.accessToken.token}`,
+            'email': userData.email,
         }}
         ).then(res=>{
             setData(res.data.images);

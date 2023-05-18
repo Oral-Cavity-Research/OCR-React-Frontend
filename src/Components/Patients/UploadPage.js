@@ -98,7 +98,7 @@ const UploadPage = ({entryID, btnRef, setDone, setLoading}) => {
         {headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
             'Content-Type': 'multipart/form-data',
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             setSelectedFiles([]);

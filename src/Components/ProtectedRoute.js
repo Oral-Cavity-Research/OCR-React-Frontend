@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import MenuBar from './MenuBar';
-import { useDispatch } from 'react-redux';
-import { trySilentRefresh } from '../utils/authUtils';
-import {setUserData } from '../Reducers/userDataSlice';
-import ClipLoader from 'react-spinners/ClipLoader';
+import { useSelector } from 'react-redux';
 
 const ProtectedRoute = ({allowed, children}) => {
-    
-    const info = JSON.parse(sessionStorage.getItem("info"))
-    const permissions = info? info["permissions"]: []
-    const user = info? info["username"]: null
+
+    const userData = useSelector(state => state.data);
+    const permissions = userData.permissions? userData.permissions: []
+    const user = userData.email? userData.email: null
 
     if(!user) return <Navigate to="/login" replace />;
     else if(! permissions.find(p => allowed.includes(p))) return <Navigate to="/notfound" replace />;
@@ -18,7 +15,7 @@ const ProtectedRoute = ({allowed, children}) => {
     return (
         <div className='main'>
         <div className='main_menu'>
-            <MenuBar permissions={permissions} username={user} roleName={info?.role} availability={info?.availability}/>
+            <MenuBar/>
         </div>
         <div className='main_content'>
             {children}

@@ -62,7 +62,7 @@ const ViewEntryDetails = () => {
         axios.get(`${process.env.REACT_APP_BE_URL}/user/entry/reviews/${id}`,{
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
-                'email': JSON.parse(sessionStorage.getItem("info")).email,
+                'email': userData.email,
             },
             withCredentials: true
         }).then(res=>{
@@ -78,7 +78,7 @@ const ViewEntryDetails = () => {
         axios.get(`${process.env.REACT_APP_BE_URL}/user/entry/shared/${id}`,{
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
-                'email': JSON.parse(sessionStorage.getItem("info")).email,
+                'email': userData.email,
             },
             withCredentials: true
         }).then(res=>{

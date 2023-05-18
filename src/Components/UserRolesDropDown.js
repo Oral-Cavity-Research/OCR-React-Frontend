@@ -22,7 +22,7 @@ export default function UserRolesDropdown({setValue}) {
     axios.get(`${process.env.REACT_APP_BE_URL}/admin/roles`,
     { headers: {
         'Authorization':  `Bearer ${userData.accessToken.token}`,
-        'email': JSON.parse(sessionStorage.getItem("info")).email,
+        'email': userData.email,
     }}).then(resp =>{
         setOptions(resp.data);
     }).catch(function (error) {

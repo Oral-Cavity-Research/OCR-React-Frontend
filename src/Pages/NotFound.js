@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@mui/material';
+import { Button, Stack, Typography } from '@mui/material';
+import errorImage from '../Assets/error-404.png';
 
 const NotFound = () => {
 
@@ -8,15 +9,11 @@ const NotFound = () => {
 
     return (
         <div className='notfound'>
-            <div className="circles">
-            <p>404<br/>
-            <small>PAGE NOT FOUND</small>
-            </p>
-            <Button onClick={() => navigate(-1)}>Go Back</Button>
-            <span className="circle big"></span>
-            <span className="circle med"></span>
-            <span className="circle small"></span>
-        </div>
+            <Stack direction='column' spacing={2} alignItems='center'>
+            <img src={errorImage} alt="404" height={200} width={200}/>
+            <Typography><b>PAGE NOT FOUND</b></Typography>
+            <Button variant='contained' onClick={() => navigate(-1)}>Go Back</Button>
+            </Stack>
         </div>
     );
 };

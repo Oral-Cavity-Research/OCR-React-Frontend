@@ -6,7 +6,6 @@ import { Box, Stack, Avatar, Typography, Skeleton, Button, Divider,
 import { stringAvatar } from '../../utils';
 import axios from 'axios';
 import NotificationBar from '../../NotificationBar';
-import ResetPasswordDialog from './ResetPasswordDialog';
 import DeleteUserDialog from './DeleteUserDialog';
 import { useSelector} from 'react-redux';
 import { LoadingButton } from '@mui/lab';
@@ -18,7 +17,6 @@ const UserDetails = () => {
     const [status, setStatus] = useState({msg:"",severity:"success", open:false}) 
     const [data, setData] = useState({});
     const [loading, setLoading] = useState(true);
-    const [isReset, setIsReset] = useState(false);
     const [isDelete, setIsDelete] = useState(false);
     const [state, setState] = useState(0);
     const [permissions, setPermissions] = useState({});
@@ -33,7 +31,7 @@ const UserDetails = () => {
         axios.get(`${process.env.REACT_APP_BE_URL}/admin/users/${id}`,
         { headers: {
             'Authorization':  `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             setData(res.data);
@@ -49,7 +47,7 @@ const UserDetails = () => {
         axios.get(`${process.env.REACT_APP_BE_URL}/admin/option/permissions`,
         { headers: {
             'Authorization':  `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then((res)=>{
             var parsed_json = res.data.options;
@@ -80,7 +78,7 @@ const UserDetails = () => {
         },
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             setData(res.data)
@@ -193,21 +191,6 @@ const UserDetails = () => {
                     })
                     }
                     </Box>
-                }
-                <Divider sx={{bgcolor: 'red'}}/>
-                <Stack direction='row' sx={{p:3}} alignItems='end'>
-                    <div style={{flexGrow: 1}}>
-                    <Typography color='error'>Reset Password</Typography>
-                    <Typography color='GrayText'>Once you change the password, the user will no longer be able to log in to the application using the current password.</Typography>
-                    </div>
-                    <Button variant='contained' color='error' onClick={()=>setIsReset(!isReset)}>Reset Password</Button>
-                </Stack>
-                {
-                    isReset &&
-                    <Stack sx={{p:3}} justifyContent='center' direction='row'>
-                        <ResetPasswordDialog user={data} setIsReset={setIsReset}/>
-                    </Stack>
-                    
                 }
                 <Divider sx={{bgcolor: 'red'}}/>
                 <Stack direction='row' sx={{p:3}} alignItems='end'>

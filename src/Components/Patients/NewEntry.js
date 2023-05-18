@@ -73,7 +73,7 @@ const NewEntry = ({entryID, setEntryID, btnRef, setDone, setLoading}) => {
         axios.post(`${process.env.REACT_APP_BE_URL}/user/entry/add/${id}`, upload,
         {headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             setEntryID(res.data._id);

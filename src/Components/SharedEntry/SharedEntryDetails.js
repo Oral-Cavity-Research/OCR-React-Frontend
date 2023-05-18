@@ -177,7 +177,7 @@ const SharedEntryDetails = () => {
         {
           headers: {
             Authorization: `Bearer ${userData.accessToken.token}`,
-            email: JSON.parse(sessionStorage.getItem("info")).email,
+            email: userData.email,
           },
           withCredentials: true,
         }
@@ -192,7 +192,7 @@ const SharedEntryDetails = () => {
       .get(`${process.env.REACT_APP_BE_URL}/user/entry/reviews/${id}`, {
         headers: {
           Authorization: `Bearer ${userData.accessToken.token}`,
-          email: JSON.parse(sessionStorage.getItem("info")).email,
+          email: userData.email,
         },
         withCredentials: true,
       })
@@ -234,7 +234,7 @@ const SharedEntryDetails = () => {
       .post(`${process.env.REACT_APP_BE_URL}/user/entry/review/${data._id}`, toBeSent, {
         headers: {
           Authorization: `Bearer ${userData.accessToken.token}`,
-          email: JSON.parse(sessionStorage.getItem("info")).email,
+          email: userData.email,
         },
         withCredentials: true,
       })
@@ -275,7 +275,7 @@ const SharedEntryDetails = () => {
         {
           headers: {
             Authorization: `Bearer ${userData.accessToken.token}`,
-            email: JSON.parse(sessionStorage.getItem("info")).email,
+            email: userData.email,
           },
           withCredentials: true,
         }
@@ -297,7 +297,7 @@ const SharedEntryDetails = () => {
       .get(`${process.env.REACT_APP_BE_URL}/user/entry/shared/data/${id}`, {
         headers: {
           Authorization: `Bearer ${userData.accessToken.token}`,
-          email: JSON.parse(sessionStorage.getItem("info")).email,
+          email: userData.email,
         },
         withCredentials: true,
       })

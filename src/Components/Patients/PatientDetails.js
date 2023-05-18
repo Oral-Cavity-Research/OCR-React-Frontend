@@ -42,7 +42,7 @@ const PatientDetails = () => {
         axios.get(`${process.env.REACT_APP_BE_URL}/user/patient/${id}`,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             setData(res.data);
@@ -61,7 +61,7 @@ const PatientDetails = () => {
             params: { },
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
-                'email': JSON.parse(sessionStorage.getItem("info")).email,
+                'email': userData.email,
             },
             withCredentials: true
         }).then(res=>{

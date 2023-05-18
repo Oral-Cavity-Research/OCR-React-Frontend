@@ -41,7 +41,7 @@ const HospiatalNew = () => {
         axios.post(`${process.env.REACT_APP_BE_URL}/admin/hospital`, upload,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             showMsg("Hospital added successfuly", "success");

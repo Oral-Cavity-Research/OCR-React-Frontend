@@ -82,7 +82,7 @@ const PatientsTable = () => {
             params: { page: page + 1, search: search, filter: filt, sort:sort},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
-                'email': JSON.parse(sessionStorage.getItem("info")).email,
+                'email': userData.email,
             },
             withCredentials: true
         }).then(res=>{
@@ -104,7 +104,7 @@ const PatientsTable = () => {
             params: { page: 1, search: search, filter: filt, sort: sort},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
-                'email': JSON.parse(sessionStorage.getItem("info")).email,
+                'email': userData.email,
             },
             withCredentials: true
         }).then(res=>{
@@ -122,7 +122,7 @@ const PatientsTable = () => {
     //     axios.get(`${process.env.REACT_APP_BE_URL}/user/patient/search`,{
     //         headers: {
     //             'Authorization': `Bearer ${userData.accessToken.token}`,
-    //             'email': JSON.parse(sessionStorage.getItem("info")).email,
+    //             'email': userData.email,
     //         },
     //         params: {
     //             "query" : name,
@@ -153,7 +153,7 @@ const PatientsTable = () => {
     //     axios.get(`${process.env.REACT_APP_BE_URL}/user/patient/all`,
     //     { headers: {
     //         'Authorization': `Bearer ${userData.accessToken.token}`,
-    //         'email': JSON.parse(sessionStorage.getItem("info")).email,
+    //         'email': userData.email,
     //     }}
     //     ).then(res=>{
     //         setData(res.data.patients);
@@ -208,7 +208,6 @@ const PatientsTable = () => {
                 
                 <FormControl sx={{width: '30ch' }} variant="outlined">
                     <OutlinedInput
-                        id="outlined-adornment-password"
                         placeholder='Search'
                         size='small'
                         inputProps={{ maxLength: 20}}

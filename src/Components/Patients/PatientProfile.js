@@ -182,7 +182,7 @@ const PatientProfile = ({data}) => {
         axios.post(`${process.env.REACT_APP_BE_URL}/user/patient/update/${data._id}`, updated,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             showMsg("Patient details updated successfully", "success");

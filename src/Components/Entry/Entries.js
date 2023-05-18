@@ -58,7 +58,7 @@ const Entries = () => {
             params: { page: page + 1, filter: filt},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
-                'email': JSON.parse(sessionStorage.getItem("info")).email,
+                'email': userData.email,
             },
             withCredentials: true
         }).then(res=>{
@@ -80,7 +80,7 @@ const Entries = () => {
             params: { page: 1, filter: filt},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
-                'email': JSON.parse(sessionStorage.getItem("info")).email,
+                'email': userData.email,
             },
             withCredentials: true
         }).then(res=>{
@@ -98,7 +98,7 @@ const Entries = () => {
         axios.get(`${process.env.REACT_APP_BE_URL}/user/entry/count/newreviews`,{
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
-                'email': JSON.parse(sessionStorage.getItem("info")).email,
+                'email': userData.email,
             },
             withCredentials: true
         }).then(res=>{

@@ -225,7 +225,7 @@ const PatientNew = () => {
             const res = await axios.get(`${process.env.REACT_APP_BE_URL}/user/patient/check/${form.get("patient_id")}`,
             { headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
-                'email': JSON.parse(sessionStorage.getItem("info")).email,
+                'email': userData.email,
             }}
             )
 
@@ -255,7 +255,7 @@ const PatientNew = () => {
         axios.post(`${process.env.REACT_APP_BE_URL}/user/upload/patient`, upload,
         { headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': JSON.parse(sessionStorage.getItem("info")).email,
+            'email': userData.email,
         }}
         ).then(res=>{
             showMsg("Patient is successfully added", "success");
