@@ -37,7 +37,7 @@ export default function DeleteUserDialog({user, setIsDelete}) {
             'Authorization': `Bearer ${userData.accessToken.token}`,
             'email': userData.email,
         }}).then(res=>{
-            navigate("/adminportal/reviewers");
+            navigate("/adminportal/users");
         }).catch(err=>{
             if(err.response) showMsg(err.response.data.message, "error")
             else alert(err)

@@ -481,8 +481,8 @@ const SharedEntryDetails = () => {
                   <Typography variant="body2">
                     Created By:{" "}
                     <b>
-                      {data.clinician_id?.username} |{" "}
-                      {data.clinician_id?.reg_no}
+                      {data.clinician_id?.username? data.clinician_id.username: "Clinician"}
+                      {data.clinician_id?.reg_no? ` | ${data.clinician_id.reg_no}`:""}
                     </b>
                   </Typography>
                   <Typography variant="body2">

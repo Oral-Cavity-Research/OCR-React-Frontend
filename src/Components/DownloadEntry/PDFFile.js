@@ -154,7 +154,7 @@ const PDFFile = ({ data, duration, reviews }) => {
             <View style={styles.text}>
               {data.reviewers.map((reviewer, index) => (
                 <Text style={styles.content} key={index}>
-                  {reviewer.username}
+                  {reviewer?.username? reviewer.username: "Clinician"}
                 </Text>
               ))}
             </View>
@@ -208,7 +208,7 @@ const PDFFile = ({ data, duration, reviews }) => {
             {reviews.map((review, index) => (
               <View style={styles.text} key={index}>
                 <View style={styles.reviewer_name}>
-                  <Text>by {review.reviewer_id.username} -</Text>
+                  <Text>by {review?.reviewer_id?.username ? review.reviewer_id.username: ""} -</Text>
                 </View>
                 <View>
                   {review.provisional_diagnosis !== "" && (

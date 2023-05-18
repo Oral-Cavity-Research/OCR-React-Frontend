@@ -53,6 +53,8 @@ const LoginPage =()=>{
                 username: data.others.username? data.others.username: userObject.name? userObject.name:userObject.email,
                 email: data.others.email,
                 role: data.others.role,
+                hospital: data.others.hospital,
+                contact_no: data.others.contact_no,
                 permissions: data.others.permissions,
                 accessToken: data.accessToken,
                 reg_no: data.others.reg_no,

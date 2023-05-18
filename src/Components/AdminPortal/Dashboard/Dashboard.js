@@ -44,7 +44,6 @@ const Dashboard = () => {
         },
       })
       .then((response) => {
-        console.log(response.data);
         setDoctors(response.data.doctors);
         setPatients(response.data.patients);
         setImages(response.data.images);

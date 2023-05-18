@@ -1,8 +1,9 @@
 import React, { useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
-import { ArrowBack, Download} from '@mui/icons-material';
-import { Box, Stack, Avatar, Typography, Skeleton,Tab, Button, Paper } from '@mui/material';
-import {TabContext,TabList,TabPanel, LoadingButton } from '@mui/lab';
+import { ArrowBack, Download, MoreVert} from '@mui/icons-material';
+import { Box, Stack, Avatar, Typography, Skeleton,Tab, Button, Paper, IconButton,
+    Menu, MenuItem, ListItemIcon, ListItemText} from '@mui/material';
+import {TabContext,TabList,TabPanel, LoadingButton} from '@mui/lab';
 import { stringAvatar } from '../utils';
 import axios from 'axios';
 import { useSelector} from 'react-redux';
@@ -24,7 +25,7 @@ const PatientDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const userData = useSelector(state => state.data);
-    const [entries, setEntries] = React.useState({});
+    const [anchorEl, setAnchorEl] = React.useState(null);
     const [buttonLoading, setButtonLoading ] = useState(false);
 
 
@@ -34,6 +35,14 @@ const PatientDetails = () => {
 
     const showMsg = (msg, severity)=>{
         setStatus({msg, severity, open:true})
+    };
+
+    const handleOpen = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleCloseMenu = () => {
+        setAnchorEl(null);
     };
 
     useEffect(()=>{
@@ -65,7 +74,6 @@ const PatientDetails = () => {
             },
             withCredentials: true
         }).then(res=>{
-            setEntries(res.data);
             const da = [patientData];
             delete da._id;
             const riskFac = patientData.risk_factors;
@@ -122,13 +130,53 @@ const PatientDetails = () => {
                     <Typography variant='h6'>{data.patient_name}</Typography>
                     <Typography color='GrayText'>{data.patient_id}</Typography>
                 </Stack>
+                <Box flex={1}></Box>
+                <IconButton
+                  id="fade-button"
+                  aria-controls={Boolean(anchorEl) ? "fade-menu" : undefined}
+                  aria-haspopup="true"
+                  aria-expanded={Boolean(anchorEl) ? "true" : undefined}
+                  onClick={handleOpen}
+                >
+                  <MoreVert />
+                </IconButton>
             </Stack>
+            <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleCloseMenu}
+                onClick={handleCloseMenu}
+                PaperProps={{
+                  elevation: 0,
+                  sx: {
+                    overflow: "visible",
+                    filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+                    mt: 1.5,
+                    "&:before": {
+                      content: '""',
+                      display: "block",
+                      position: "absolute",
+                      top: 0,
+                      right: 14,
+                      width: 10,
+                      height: 10,
+                      bgcolor: "background.paper",
+                      transform: "translateY(-50%) rotate(45deg)",
+                      zIndex: 0,
+                    },
+                  },
+                }}
+                transformOrigin={{ horizontal: "right", vertical: "top" }}
+                anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+              >
+                <MenuItem>
+                  <ListItemIcon>
+                    <Download />
+                  </ListItemIcon>
+                  <ListItemText onClick={() => handleDownload(data)}>Download</ListItemText>
+                </MenuItem>
+              </Menu>
             <Box sx={{ width: '100%', typography: 'body1' }}>
-            <Stack direction='row' justifyContent='flex-end'>
-                    <LoadingButton  size='small' variant='contained' endIcon={<Download/>}
-                    loading={buttonLoading}
-                    onClick={(e) => handleDownload(data)}>Download</LoadingButton >
-            </Stack>
             <TabContext value={value}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider'}}>
                 <TabList onChange={handleChange} aria-label="lab API tabs example" variant='standard'>

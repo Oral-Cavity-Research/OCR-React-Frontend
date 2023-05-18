@@ -116,7 +116,8 @@ function App() {
         </Route>
 
         <Route path='/profile' element={<ProtectedRoute allowed={[100, 101, 106, 107, 109, 110, 111,200,300]}><UserProfile/></ProtectedRoute> }/>         
-        <Route path='/*' element={<NotFound/>}/>
+      
+      <Route path='/*' element={<NotFound/>}/>
 
       </Route>
     )

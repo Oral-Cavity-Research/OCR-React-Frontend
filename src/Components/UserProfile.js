@@ -8,6 +8,8 @@ import { useSelector} from 'react-redux';
 import { styled } from '@mui/material/styles';
 import { MuiTelInput } from 'mui-tel-input';
 import dayjs from 'dayjs';
+import { useDispatch } from 'react-redux';
+import { setUserData } from '../Reducers/userDataSlice';
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -22,17 +24,20 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 
 const UserProfile = () => {
 
+    const userData = useSelector(state => state.data);
+
     const [status, setStatus] = useState({msg:"",severity:"success", open:false}) 
     const [data, setData] = useState({});
     const [loading, setLoading] = useState(true);
-    const [hospital, setHospital] = useState("");
+    const [hospital, setHospital] = useState(userData.hospital);
     const [hospitalList, setHospitalList] = useState([]);
     const [availability, setAvailability] = useState("");
     const [state, setState] = useState(0);
     const formRef = useRef();
-    const userData = useSelector(state => state.data);
-    const [value, setValue] = useState('+94');
-    
+    const [value, setValue] = useState(userData.contact_no);
+
+    const dispatch = useDispatch();
+       
     const handleChange = (newValue) => {
         setValue(newValue)
     }
@@ -102,6 +107,13 @@ const UserProfile = () => {
         ).then(res=>{
             setData(res.data)
             showMsg("User details updated successfully", "success");
+            dispatch(setUserData({
+                ...userData,
+                username: username,
+                hospital: hospital,
+                contact_no: contact_no,
+                availability: availability
+            }));
         }).catch(err=>{
             if(err.response) showMsg(err.response.data.message, "error")
             else alert(err)

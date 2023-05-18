@@ -2,7 +2,7 @@ import React, { useRef, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import { ArrowBack, Close,PersonAddAlt1 } from '@mui/icons-material';
 import { Box, Stack, Typography,Button, Paper, TextField, FormControl, MenuItem, Select, Checkbox,
-    ListItem, IconButton, ListItemText, InputLabel, List} from '@mui/material';
+    ListItem, IconButton, ListItemText, InputLabel, List, Divider} from '@mui/material';
 import SignaturePad from 'react-signature-canvas';
 import {pdf,Document,Page,Text,Image,View, StyleSheet} from "@react-pdf/renderer";
 import { useSelector} from 'react-redux';
@@ -324,6 +324,8 @@ const PatientNew = () => {
            
             <Box component='form' noValidate onSubmit={handleSubmit} autoComplete='false' >
                 <Stack direction='column' spacing={3} sx={{my:3}}>
+                    <Typography p={1} bgcolor={'#ececec'}>General Infomation</Typography>
+
                     <TextField required size='small' fullWidth name="patient_name" label="Patient Name" onChange={(e)=>setName(e.target.value)}/>
                     <TextField required size='small' fullWidth  name="patient_id" label="Patient NIC" onChange={(e)=>setPId(e.target.value)}/>
                     <LocalizationProvider dateAdapter={AdapterDayjs} >
@@ -334,22 +336,23 @@ const PatientNew = () => {
                          />
                     </LocalizationProvider>
                     <Selection value={gender} name={'gender'} label={"Gender"} setValue={setGender} options={genderOptions}/>
-
                     <MuiTelInput value={contact} onChange={(newValue)=>setContact(newValue)} size='small' name='contact_no' placeholder='Phone Number' fullWidth/> 
+                    
+                    <Typography p={1} bgcolor={'#ececec'}>Clinical Information</Typography>
+
                     <TextField size='small' name='histo_diagnosis' fullWidth label="Histopathalogical Diagnosis"/>
                     <MultiSelection value={medicalHistory} name={'medical_history'} label={'Previous History of Cancer'} setValue={setMedicalHistory} options={medicalHistoryOptions}/>
                     
                     <MultiSelection value={familyHistory} label={'Family History of Cancer'} name={'family_history'} setValue={setFamilyHistory} options={familyHistoryOptions}/>
                     <TextField fullWidth size='small' name='systemic_disease' label='Systemic Disease'/>
+                    
+                    <Typography p={1} bgcolor={'#ececec'}>Current Habbits</Typography>
                     <Stack direction='column' spacing={1}>
                         <Stack direction='row' spacing={1} sx={{py:1}} >
                             <Selection value={habit} name={'habit'} label={"Habit"} setValue={setHabit} options={habitOptions}/>
-                            <Button size='small' fullWidth onClick={handleAddRisk} variant='contained' color='primary'>Add Habbit</Button>
-                        </Stack>
-
-                        <Stack direction='row' spacing={1}>
                             <Selection value={frequency} name={'frequency'} label={"Frequency"} setValue={setFrequency} options={frequencyOptions}/>
                             <Selection value={duration} name={'duration'} label={"Duration"} setValue={setDuration} options={durationOptions}/>
+                            <Button size='small' onClick={handleAddRisk} variant='contained' color='primary'>Add</Button>
                         </Stack>
                     </Stack>
                    { riskHabits.length >0 &&
@@ -373,6 +376,7 @@ const PatientNew = () => {
                             })
                         }
                     </List>}
+                    <Typography p={1} bgcolor={'#ececec'}>Consent Form</Typography>
                 </Stack>
                 <Box sx={{border:'2px dashed lightgray', background:'#fbfbfb', borderRadius:1, p:2, mt:5}}>
                 <Typography color='red' variant="h6"><b>Patient Data Collection Consent Form</b></Typography>

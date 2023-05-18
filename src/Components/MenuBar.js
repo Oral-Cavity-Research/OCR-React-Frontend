@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import{ AppBar, Menu,Container,Avatar,MenuItem, Divider} from '@mui/material';
+import{ AppBar, Menu,Container,Avatar,MenuItem, Divider, ButtonBase} from '@mui/material';
 import{ Box,Toolbar,IconButton,Typography, Button,Badge} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link } from 'react-router-dom';
@@ -22,22 +22,6 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
     borderRadius: 10
   }
 }));
-
-function stringToColor(string) {
-  let i, hash = 0;
-  let color = '#';
-
-  for (i = 0; i < string.length; i += 1) {
-    hash = string.charCodeAt(i) + ((hash << 5) - hash);
-  }
-
-  for (i = 0; i < 3; i += 1) {
-    const value = (hash >> (i * 8)) & 0xff;
-    color += `00${value.toString(16)}`.slice(-2);
-  }
-
-  return color;
-}
 
 function MenuBar() {
 
@@ -154,7 +138,7 @@ function MenuBar() {
 
       <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
           
-          <Button
+          <ButtonBase
             onClick={handleOpenUserMenu}
             size="small"
             sx={{ m:0, borderRadius: 100, p:0}}
@@ -166,7 +150,7 @@ function MenuBar() {
               <StyledBadge overlap="circular" anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} variant="dot" color={userData.availability?'success':'error'}>
                 <Avatar src={userData.picture} alt={userData.username?userData.username:""}></Avatar>
               </StyledBadge>
-          </Button>
+          </ButtonBase>
       </Box>
       <Menu
         anchorEl={anchorElUser}
