@@ -17,8 +17,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import { trySilentRefresh } from './utils/authUtils';
 import {setUserData } from './Reducers/userDataSlice';
 import EntryDetails from './Components/Entry/EntryDetails';
+import DraftDetails from './Components/Entry/DraftDetails';
 import HospitalTable from './Components/AdminPortal/Hospitals/HospitalTabel';
 import Entries from './Components/Entry/Entries';
+import DraftEntries from './Components/Entry/DraftEntries';
 import HospitalDetails from './Components/AdminPortal/Hospitals/HospitalDetails';
 import UserPermissions from './Components/AdminPortal/Permissions/UserPermissions';
 import HospiatalNew from './Components/AdminPortal/Hospitals/HospitalNew';
@@ -106,6 +108,12 @@ function App() {
                 <Route  index path="/manage/my/patients/new" element={<PatientNew/>}></Route>
                 <Route path="/manage/my/patients/:id" element={<PatientDetails/>}></Route>
             </Route>
+            <Route path ='/manage/my/draftentries' element={<Outlet/>}>
+                <Route  index element={<DraftEntries/>}></Route>
+                <Route  index path="/manage/my/draftentries/all" element={<DraftEntries/>}></Route>
+                <Route path="/manage/my/draftentries/:id" element={<DraftDetails/>}></Route>
+            </Route>
+            
         </Route>
         <Route path='/manage/shared' element={<ProtectedRoute allowed={[200]}><Manage/></ProtectedRoute>}>
           <Route index element={<SharedEntries/>}/>
