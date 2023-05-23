@@ -50,7 +50,7 @@ export default function LinearStepper() {
   };
 
   const handleReset = () => {
-    navigate(`/manage/my/entries/${entryID}`)
+    navigate(`/manage/my/draftentries/${entryID}`)
   };
 
   const isStepOptional = (index)=>{
@@ -107,7 +107,8 @@ export default function LinearStepper() {
         <Paper square elevation={0} sx={{ p: 3 }}>
           <Typography>Entry is added successfully!</Typography>
           <Button variant='contained' onClick={handleReset} sx={{ mt: 1, mr: 1 }}>
-            Assign Reviewers
+            {/* Assign Reviewers */}
+            Save as Draft
           </Button>
         </Paper>
       )}

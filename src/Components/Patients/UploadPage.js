@@ -94,7 +94,7 @@ const UploadPage = ({entryID, btnRef, setDone, setLoading}) => {
 
         form.append('data',JSON.stringify(temp))
        
-        axios.post(`${process.env.REACT_APP_BE_URL}/user/upload/images/${entryID}`, form,
+        axios.post(`${process.env.REACT_APP_BE_URL}/user/draftupload/images/${entryID}`, form,
         {headers: {
             'Authorization': `Bearer ${userData.accessToken.token}`,
             'Content-Type': 'multipart/form-data',
