@@ -31,6 +31,7 @@ import {
   ListItem,
   ListItemText,
   List,
+  TextField,
   ListItemAvatar,
   Menu,
   MenuItem,
@@ -48,10 +49,455 @@ import NotificationBar from "../NotificationBar";
 import AssigneeDropdown from "../AssigneeDropDown";
 import { LoadingButton } from "@mui/lab";
 
-const EntryDetails = () => {
+function timeDuration(start, end) {
+  try {
+    const duration = (new Date(end) - new Date(start)) / (1000 * 60);
+    return Math.round(duration) + " minutes";
+  } catch (error) {
+    return "";
+  }
+}
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
+
+function realReportName(filename) {
+  try {
+    return filename.split("_").slice(3).join("_");
+  } catch (error) {
+    return "Test Report";
+  }
+}
+
+const EditableText = ({disabled,defaultValue,name}) => (
+  <TextField disabled={disabled} defaultValue={defaultValue} name={name} variant='standard' fullWidth
+  sx={{
+      "& .MuiInputBase-input.Mui-disabled": {
+      WebkitTextFillColor: "#000000"}, 
+      "& .MuiInput-input": {
+          paddingY: 2,
+          fontWeight:400,
+          fontSize: "0.875rem"
+      }
+  }}
+  InputProps={{
+      disableUnderline: disabled
+  }}
+  />
+)
+
+
+
+const DraftDetails = () => {
+
+  const { id } = useParams();
+  const [loading, setLoading] = useState(true);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [data, setData] = useState(null);
+  const userData = useSelector(state => state.data);
+  const [status, setStatus] = useState({msg:"",severity:"success", open:false});
+  const [openAnnotation, setOpenAnnotation] = useState(false);
+  const [imageIndex, setImageIndex] = useState({});
+  const [ editEnable, setEditEnable] = useState(true);
+
+  const navigate = useNavigate();
+
+
+const handleOpen = (event) => {
+  setAnchorEl(event.currentTarget);
+};
+const handleCloseMenu = () => {
+  setAnchorEl(null);
+};
+
+const handleDoubleClick = (index) => {
+  setImageIndex(index);
+  setOpenAnnotation(true);
+};
+
+const handleClose = () => {
+  setOpenAnnotation(false);
+};
+
+
+const getData = ()=>{
+    axios.get(`${process.env.REACT_APP_BE_URL}/user/draftentry/get/${id}`,{
+        headers: {
+            'Authorization': `Bearer ${userData.accessToken.token}`,
+            'email': userData.email,
+        },
+        withCredentials: true
+    }).then(res=>{
+        console.log(res.data);
+        //if(res.data?.length < 20) setNoMore(true);
+        setData(res.data);
+        
+    }).catch(err=>{
+        if(err.response) showMsg(err.response.data.message, "error")
+        else alert(err)
+    }).finally(()=>{
+        setLoading(false);
+    })
+}
+
+const showMsg = (msg, severity)=>{
+  setStatus({msg, severity, open:true})
+}
+
+useEffect(() => {
+  console.log("useEffect");
+  setLoading(true);
+  getData();
+  
+}, []);
+
+
+useEffect(() => {
+  if (!openAnnotation) {
+    getData();
+  }
+}, [openAnnotation]);
+
 
 return(
-    <div>Empty</div>
+  // <>
+  //   <div>{id}</div>
+  //  { loading &&  !data  ?(<div> loading</div>) : (<div> {data.patient?.patient_id} </div>)
+  //  }
+  // </>
+  
+   <div className="inner_content">
+    <div>
+      <div className="sticky">
+        <Typography sx={{ fontWeight: 700 }} variant="h5">
+          Tele Consultation Draft
+        </Typography>
+        <Button
+          onClick={() => navigate(-1)}
+          size="small"
+          startIcon={<ArrowBack />}
+          sx={{ p: 0 }}
+        >
+          Go Back
+        </Button>
+      </div>
+      {loading && !data ? (
+        <Paper sx={{ p: 2, my: 3 }}>
+          <Stack
+            direction="row"
+            spacing={2}
+            alignItems="center"
+            sx={{ my: 3 }}
+          >
+            <Skeleton variant="rounded" width={60} height={60} />
+            <Stack direction="column">
+              <Skeleton
+                variant="text"
+                width={210}
+                sx={{ fontSize: "2rem" }}
+              />
+              <Skeleton variant="text" width={210} />
+            </Stack>
+          </Stack>
+          <Stack spacing={2}>
+            <Skeleton variant="rounded" height={40} width={600} />
+            <Skeleton variant="rounded" height={40} width={600} />
+          </Stack>
+        </Paper>
+      ) : (
+        <>
+          <Paper sx={{ p: 3, my: 3 }}>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <AssignmentInd
+                sx={{ color: "orange", width: "60px", height: "60px" }}
+              />
+              <Stack direction="column">
+                <Tooltip
+                  title="Go to patients profile"
+                  arrow
+                  placement="right"
+                >
+                  <Typography
+                    component={Link}
+                    to={`/manage/my/patients/${data.patient?._id}`}
+                    variant="h5"
+                    color="Highlight"
+                    sx={{ cursor: "pointer" }}
+                  >
+                    {data.patient?.patient_name}
+                  </Typography>
+                </Tooltip>
+                <Typography color="GrayText">
+                  {data.patient?.patient_id}
+                </Typography>
+              </Stack>
+              <Box flex={1}></Box>
+              <IconButton
+                id="fade-button"
+                aria-controls={Boolean(anchorEl) ? "fade-menu" : undefined}
+                aria-haspopup="true"
+                aria-expanded={Boolean(anchorEl) ? "true" : undefined}
+                onClick={handleOpen}
+              >
+                <MoreVert />
+              </IconButton>
+            </Stack>
+
+            <Divider sx={{ my: 1 }} />
+            <Stack direction="column" spacing={1}>
+              <Typography variant="body2">
+                Start Time:{" "}
+                {dayjs(data.start_time).format("DD/MM/YYYY HH:mm A")}
+              </Typography>
+              <Typography variant="body2">
+                Duration: {timeDuration(data.start_time, data.end_time)}
+              </Typography>
+            </Stack>
+            <Divider sx={{ my: 1 }} />
+        
+          </Paper>
+  
+
+          <Paper sx={{ p: 2, my: 3 }}>
+            <Table sx={{ border: "1px solid lightgray" }}>
+              <TableBody>
+                <TableRow>
+                  <TableCell>Complaint:</TableCell>
+                  <TableCell>
+                   <EditableText disabled={editEnable} defaultValue={data.complaint} name={'complaint'}/>
+                  </TableCell>
+                  
+                </TableRow>
+                <TableRow>
+                  <TableCell>Findings:</TableCell>
+                  <TableCell>
+                    <EditableText disabled={editEnable} defaultValue={data.findings} name={'Findings'}/>
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Current Habits:</TableCell>
+                  <TableCell>
+                    <List>
+                      {data.current_habits?.map((item, index) => {
+                        return (
+                          <ListItem key={index} disablePadding>
+                            <ListItemText
+                              primary={
+                                <Typography variant="body2">
+                                  {item.habit}
+                                </Typography>
+                              }
+                              secondary={item.frequency}
+                            />
+                          </ListItem>
+                        );
+                      })}
+                    </List>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </Paper>
+          <Paper sx={{ p: 2, my: 3 }}>
+            {data.images?.length > 0 ? (
+              <Typography sx={{ mb: 2 }} variant="body2">
+                Images:
+              </Typography>
+            ) : (
+              <Typography sx={{ mb: 2 }} color="GrayText" variant="body2">
+                No Images were Added
+              </Typography>
+            )}
+            <Grid container spacing={2}>
+              {data.images?.map((item, index) => (
+                <Grid item key={index} xs={4} md={3} lg={2}>
+                  <div className="imageDiv">
+                    <div className="grid_image">
+                      <img
+                        src={`${process.env.REACT_APP_IMAGE_PATH}/${item.image_name}`}
+                        alt="Failed to Load"
+                      />
+                      {item.annotation.length === 0 && (
+                        <div className="overlay">
+                          <svg onClick={() => handleDoubleClick(index)}>
+                            <polygon points="0,0,70,0,70,70" />
+                          </svg>
+                        </div>
+                      )}
+                      <Stack
+                        direction="row"
+                        sx={{ position: "absolute", bottom: 10, right: 0 }}
+                      >
+                        <IconButton
+                          onClick={() => handleDoubleClick(index)}
+                          size="small"
+                          sx={{ color: "transparent" }}
+                          className="iconBackground"
+                        >
+                          <Edit fontSize="small" />
+                        </IconButton>
+                      </Stack>
+                    </div>
+
+                    <Stack
+                      direction="column"
+                      justifyContent="space-between"
+                      alignItems="start"
+                      px={1}
+                    >
+                      <Box>
+                        <Typography fontSize="small" color="GrayText">
+                          {item.location} | {item.clinical_diagnosis}
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  </div>
+                </Grid>
+              ))}
+            </Grid>
+          </Paper>
+          <Paper sx={{ p: 2, my: 3 }}>
+            {data.reports?.length > 0 ? (
+              <Typography sx={{ mb: 2 }} variant="body2">
+                Test Reports:
+              </Typography>
+            ) : (
+              <Typography color="GrayText" variant="body2">
+                No Test Reports were Added
+              </Typography>
+            )}
+
+            {data.reports?.map((item, index) => {
+              return (
+                <Stack
+                  direction="row"
+                  sx={{ my: 2 }}
+                  alignItems="center"
+                  spacing={2}
+                  key={index}
+                >
+                  <PictureAsPdf color="error" />
+                  <Typography
+                    sx={{ "&:hover": { color: "var(--primary-color)" } }}
+                    variant="body2"
+                  >
+                    <a
+                      href={`${process.env.REACT_APP_REPORT_PATH}/` + item.report_name}
+                      target="_blank"
+                    >
+                      {realReportName(item.report_name)}
+                    </a>
+                  </Typography>
+                </Stack>
+              );
+            })}
+          </Paper>
+          {/* <Paper sx={{ p: 2, my: 3 }}>
+            {loadingReviews ? (
+              <Typography variant="body2">Loading Reviews...</Typography>
+            ) : reviews.length > 0 ? (
+              <Typography sx={{ mb: 2 }} variant="body2">
+                Reviews:
+              </Typography>
+            ) : (
+              <Typography color="GrayText" variant="body2">
+                No Reviews Yet
+              </Typography>
+            )}
+            <Stack direction="column" spacing={1}>
+              {reviews.map((item, index) => {
+                return (
+                  <Stack
+                    direction="row"
+                    key={index}
+                    sx={{ background: "white", p: 1 }}
+                  >
+                    <Avatar {...stringAvatar(item.reviewer_id?.username)} />
+                    <ArrowLeft />
+                    <Box>
+                      <Typography variant="body2">
+                        <strong>{item.reviewer_id?.username}</strong> |{" "}
+                        {item.reviewer_id?.reg_no}
+                      </Typography>
+                      <TableContainer>
+                        <Table
+                          sx={{
+                            [`& .${tableCellClasses.root}`]: {
+                              borderBottom: "none",
+                            },
+                          }}
+                        >
+                          <TableBody>
+                            {item.provisional_diagnosis !== "" && (
+                              <TableRow>
+                                <TableCell sx={{ py: 0 }}>
+                                  Provisional Diagnosis
+                                </TableCell>
+                                <TableCell sx={{ py: 0 }}>
+                                  {item.provisional_diagnosis}
+                                </TableCell>
+                              </TableRow>
+                            )}
+                            {item.management_suggestions !== "" && (
+                              <TableRow>
+                                <TableCell sx={{ py: 0 }}>
+                                  Management Suggestions
+                                </TableCell>
+                                <TableCell sx={{ py: 0 }}>
+                                  {item.management_suggestions}
+                                </TableCell>
+                              </TableRow>
+                            )}
+                            {item.referral_suggestions !== "" && (
+                              <TableRow>
+                                <TableCell sx={{ py: 0 }}>
+                                  Referral Suggestions
+                                </TableCell>
+                                <TableCell sx={{ py: 0 }}>
+                                  {item.referral_suggestions}
+                                </TableCell>
+                              </TableRow>
+                            )}
+                            {item.other_comments !== "" && (
+                              <TableRow>
+                                <TableCell sx={{ py: 0 }}>Comments</TableCell>
+                                <TableCell sx={{ py: 0 }}>
+                                  {item.other_comments}
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    </Box>
+                  </Stack>
+                );
+              })}
+            </Stack>
+          </Paper> */}
+          <Dialog
+            fullScreen
+            open={openAnnotation}
+            onClose={handleClose}
+            TransitionComponent={Transition}
+          >
+            <Canvas
+              imageIndex={imageIndex}
+              open={openAnnotation}
+              setOpen={setOpenAnnotation}
+              data={data.images}
+              setData={setData}
+              upload={false}
+            />
+          </Dialog>
+        </>
+      )}
+
+      <NotificationBar status={status} setStatus={setStatus} />
+    </div>
+  </div>
 )
 }
-export default EntryDetails;
+export default DraftDetails;
