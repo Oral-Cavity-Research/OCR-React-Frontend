@@ -32,9 +32,12 @@ import {
   ListItemText,
   List,
   TextField,
+  Select,
   ListItemAvatar,
   Menu,
   MenuItem,
+  InputLabel,
+  FormControl,
   ListItemIcon,
   TableContainer,
 } from "@mui/material";
@@ -48,6 +51,7 @@ import dayjs from "dayjs";
 import NotificationBar from "../NotificationBar";
 import AssigneeDropdown from "../AssigneeDropDown";
 import { LoadingButton } from "@mui/lab";
+import {Close} from '@mui/icons-material';
 
 function timeDuration(start, end) {
   try {
@@ -89,6 +93,28 @@ const EditableText = ({disabled,defaultValue,name}) => (
 )
 
 
+const habitOptions = [
+  {value: "Smoking", label: "Smoking"},
+  {value: "Alcohol", label: "Alcohol"},
+  {value: "Betel quid", label: "Betel quid"},
+  {value: "Smokeless tobacco", label: "Smokeless tobacco"}
+]
+
+const frequencyOptions = [
+  {value: "Daily", label: "Daily"},
+  {value: "Weekly", label: "Weekly"},
+  {value: "Bi-weekly", label: "Bi-weekly"},
+  {value: "Monthly", label: "Monthly"},
+  {value: "Occasionally", label: "Occasionally"},
+]
+const durationOptions = [
+  {value: "Short-term", label: "Short-term"},
+  {value: "Long-term", label: "Long-term"},
+  {value: "Short-term Ongoing", label: "Short-term Ongoing"},
+  {value: "Long-term Ongoing", label: "Long-term Ongoing"}
+]
+
+
 
 const DraftDetails = () => {
 
@@ -101,6 +127,11 @@ const DraftDetails = () => {
   const [openAnnotation, setOpenAnnotation] = useState(false);
   const [imageIndex, setImageIndex] = useState({});
   const [ editEnable, setEditEnable] = useState(true);
+  const [riskHabits, setRiskHabits] = useState([]);
+  const [habit, setHabit] = useState(habitOptions[0].value);
+  const [frequency, setFrequency] = useState(frequencyOptions[0].value);
+  const [duration, setDuration] = useState(durationOptions[0].value);
+
 
   const navigate = useNavigate();
 
@@ -121,6 +152,25 @@ const handleClose = () => {
   setOpenAnnotation(false);
 };
 
+const removeRisk = (item)=>{
+  let newList = data.current_habits.filter((habit)=> {return habit !== item})
+  // setRiskHabits(newList);
+}
+
+const onCancel = ()=>{
+  setEditEnable(!editEnable)
+}
+
+const handleAddRisk = ()=>{
+  let newList = data.current_habits.filter((newHabit)=> {return newHabit.habit !== habit});
+  newList.unshift({habit,frequency,duration});
+  setRiskHabits(newList);
+}
+
+const setcurrentHabits =()=>{
+  setRiskHabits(data.current_habits);
+}
+
 
 const getData = ()=>{
     axios.get(`${process.env.REACT_APP_BE_URL}/user/draftentry/get/${id}`,{
@@ -139,6 +189,7 @@ const getData = ()=>{
         else alert(err)
     }).finally(()=>{
         setLoading(false);
+        setcurrentHabits();
     })
 }
 
@@ -234,15 +285,22 @@ return(
                 </Typography>
               </Stack>
               <Box flex={1}></Box>
-              <IconButton
+              {/* <IconButton
                 id="fade-button"
                 aria-controls={Boolean(anchorEl) ? "fade-menu" : undefined}
                 aria-haspopup="true"
                 aria-expanded={Boolean(anchorEl) ? "true" : undefined}
                 onClick={handleOpen}
-              >
+              > 
                 <MoreVert />
-              </IconButton>
+              </IconButton> */}
+               <Stack direction='row' spacing={2} justifyContent='flex-end'>
+                <Button variant='contained' endIcon={<Edit/>} onClick={() => setEditEnable(!editEnable)}
+                style={{ display: !(editEnable) ? 'none' : undefined }}>Edit</Button>
+                <Button style={{ display: editEnable ? 'none' : undefined }} variant='contained' onClick={onCancel}>Cancel</Button>
+            </Stack>
+
+
             </Stack>
 
             <Divider sx={{ my: 1 }} />
@@ -279,8 +337,45 @@ return(
                 <TableRow>
                   <TableCell>Current Habits:</TableCell>
                   <TableCell>
+                  {
+                            !editEnable &&
+                            <Box>
+                                <Stack direction='row' spacing={1} sx={{py:1}} >
+                                <FormControl fullWidth>
+                                <InputLabel id="habbit-label" variant='standard' >Habbit</InputLabel>
+                                <Select labelId="habbit-label" variant='standard' label="Habit" value={habit} onChange={(e)=>setHabit(e.target.value)}>
+                                    {
+                                        habitOptions.map((item,index)=>{return(<MenuItem key={index} value={item.value}>{item.label}</MenuItem>)})
+                                    }
+                                </Select>
+                                </FormControl>
+
+                                <Button size='small' color='inherit' variant='outlined' onClick={handleAddRisk} >Add</Button>
+                                </Stack>
+
+                                <Stack direction='row' spacing={1}>
+                                <FormControl fullWidth>
+                                <InputLabel id="frequency-label" variant='standard' >Frequency</InputLabel>
+                                <Select labelId="frequency-label" variant='standard' label="Frequency" value={frequency} onChange={(e)=>setFrequency(e.target.value)}>
+                                    {
+                                        frequencyOptions.map((item,index)=>{return(<MenuItem key={index} value={item.value}>{item.label}</MenuItem>)})
+                                    }
+                                </Select>
+                                </FormControl>
+                                <FormControl fullWidth>
+                                <InputLabel id="duration-label" variant='standard' >Duration</InputLabel>
+                                <Select labelId='duration-label' variant='standard' label="Duration" value={duration} onChange={(e)=>setDuration(e.target.value)}>
+                                    {
+                                        durationOptions.map((item,index)=>{return(<MenuItem key={index} value={item.value}>{item.label}</MenuItem>)})
+                                    }
+                                </Select>
+                                </FormControl>
+                                </Stack>
+                            </Box>
+                        
+                        }
                     <List>
-                      {data.current_habits?.map((item, index) => {
+                      {/* {data.current_habits?.map((item, index) => {
                         return (
                           <ListItem key={index} disablePadding>
                             <ListItemText
@@ -293,7 +388,28 @@ return(
                             />
                           </ListItem>
                         );
-                      })}
+                      })} */}
+                          {
+                            data.current_habits?.map((item, index)=>{
+                                return(
+                                    <ListItem key={index} disableGutters disablePadding
+                                        secondaryAction={
+                                            !editEnable?
+                                            <IconButton edge="end" onClick={()=>removeRisk(item)}>
+                                            <Close fontSize='small' color='error' />
+                                            </IconButton>
+                                            : null
+                                        }
+                                    >
+                                    <ListItemText
+                                        primary={<Typography variant='body2' >{item.habit}</Typography>}
+                                        secondary={item.frequency + " | " + item.duration} 
+                                    />
+                                    </ListItem>
+                                )
+                            })
+                        }
+
                     </List>
                   </TableCell>
                 </TableRow>
