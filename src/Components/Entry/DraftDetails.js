@@ -41,6 +41,7 @@ import {
   ListItemIcon,
   TableContainer,
 } from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete'
 import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import { stringAvatar } from "../utils";
 import { useSelector } from "react-redux";
@@ -126,6 +127,7 @@ const DraftDetails = () => {
   const [status, setStatus] = useState({msg:"",severity:"success", open:false});
   const [openAnnotation, setOpenAnnotation] = useState(false);
   const [imageIndex, setImageIndex] = useState({});
+  const [imageArray,setImageArray] = useState([]);
   const [ editEnable, setEditEnable] = useState(true);
   const [riskHabits, setRiskHabits] = useState([]);
   const [habit, setHabit] = useState(habitOptions[0].value);
@@ -143,9 +145,12 @@ const handleCloseMenu = () => {
   setAnchorEl(null);
 };
 
-const handleDoubleClick = (index) => {
-  setImageIndex(index);
-  setOpenAnnotation(true);
+const handleDoubleClick = (item) => {
+  // setImageIndex(index);
+  // setOpenAnnotation(true);
+  let newList = imageArray.filter((image)=> {return image !== item})
+  setImageArray(newList)
+
 };
 
 const handleClose = () => {
@@ -153,8 +158,8 @@ const handleClose = () => {
 };
 
 const removeRisk = (item)=>{
-  let newList = data.current_habits.filter((habit)=> {return habit !== item})
-  // setRiskHabits(newList);
+  let newList = riskHabits.filter((habit)=> {return habit !== item})
+  setRiskHabits(newList)
 }
 
 const onCancel = ()=>{
@@ -162,13 +167,19 @@ const onCancel = ()=>{
 }
 
 const handleAddRisk = ()=>{
-  let newList = data.current_habits.filter((newHabit)=> {return newHabit.habit !== habit});
+  let newList = riskHabits.filter((newHabit)=> {return newHabit.habit !== habit});
   newList.unshift({habit,frequency,duration});
   setRiskHabits(newList);
 }
 
 const setcurrentHabits =()=>{
   setRiskHabits(data.current_habits);
+  console.log("habit")
+}
+
+const setImages =()=>{
+  setImageArray(data.images);
+  console.log("image")
 }
 
 
@@ -190,6 +201,7 @@ const getData = ()=>{
     }).finally(()=>{
         setLoading(false);
         setcurrentHabits();
+        setImages(data.images);
     })
 }
 
@@ -390,7 +402,7 @@ return(
                         );
                       })} */}
                           {
-                            data.current_habits?.map((item, index)=>{
+                            riskHabits?.map((item, index)=>{
                                 return(
                                     <ListItem key={index} disableGutters disablePadding
                                         secondaryAction={
@@ -417,7 +429,7 @@ return(
             </Table>
           </Paper>
           <Paper sx={{ p: 2, my: 3 }}>
-            {data.images?.length > 0 ? (
+            {imageArray?.length > 0 ? (
               <Typography sx={{ mb: 2 }} variant="body2">
                 Images:
               </Typography>
@@ -427,7 +439,7 @@ return(
               </Typography>
             )}
             <Grid container spacing={2}>
-              {data.images?.map((item, index) => (
+              {imageArray?.map((item, index) => (
                 <Grid item key={index} xs={4} md={3} lg={2}>
                   <div className="imageDiv">
                     <div className="grid_image">
@@ -446,14 +458,25 @@ return(
                         direction="row"
                         sx={{ position: "absolute", bottom: 10, right: 0 }}
                       >
-                        <IconButton
+                        {/* <IconButton
                           onClick={() => handleDoubleClick(index)}
                           size="small"
                           sx={{ color: "transparent" }}
                           className="iconBackground"
                         >
                           <Edit fontSize="small" />
+                          
+                        </IconButton> */}
+                        <IconButton 
+                        onClick={() => handleDoubleClick(item)}
+                        aria-label="delete"
+                        size="small"
+                        sx={{ color: "transparent" }}
+                        className="iconBackground"
+                        >
+                          <DeleteIcon />
                         </IconButton>
+                        
                       </Stack>
                     </div>
 
