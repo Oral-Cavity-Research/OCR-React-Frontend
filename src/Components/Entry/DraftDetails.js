@@ -128,6 +128,7 @@ const DraftDetails = () => {
   const [openAnnotation, setOpenAnnotation] = useState(false);
   const [imageIndex, setImageIndex] = useState({});
   const [imageArray,setImageArray] = useState([]);
+  const [fileArray,setFileArray] = useState([]);
   const [ editEnable, setEditEnable] = useState(true);
   const [riskHabits, setRiskHabits] = useState([]);
   const [habit, setHabit] = useState(habitOptions[0].value);
@@ -191,7 +192,7 @@ const handleSelection = ()=>{
 
 const selectImages = (event) => {
         
-  if(data.length + event.target.files.length > 12){
+  if(imageArray.length + event.target.files.length > 12){
       showMsg("Cannot upload more than 12 images at once","error");
       return;
   }
@@ -216,6 +217,26 @@ const selectImages = (event) => {
   setImageArray(images);
 };
 
+//files upload
+
+const selectFiles = (event) => {
+        
+  if(fileArray.length + event.target.files.length > 12){
+      showMsg("Cannot upload more than 12 files at once","error");
+      return;
+  }
+
+  let files = [...fileArray];
+
+  for (let i = 0; i < event.target.files.length; i++) {
+      if(event.target.files[i].size < 25*1000*1000){
+          files.unshift(event.target.files[i]);
+      }
+  }
+
+  setFileArray(files);
+};
+
 
 const getData = ()=>{
     axios.get(`${process.env.REACT_APP_BE_URL}/user/draftentry/get/${id}`,{
@@ -232,6 +253,7 @@ const getData = ()=>{
     }).then(data=>{
       setRiskHabits(data.current_habits);
       setImageArray(data.images);
+      setFileArray(data.reports);
    }).catch(err=>{
         if(err.response) showMsg(err.response.data.message, "error")
         else alert(err)
@@ -243,6 +265,7 @@ const getData = ()=>{
 const showMsg = (msg, severity)=>{
   setStatus({msg, severity, open:true})
 }
+
 
 useEffect(() => {
   console.log("useEffect");
@@ -366,7 +389,7 @@ return(
   
 
           <Paper sx={{ p: 2, my: 3 }}>
-            <Table sx={{ border: "1px solid lightgray" }}>
+            <Table sx={{ border: "1px solid lightgray", p:2,  my: 3 }}>
               <TableBody>
                 <TableRow>
                   <TableCell>Complaint:</TableCell>
@@ -462,6 +485,10 @@ return(
                 </TableRow>
               </TableBody>
             </Table>
+           { !editEnable && 
+           <Stack direction='row' spacing={4} justifyContent='flex-end'>
+                <Button variant='contained' onClick={() => setEditEnable(!editEnable)}>Save</Button>  
+            </Stack> }
           </Paper>
           <Paper sx={{ p: 2, my: 3 }}>
             {imageArray?.length > 0 ? (
@@ -549,7 +576,7 @@ return(
 
           </Paper>
           <Paper sx={{ p: 2, my: 3 }}>
-            {data.reports?.length > 0 ? (
+            {fileArray?.length > 0 ? (
               <Typography sx={{ mb: 2 }} variant="body2">
                 Test Reports:
               </Typography>
@@ -558,8 +585,15 @@ return(
                 No Test Reports were Added
               </Typography>
             )}
+            <Box flex={1}></Box>
+            <input hidden accept="application/pdf" ref={hidenInput} multiple type="file" onChange={selectFiles}/>
+            <Stack direction='row' spacing={2} justifyContent='flex-end'>
+                <Button variant='contained' onClick={handleSelection}>Add Reports</Button>
+            </Stack>
 
-            {data.reports?.map((item, index) => {
+           
+
+            {fileArray?.map((item, index) => {
               return (
                 <Stack
                   direction="row"
@@ -583,6 +617,7 @@ return(
                 </Stack>
               );
             })}
+
           </Paper>
           {/* <Paper sx={{ p: 2, my: 3 }}>
             {loadingReviews ? (
