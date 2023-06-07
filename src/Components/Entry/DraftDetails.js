@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useRef } from "react";
 import {
   Add,
   ArrowBack,
@@ -133,6 +133,7 @@ const DraftDetails = () => {
   const [habit, setHabit] = useState(habitOptions[0].value);
   const [frequency, setFrequency] = useState(frequencyOptions[0].value);
   const [duration, setDuration] = useState(durationOptions[0].value);
+  const hidenInput = useRef();
 
 
   const navigate = useNavigate();
@@ -172,15 +173,48 @@ const handleAddRisk = ()=>{
   setRiskHabits(newList);
 }
 
-const setcurrentHabits =()=>{
-  setRiskHabits(data.current_habits);
-  console.log("habit")
+// const setcurrentHabits =()=>{
+//   setRiskHabits(data?.current_habits);
+//   console.log("habit")
+// }
+
+// const setImages =()=>{
+//   setImageArray(data?.images);
+//   console.log("image")
+// }
+
+// images upload
+
+const handleSelection = ()=>{
+  hidenInput.current.click();
 }
 
-const setImages =()=>{
-  setImageArray(data.images);
-  console.log("image")
-}
+const selectImages = (event) => {
+        
+  if(data.length + event.target.files.length > 12){
+      showMsg("Cannot upload more than 12 images at once","error");
+      return;
+  }
+
+  let images = [...imageArray];
+  // let files = [...selectedFiles];
+
+  for (let i = 0; i < event.target.files.length; i++) {
+      if(event.target.files[i].size < 25*1000*1000){
+          let jsonData ={
+              img: URL.createObjectURL(event.target.files[i]),
+              location: "Upper labial mucosa",
+              clinical_diagnosis: "Normal",
+              lesions_appear: true,
+              annotation: []
+          }
+          images.unshift(jsonData);
+      }
+  }
+
+  // setSelectedFiles(files);       
+  setImageArray(images);
+};
 
 
 const getData = ()=>{
@@ -194,14 +228,15 @@ const getData = ()=>{
         console.log(res.data);
         //if(res.data?.length < 20) setNoMore(true);
         setData(res.data);
-        
-    }).catch(err=>{
+        return res.data;
+    }).then(data=>{
+      setRiskHabits(data.current_habits);
+      setImageArray(data.images);
+   }).catch(err=>{
         if(err.response) showMsg(err.response.data.message, "error")
         else alert(err)
     }).finally(()=>{
         setLoading(false);
-        setcurrentHabits();
-        setImages(data.images);
     })
 }
 
@@ -438,6 +473,12 @@ return(
                 No Images were Added
               </Typography>
             )}
+
+            <input hidden accept="image/png, image/jpeg" ref={hidenInput} multiple type="file" onChange={selectImages}/>
+            <Stack direction='row' spacing={2} justifyContent='flex-end'>
+                <Button variant='contained' onClick={handleSelection}>Add images</Button>  
+            </Stack>
+
             <Grid container spacing={2}>
               {imageArray?.map((item, index) => (
                 <Grid item key={index} xs={4} md={3} lg={2}>
@@ -496,6 +537,16 @@ return(
                 </Grid>
               ))}
             </Grid>
+            
+
+            {/* <Stack direction='row' spacing={2} justifyContent='flex-end'>
+                <Button variant='contained' endIcon={<Edit/>} onClick={() => setEditEnable(!editEnable)}
+                style={{ display: !(editEnable) ? 'none' : undefined }}>Edit</Button>
+                
+            </Stack> */}
+
+
+
           </Paper>
           <Paper sx={{ p: 2, my: 3 }}>
             {data.reports?.length > 0 ? (
