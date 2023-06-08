@@ -9,6 +9,8 @@ import axios from 'axios';
 import { useSelector} from 'react-redux';
 import dayjs from 'dayjs';
 import { LoadingButton } from '@mui/lab';
+import Canvas from '../Annotation/Canvas';
+import ImageCropper from '../Crop/ImageCropper';
 
 const filtOptions = ["Newly Reviewed", "Reviewed", "Unassigned", "Assigned", "Unreviewed", "Created Date","Updated Date"]
 

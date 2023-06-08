@@ -7,6 +7,7 @@ import {
   Delete,
   Download,
   Edit,
+  Crop,
   MoreVert,
   PictureAsPdf,
 } from "@mui/icons-material";
@@ -50,6 +51,7 @@ import Canvas from "../Annotation/Canvas";
 import axios from "axios";
 import dayjs from "dayjs";
 import NotificationBar from "../NotificationBar";
+import ImageCropper from '../Crop/ImageCropper';
 import AssigneeDropdown from "../AssigneeDropDown";
 import { LoadingButton } from "@mui/lab";
 import {Close} from '@mui/icons-material';
@@ -77,7 +79,7 @@ function realReportName(filename) {
 }
 
 const EditableText = ({disabled,defaultValue,name}) => (
-  <TextField disabled={disabled} defaultValue={defaultValue} name={name} variant='standard' fullWidth
+  <TextField disabled={disabled} defaultValue={defaultValue} name={name}  variant='standard' fullWidth
   sx={{
       "& .MuiInputBase-input.Mui-disabled": {
       WebkitTextFillColor: "#000000"}, 
@@ -127,10 +129,15 @@ const DraftDetails = () => {
   const [status, setStatus] = useState({msg:"",severity:"success", open:false});
   const [openAnnotation, setOpenAnnotation] = useState(false);
   const [imageIndex, setImageIndex] = useState({});
+  const [openCrop, setOpenCrop] = useState(false)
   const [imageArray,setImageArray] = useState([]);
   const [fileArray,setFileArray] = useState([]);
   const [ editEnable, setEditEnable] = useState(true);
   const [riskHabits, setRiskHabits] = useState([]);
+  const [complaint,setComplaint]= useState();
+  const [findings,setFindings] = useState();
+  const [startTime, setStartTime] = useState(dayjs(new Date()));
+  const [endTime, setEndTime] = useState(dayjs(new Date()));
   const [habit, setHabit] = useState(habitOptions[0].value);
   const [frequency, setFrequency] = useState(frequencyOptions[0].value);
   const [duration, setDuration] = useState(durationOptions[0].value);
@@ -147,17 +154,6 @@ const handleCloseMenu = () => {
   setAnchorEl(null);
 };
 
-const handleDoubleClick = (item) => {
-  // setImageIndex(index);
-  // setOpenAnnotation(true);
-  let newList = imageArray.filter((image)=> {return image !== item})
-  setImageArray(newList)
-
-};
-
-const handleClose = () => {
-  setOpenAnnotation(false);
-};
 
 const removeRisk = (item)=>{
   let newList = riskHabits.filter((habit)=> {return habit !== item})
@@ -166,6 +162,12 @@ const removeRisk = (item)=>{
 
 const onCancel = ()=>{
   setEditEnable(!editEnable)
+  setRiskHabits(data?.current_habits)
+  setImageArray(data?.images)
+  setFileArray(data?.reports)
+  setComplaint(data?.complaint)
+  setFindings(data?.findings)
+
 }
 
 const handleAddRisk = ()=>{
@@ -191,6 +193,7 @@ const handleSelection = ()=>{
 }
 
 const selectImages = (event) => {
+  console.log("images")
         
   if(imageArray.length + event.target.files.length > 12){
       showMsg("Cannot upload more than 12 images at once","error");
@@ -217,10 +220,35 @@ const selectImages = (event) => {
   setImageArray(images);
 };
 
+
+const handleEdit = (index)=>{
+  setImageIndex(index);
+  setOpenCrop(true);
+}
+
+const handleClose = () => {
+  setOpenAnnotation(false);
+  setOpenCrop(false);
+};
+
+const handleDoubleClick = (index)=>{
+  setImageIndex(index);
+  setOpenAnnotation(true);
+
+}
+
+const handleDeleteImage = (item) => {
+  // setImageIndex(index);
+  // setOpenAnnotation(true);
+  let newList = imageArray.filter((image)=> {return image !== item})
+  setImageArray(newList)
+
+};
+
 //files upload
 
 const selectFiles = (event) => {
-        
+  console.log("Files")
   if(fileArray.length + event.target.files.length > 12){
       showMsg("Cannot upload more than 12 files at once","error");
       return;
@@ -236,6 +264,11 @@ const selectFiles = (event) => {
 
   setFileArray(files);
 };
+
+const handleDeleteFiles = (item)=>{
+  let newList = fileArray.filter((file)=> {return file !== item})
+  setFileArray(newList)
+}
 
 
 const getData = ()=>{
@@ -254,6 +287,8 @@ const getData = ()=>{
       setRiskHabits(data.current_habits);
       setImageArray(data.images);
       setFileArray(data.reports);
+      setComplaint(data.complaint);
+      setFindings(data.findings);
    }).catch(err=>{
         if(err.response) showMsg(err.response.data.message, "error")
         else alert(err)
@@ -261,6 +296,7 @@ const getData = ()=>{
         setLoading(false);
     })
 }
+
 
 const showMsg = (msg, severity)=>{
   setStatus({msg, severity, open:true})
@@ -394,14 +430,50 @@ return(
                 <TableRow>
                   <TableCell>Complaint:</TableCell>
                   <TableCell>
-                   <EditableText disabled={editEnable} defaultValue={data.complaint} name={'complaint'}/>
+                   {/* <EditableText disabled={editEnable} defaultValue={complaint} name={'complaint'} 
+                  onChange={(e)=>{setComplaint(e.target.value)}}/> */}
+                   <TextField disabled={editEnable} defaultValue={complaint} name={'complaint'}  variant='standard' fullWidth
+                        sx={{
+                            "& .MuiInputBase-input.Mui-disabled": {
+                            WebkitTextFillColor: "#000000"}, 
+                            "& .MuiInput-input": {
+                                paddingY: 2,
+                                fontWeight:400,
+                                fontSize: "0.875rem"
+                            }
+                        }}
+                        InputProps={{
+                            disableUnderline: {editEnable}
+                        }}
+                        onChange={(e)=>{setComplaint(e.target.value)}}
+                        />
+
+
                   </TableCell>
                   
                 </TableRow>
                 <TableRow>
                   <TableCell>Findings:</TableCell>
                   <TableCell>
-                    <EditableText disabled={editEnable} defaultValue={data.findings} name={'Findings'}/>
+                    {/* <EditableText disabled={editEnable} defaultValue={findings} name={'Findings'}
+                    onChange={(e)=>setFindings(e.target.value)}/> */}
+                     <TextField disabled={editEnable} defaultValue={findings} name={'findings'}  variant='standard' fullWidth
+                        sx={{
+                            "& .MuiInputBase-input.Mui-disabled": {
+                            WebkitTextFillColor: "#000000"}, 
+                            "& .MuiInput-input": {
+                                paddingY: 2,
+                                fontWeight:400,
+                                fontSize: "0.875rem"
+                            }
+                        }}
+                        InputProps={{
+                            disableUnderline: {editEnable}
+                        }}
+                        onChange={(e)=>{setFindings(e.target.value)}}
+                        />
+
+
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -485,12 +557,14 @@ return(
                 </TableRow>
               </TableBody>
             </Table>
-           { !editEnable && 
+
+           {/* { !editEnable && 
            <Stack direction='row' spacing={4} justifyContent='flex-end'>
-                <Button variant='contained' onClick={() => setEditEnable(!editEnable)}>Save</Button>  
-            </Stack> }
+                <Button variant='contained' onClick={() => {setEditEnable(!editEnable); hello();}}>Save</Button>  
+            </Stack> } */}
+
           </Paper>
-          <Paper sx={{ p: 2, my: 3 }}>
+          <Paper sx={{ p: 2, my:3 }}>
             {imageArray?.length > 0 ? (
               <Typography sx={{ mb: 2 }} variant="body2">
                 Images:
@@ -500,13 +574,16 @@ return(
                 No Images were Added
               </Typography>
             )}
-
+            <Box flex={1}></Box>
             <input hidden accept="image/png, image/jpeg" ref={hidenInput} multiple type="file" onChange={selectImages}/>
+            {!editEnable &&
             <Stack direction='row' spacing={2} justifyContent='flex-end'>
                 <Button variant='contained' onClick={handleSelection}>Add images</Button>  
             </Stack>
+            }
 
-            <Grid container spacing={2}>
+            <Grid container >  
+            {/* spacing={2} */}
               {imageArray?.map((item, index) => (
                 <Grid item key={index} xs={4} md={3} lg={2}>
                   <div className="imageDiv">
@@ -522,20 +599,13 @@ return(
                           </svg>
                         </div>
                       )}
+
+                      {!editEnable &&
                       <Stack
                         direction="row"
                         sx={{ position: "absolute", bottom: 10, right: 0 }}
                       >
-                        {/* <IconButton
-                          onClick={() => handleDoubleClick(index)}
-                          size="small"
-                          sx={{ color: "transparent" }}
-                          className="iconBackground"
-                        >
-                          <Edit fontSize="small" />
-                          
-                        </IconButton> */}
-                        <IconButton 
+                        {/* <IconButton 
                         onClick={() => handleDoubleClick(item)}
                         aria-label="delete"
                         size="small"
@@ -543,9 +613,44 @@ return(
                         className="iconBackground"
                         >
                           <DeleteIcon />
-                        </IconButton>
+                        </IconButton> */}
+
+                        <Stack direction='column' justifyContent='space-between' alignItems='start' px={1}>
+                          <Stack direction='row'>
+                              <IconButton  
+                              onClick={()=>handleEdit(index)} aria-label="delete"
+                              size="small"
+                              sx={{ color: "transparent" }}
+                              className="iconBackground">
+                              <Crop fontSize='small'/></IconButton>
+
+                              <IconButton 
+                              onClick={()=>handleDoubleClick(index)}
+                              aria-label="delete"
+                              size="small"
+                              sx={{ color: "transparent" }}
+                              className="iconBackground">
+                                <Edit fontSize='small'/></IconButton>
+
+                              <IconButton onClick={()=>handleDeleteImage(item)}
+                              aria-label="delete"
+                              size="small"
+                              sx={{ color: "transparent" }}
+                              className="iconBackground">
+                                <Delete fontSize='small'/></IconButton>
+                          </Stack>
+
+                        {/* <Box>
+                            <Typography variant='body2'>{item.clinical_diagnosis} <b>{item.location}</b></Typography>
+                            <Typography variant='body2'>Lesions appear: <b>{item.lesions_appear.toString()}</b></Typography>
+                        </Box> */}
+                        </Stack>
                         
                       </Stack>
+                        }
+
+                     
+                      
                     </div>
 
                     <Stack
@@ -564,6 +669,17 @@ return(
                 </Grid>
               ))}
             </Grid>
+
+            <Dialog fullScreen open={openAnnotation} onClose={handleClose} TransitionComponent={Transition}>
+                <Canvas imageIndex={imageIndex} open={openAnnotation} setOpen={setOpenAnnotation} data={imageArray} setData={setImageArray} upload={true}/>
+            </Dialog>
+
+            <Dialog fullScreen open={openCrop} onClose={handleClose} TransitionComponent={Transition}>
+                <ImageCropper imageIndex={imageIndex} upload={true}
+                data={imageArray} setData={setImageArray} 
+                open={openCrop} setOpen={setOpenCrop} 
+                selectedFiles={fileArray} setSelectedFiles={setFileArray}/>
+            </Dialog>
             
 
             {/* <Stack direction='row' spacing={2} justifyContent='flex-end'>
@@ -587,9 +703,12 @@ return(
             )}
             <Box flex={1}></Box>
             <input hidden accept="application/pdf" ref={hidenInput} multiple type="file" onChange={selectFiles}/>
+
+            {!editEnable &&
             <Stack direction='row' spacing={2} justifyContent='flex-end'>
                 <Button variant='contained' onClick={handleSelection}>Add Reports</Button>
             </Stack>
+            }
 
            
 
@@ -614,94 +733,33 @@ return(
                       {realReportName(item.report_name)}
                     </a>
                   </Typography>
+                  
+                  {!editEnable &&
+                  <IconButton onClick={()=>handleDeleteFiles(item)}
+                              aria-label="delete"
+                              size="small"
+                              justifyContent="flex-end">
+                              <Delete fontSize='small'/>
+                  </IconButton>
+                  }
+
+                  
                 </Stack>
               );
             })}
 
           </Paper>
-          {/* <Paper sx={{ p: 2, my: 3 }}>
-            {loadingReviews ? (
-              <Typography variant="body2">Loading Reviews...</Typography>
-            ) : reviews.length > 0 ? (
-              <Typography sx={{ mb: 2 }} variant="body2">
-                Reviews:
-              </Typography>
-            ) : (
-              <Typography color="GrayText" variant="body2">
-                No Reviews Yet
-              </Typography>
-            )}
-            <Stack direction="column" spacing={1}>
-              {reviews.map((item, index) => {
-                return (
-                  <Stack
-                    direction="row"
-                    key={index}
-                    sx={{ background: "white", p: 1 }}
-                  >
-                    <Avatar {...stringAvatar(item.reviewer_id?.username)} />
-                    <ArrowLeft />
-                    <Box>
-                      <Typography variant="body2">
-                        <strong>{item.reviewer_id?.username}</strong> |{" "}
-                        {item.reviewer_id?.reg_no}
-                      </Typography>
-                      <TableContainer>
-                        <Table
-                          sx={{
-                            [`& .${tableCellClasses.root}`]: {
-                              borderBottom: "none",
-                            },
-                          }}
-                        >
-                          <TableBody>
-                            {item.provisional_diagnosis !== "" && (
-                              <TableRow>
-                                <TableCell sx={{ py: 0 }}>
-                                  Provisional Diagnosis
-                                </TableCell>
-                                <TableCell sx={{ py: 0 }}>
-                                  {item.provisional_diagnosis}
-                                </TableCell>
-                              </TableRow>
-                            )}
-                            {item.management_suggestions !== "" && (
-                              <TableRow>
-                                <TableCell sx={{ py: 0 }}>
-                                  Management Suggestions
-                                </TableCell>
-                                <TableCell sx={{ py: 0 }}>
-                                  {item.management_suggestions}
-                                </TableCell>
-                              </TableRow>
-                            )}
-                            {item.referral_suggestions !== "" && (
-                              <TableRow>
-                                <TableCell sx={{ py: 0 }}>
-                                  Referral Suggestions
-                                </TableCell>
-                                <TableCell sx={{ py: 0 }}>
-                                  {item.referral_suggestions}
-                                </TableCell>
-                              </TableRow>
-                            )}
-                            {item.other_comments !== "" && (
-                              <TableRow>
-                                <TableCell sx={{ py: 0 }}>Comments</TableCell>
-                                <TableCell sx={{ py: 0 }}>
-                                  {item.other_comments}
-                                </TableCell>
-                              </TableRow>
-                            )}
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-                    </Box>
-                  </Stack>
-                );
-              })}
+          <Paper sx={{ p: 2, my: 3 }}>
+  
+          <Stack direction='row' spacing={2} justifyContent='flex-start'>
+                <Button variant='contained' onClick={() => setEditEnable(!editEnable)}
+                style={{ display: !(editEnable) ? 'none' : undefined }}>Save as Entry</Button>
+                {/* <Button style={{ display: editEnable ? 'none' : undefined }} variant='contained' onClick={onCancel}>Cancel</Button> */}
             </Stack>
-          </Paper> */}
+                  
+
+           
+          </Paper>
           <Dialog
             fullScreen
             open={openAnnotation}
