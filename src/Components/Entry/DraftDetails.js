@@ -1,20 +1,13 @@
 import React, { useEffect, useState,useRef } from "react";
 import {
-  Add,
   ArrowBack,
-  ArrowLeft,
   AssignmentInd,
   Delete,
-  Download,
   Edit,
   Crop,
-  MoreVert,
   PictureAsPdf,
-  FestivalSharp,
 } from "@mui/icons-material";
 import {
-  Avatar,
-  AvatarGroup,
   Paper,
   Tooltip,
   Typography,
@@ -35,13 +28,9 @@ import {
   List,
   TextField,
   Select,
-  ListItemAvatar,
-  Menu,
   MenuItem,
   InputLabel,
   FormControl,
-  ListItemIcon,
-  TableContainer,
 } from "@mui/material";
 import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import { useSelector } from "react-redux";
@@ -75,23 +64,6 @@ function realReportName(filename) {
   }
 }
 
-const EditableText = ({disabled,defaultValue,name}) => (
-  <TextField disabled={disabled} defaultValue={defaultValue} name={name}  variant='standard' fullWidth
-  sx={{
-      "& .MuiInputBase-input.Mui-disabled": {
-      WebkitTextFillColor: "#000000"}, 
-      "& .MuiInput-input": {
-          paddingY: 2,
-          fontWeight:400,
-          fontSize: "0.875rem"
-      }
-  }}
-  InputProps={{
-      disableUnderline: disabled
-  }}
-  />
-)
-
 
 const habitOptions = [
   {value: "Smoking", label: "Smoking"},
@@ -120,7 +92,6 @@ const DraftDetails = () => {
 
   const { id } = useParams();
   const [loading, setLoading] = useState(true);
-  const [anchorEl, setAnchorEl] = React.useState(null);
   const [data, setData] = useState(null);
   const userData = useSelector(state => state.data);
   const [status, setStatus] = useState({msg:"",severity:"success", open:false});
@@ -147,13 +118,6 @@ const DraftDetails = () => {
 const navigate = useNavigate();
 
 
-const handleOpen = (event) => {
-  setAnchorEl(event.currentTarget);
-};
-const handleCloseMenu = () => {
-  setAnchorEl(null);
-};
-
 
 const removeRisk = (item)=>{
   let newList = riskHabits.filter((habit)=> {return habit !== item})
@@ -176,7 +140,7 @@ const handleAddRisk = ()=>{
   setRiskHabits(newList);
 }
 
-// images upload
+// select images
 
 const handleSelection1 = ()=>{
   hidenInput1.current.click();
@@ -239,7 +203,7 @@ const handleDeleteImage = (item) => {
 
 };
 
-//files upload
+//select files
 
 const selectFiles = (event) => {
   console.log("Files")
