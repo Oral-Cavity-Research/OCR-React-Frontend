@@ -623,7 +623,7 @@ return(
 
 
           </Paper>
-          <Paper sx={{ p: 2, my:3 }}>
+          <Paper sx={{ p: 4, my:4 }}>
             {imageArray?.length > 0 ? (
               <Typography sx={{ mb: 2 }} variant="body2">
                 Images:
@@ -638,7 +638,7 @@ return(
             <input hidden accept="image/png, image/jpeg" ref={hidenInput1} multiple type="file" onChange={selectImages}/>
             {!editEnable &&
             <Stack direction='row' spacing={2} justifyContent='flex-end'>
-                <Button variant='contained' onClick={handleSelection1}>Add images</Button>  
+                <Button  variant='contained' onClick={handleSelection1}>Add images</Button>  
             </Stack>
             }
 
@@ -731,7 +731,7 @@ return(
 
 
           </Paper>
-          <Paper sx={{ p: 2, my: 3 }}>
+          <Paper sx={{ p: 4, my: 4 }}>
             {fileArray?.length > 0 ? (
               <Typography sx={{ mb: 2 }} variant="body2">
                 Test Reports:
