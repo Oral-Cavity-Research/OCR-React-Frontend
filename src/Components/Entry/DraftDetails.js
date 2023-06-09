@@ -10,6 +10,7 @@ import {
   Crop,
   MoreVert,
   PictureAsPdf,
+  FestivalSharp,
 } from "@mui/icons-material";
 import {
   Avatar,
@@ -42,9 +43,7 @@ import {
   ListItemIcon,
   TableContainer,
 } from "@mui/material";
-import DeleteIcon from '@mui/icons-material/Delete'
 import TableCell, { tableCellClasses } from "@mui/material/TableCell";
-import { stringAvatar } from "../utils";
 import { useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Canvas from "../Annotation/Canvas";
@@ -52,8 +51,6 @@ import axios from "axios";
 import dayjs from "dayjs";
 import NotificationBar from "../NotificationBar";
 import ImageCropper from '../Crop/ImageCropper';
-import AssigneeDropdown from "../AssigneeDropDown";
-import { LoadingButton } from "@mui/lab";
 import {Close} from '@mui/icons-material';
 
 function timeDuration(start, end) {
@@ -131,6 +128,7 @@ const DraftDetails = () => {
   const [imageIndex, setImageIndex] = useState({});
   const [openCrop, setOpenCrop] = useState(false)
   const [imageArray,setImageArray] = useState([]);
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const [fileArray,setFileArray] = useState([]);
   const [ editEnable, setEditEnable] = useState(true);
   const [riskHabits, setRiskHabits] = useState([]);
@@ -141,10 +139,12 @@ const DraftDetails = () => {
   const [habit, setHabit] = useState(habitOptions[0].value);
   const [frequency, setFrequency] = useState(frequencyOptions[0].value);
   const [duration, setDuration] = useState(durationOptions[0].value);
-  const hidenInput = useRef();
+  const [entryID, setEntryID] = React.useState(null);
+  const hidenInput1 = useRef();
+  const hidenInput2= useRef();
 
 
-  const navigate = useNavigate();
+const navigate = useNavigate();
 
 
 const handleOpen = (event) => {
@@ -176,20 +176,14 @@ const handleAddRisk = ()=>{
   setRiskHabits(newList);
 }
 
-// const setcurrentHabits =()=>{
-//   setRiskHabits(data?.current_habits);
-//   console.log("habit")
-// }
-
-// const setImages =()=>{
-//   setImageArray(data?.images);
-//   console.log("image")
-// }
-
 // images upload
 
-const handleSelection = ()=>{
-  hidenInput.current.click();
+const handleSelection1 = ()=>{
+  hidenInput1.current.click();
+}
+
+const handleSelection2 = ()=>{
+  hidenInput2.current.click();
 }
 
 const selectImages = (event) => {
@@ -201,7 +195,7 @@ const selectImages = (event) => {
   }
 
   let images = [...imageArray];
-  // let files = [...selectedFiles];
+  let files = [...selectedFiles];
 
   for (let i = 0; i < event.target.files.length; i++) {
       if(event.target.files[i].size < 25*1000*1000){
@@ -212,9 +206,11 @@ const selectImages = (event) => {
               lesions_appear: true,
               annotation: []
           }
+          files.unshift(event.target.files[i]);
           images.unshift(jsonData);
       }
   }
+
 
   // setSelectedFiles(files);       
   setImageArray(images);
@@ -238,8 +234,6 @@ const handleDoubleClick = (index)=>{
 }
 
 const handleDeleteImage = (item) => {
-  // setImageIndex(index);
-  // setOpenAnnotation(true);
   let newList = imageArray.filter((image)=> {return image !== item})
   setImageArray(newList)
 
@@ -280,7 +274,6 @@ const getData = ()=>{
         withCredentials: true
     }).then(res=>{
         console.log(res.data);
-        //if(res.data?.length < 20) setNoMore(true);
         setData(res.data);
         return res.data;
     }).then(data=>{
@@ -297,6 +290,144 @@ const getData = ()=>{
     })
 }
 
+/*need to be changed */
+    const dataSubmit = (event)=>{
+        event.preventDefault();
+
+        const complaint = complaint;
+        const findings = findings;
+        const current_habits = riskHabits;
+
+        if(findings===""|| complaint===""){
+            showMsg("Please add required feilds","error");
+            return;
+        }
+
+        const upload = {
+            start_time : new Date(startTime),
+            end_time : new Date(endTime),
+            complaint,findings,current_habits
+        }
+
+        setLoading(true);
+        
+        axios.post(`${process.env.REACT_APP_BE_URL}/user/draftentry/add/${id}`, upload, //should change
+        {headers: {
+            'Authorization': `Bearer ${userData.accessToken.token}`,
+            'email': userData.email,
+        }}
+        ).then(res=>{
+            setEntryID(res.data._id);
+        }).catch(err=>{
+            if(err.response) showMsg(err.response.data?.message, "error")
+            else alert(err)
+        }).finally(()=>{
+            setLoading(false);
+        })  
+    }
+
+
+
+/*need to be changed */
+const imageSubmit = ()=>{
+
+      if(selectedFiles.length===0){
+          showMsg("Please Select the images", "error");
+          return;
+      }
+
+      setLoading(true);
+
+      const temp =  data.map(item => ({...item}));
+      temp.forEach(item =>{ 
+          delete item.img;
+          item.telecon_entry_id = entryID;
+      });
+
+      var form = new FormData();
+      selectedFiles.forEach((pic, index) => {
+          var filename = id+"_"+ Date.now() + "_"+ index + "_" + pic.name;
+          form.append('files', pic, filename);
+          temp[index].image_name = filename;
+      });
+
+      form.append('data',JSON.stringify(temp))
+     
+      axios.post(`${process.env.REACT_APP_BE_URL}/user/draftupload/images/${entryID}`, form,
+      {headers: {
+          'Authorization': `Bearer ${userData.accessToken.token}`,
+          'Content-Type': 'multipart/form-data',
+          'email': userData.email,
+      }}
+      ).then(res=>{
+          setSelectedFiles([]);
+          setImageIndex(0);
+          imageArray([]);
+          // setDone(1);
+      }).catch(err=>{
+          if(err.response) showMsg(err.response.data.message, "error")
+          else alert(err)
+      }).finally(()=>{
+          setLoading(false);
+      })
+
+  }
+
+
+ 
+/*need to be changed */
+
+const reportSubmit = ()=>{
+
+
+    if(fileArray.length===0){
+        showMsg("Please Select the test reports", "error");
+        return;
+    }
+
+    setLoading(true);
+
+    const temp =  [];
+    fileArray.forEach(item =>{ 
+        temp.push({
+            telecon_entry_id : entryID
+        })
+    });
+
+    var form = new FormData();
+    fileArray.forEach((report, index) => {
+        var filename = id+"_"+ Date.now() + "_"+ index + "_" + report.name;
+        temp[index].report_name = filename;
+        form.append('files', report, filename);
+    });
+
+    form.append('data',JSON.stringify(temp))
+
+    axios.post(`${process.env.REACT_APP_BE_URL}/user/draftupload/reports/${entryID}`, form,
+    {headers: {
+        'Authorization': `Bearer ${userData.accessToken.token}`,
+        'Content-Type': 'multipart/form-data',
+        'email': userData.email,
+    }}
+    ).then(res=>{
+        setFileArray([]);
+        // setDone(2)
+    }).catch(err=>{
+        if(err.response) showMsg(err.response.data.message, "error")
+        else alert(err)
+    }).finally(()=>{
+        setLoading(false);
+    })
+
+}
+
+/* this need to be changed */
+const handlesSubmit = () =>{
+  //datasubmit()
+  //imageSubmit()
+  //reportSubmit()
+}
+  
 
 const showMsg = (msg, severity)=>{
   setStatus({msg, severity, open:true})
@@ -319,11 +450,6 @@ useEffect(() => {
 
 
 return(
-  // <>
-  //   <div>{id}</div>
-  //  { loading &&  !data  ?(<div> loading</div>) : (<div> {data.patient?.patient_id} </div>)
-  //  }
-  // </>
   
    <div className="inner_content">
     <div>
@@ -391,15 +517,6 @@ return(
                 </Typography>
               </Stack>
               <Box flex={1}></Box>
-              {/* <IconButton
-                id="fade-button"
-                aria-controls={Boolean(anchorEl) ? "fade-menu" : undefined}
-                aria-haspopup="true"
-                aria-expanded={Boolean(anchorEl) ? "true" : undefined}
-                onClick={handleOpen}
-              > 
-                <MoreVert />
-              </IconButton> */}
                <Stack direction='row' spacing={2} justifyContent='flex-end'>
                 <Button variant='contained' endIcon={<Edit/>} onClick={() => setEditEnable(!editEnable)}
                 style={{ display: !(editEnable) ? 'none' : undefined }}>Edit</Button>
@@ -430,8 +547,6 @@ return(
                 <TableRow>
                   <TableCell>Complaint:</TableCell>
                   <TableCell>
-                   {/* <EditableText disabled={editEnable} defaultValue={complaint} name={'complaint'} 
-                  onChange={(e)=>{setComplaint(e.target.value)}}/> */}
                    <TextField disabled={editEnable} defaultValue={complaint} name={'complaint'}  variant='standard' fullWidth
                         sx={{
                             "& .MuiInputBase-input.Mui-disabled": {
@@ -455,8 +570,6 @@ return(
                 <TableRow>
                   <TableCell>Findings:</TableCell>
                   <TableCell>
-                    {/* <EditableText disabled={editEnable} defaultValue={findings} name={'Findings'}
-                    onChange={(e)=>setFindings(e.target.value)}/> */}
                      <TextField disabled={editEnable} defaultValue={findings} name={'findings'}  variant='standard' fullWidth
                         sx={{
                             "& .MuiInputBase-input.Mui-disabled": {
@@ -517,20 +630,6 @@ return(
                         
                         }
                     <List>
-                      {/* {data.current_habits?.map((item, index) => {
-                        return (
-                          <ListItem key={index} disablePadding>
-                            <ListItemText
-                              primary={
-                                <Typography variant="body2">
-                                  {item.habit}
-                                </Typography>
-                              }
-                              secondary={item.frequency}
-                            />
-                          </ListItem>
-                        );
-                      })} */}
                           {
                             riskHabits?.map((item, index)=>{
                                 return(
@@ -558,10 +657,6 @@ return(
               </TableBody>
             </Table>
 
-           {/* { !editEnable && 
-           <Stack direction='row' spacing={4} justifyContent='flex-end'>
-                <Button variant='contained' onClick={() => {setEditEnable(!editEnable); hello();}}>Save</Button>  
-            </Stack> } */}
 
           </Paper>
           <Paper sx={{ p: 2, my:3 }}>
@@ -574,16 +669,16 @@ return(
                 No Images were Added
               </Typography>
             )}
+            
             <Box flex={1}></Box>
-            <input hidden accept="image/png, image/jpeg" ref={hidenInput} multiple type="file" onChange={selectImages}/>
+            <input hidden accept="image/png, image/jpeg" ref={hidenInput1} multiple type="file" onChange={selectImages}/>
             {!editEnable &&
             <Stack direction='row' spacing={2} justifyContent='flex-end'>
-                <Button variant='contained' onClick={handleSelection}>Add images</Button>  
+                <Button variant='contained' onClick={handleSelection1}>Add images</Button>  
             </Stack>
             }
 
-            <Grid container >  
-            {/* spacing={2} */}
+            <Grid container  spacing={2}  >  
               {imageArray?.map((item, index) => (
                 <Grid item key={index} xs={4} md={3} lg={2}>
                   <div className="imageDiv">
@@ -605,15 +700,7 @@ return(
                         direction="row"
                         sx={{ position: "absolute", bottom: 10, right: 0 }}
                       >
-                        {/* <IconButton 
-                        onClick={() => handleDoubleClick(item)}
-                        aria-label="delete"
-                        size="small"
-                        sx={{ color: "transparent" }}
-                        className="iconBackground"
-                        >
-                          <DeleteIcon />
-                        </IconButton> */}
+                       
 
                         <Stack direction='column' justifyContent='space-between' alignItems='start' px={1}>
                           <Stack direction='row'>
@@ -639,11 +726,6 @@ return(
                               className="iconBackground">
                                 <Delete fontSize='small'/></IconButton>
                           </Stack>
-
-                        {/* <Box>
-                            <Typography variant='body2'>{item.clinical_diagnosis} <b>{item.location}</b></Typography>
-                            <Typography variant='body2'>Lesions appear: <b>{item.lesions_appear.toString()}</b></Typography>
-                        </Box> */}
                         </Stack>
                         
                       </Stack>
@@ -682,12 +764,6 @@ return(
             </Dialog>
             
 
-            {/* <Stack direction='row' spacing={2} justifyContent='flex-end'>
-                <Button variant='contained' endIcon={<Edit/>} onClick={() => setEditEnable(!editEnable)}
-                style={{ display: !(editEnable) ? 'none' : undefined }}>Edit</Button>
-                
-            </Stack> */}
-
 
 
           </Paper>
@@ -702,11 +778,11 @@ return(
               </Typography>
             )}
             <Box flex={1}></Box>
-            <input hidden accept="application/pdf" ref={hidenInput} multiple type="file" onChange={selectFiles}/>
+            <input hidden accept="application/pdf" ref={hidenInput2} multiple type="file" onChange={selectFiles}/>
 
             {!editEnable &&
             <Stack direction='row' spacing={2} justifyContent='flex-end'>
-                <Button variant='contained' onClick={handleSelection}>Add Reports</Button>
+                <Button variant='contained' onClick={handleSelection2}>Add Reports</Button>
             </Stack>
             }
 
@@ -752,7 +828,7 @@ return(
           <Paper sx={{ p: 2, my: 3 }}>
   
           <Stack direction='row' spacing={2} justifyContent='flex-start'>
-                <Button variant='contained' onClick={() => setEditEnable(!editEnable)}
+                <Button variant='contained' onClick={() => handlesSubmit}
                 style={{ display: !(editEnable) ? 'none' : undefined }}>Save as Entry</Button>
                 {/* <Button style={{ display: editEnable ? 'none' : undefined }} variant='contained' onClick={onCancel}>Cancel</Button> */}
             </Stack>
