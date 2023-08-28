@@ -1,5 +1,5 @@
 import React, {useEffect, useState } from 'react';
-import { Avatar, AvatarGroup, LinearProgress, Menu, MenuItem, Stack, 
+import { Avatar, AvatarGroup, Box, LinearProgress, Menu, MenuItem, Stack, 
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography} from '@mui/material';
 import {IconButton} from '@mui/material';
 import {Circle, FilterList, Image, Message} from '@mui/icons-material';
@@ -17,6 +17,7 @@ const PatientEntries = () => {
     const [filt, setFilt] = React.useState("Created Date");
     const open = Boolean(anchorEl);
     const [loading, setLoading] = useState(false);
+    const [creatingNew, setCreatingNew] = useState(false);
     const [data, setData] = useState([]);
     const [status, setStatus] = useState({msg:"",severity:"success", open:false});
     const userData = useSelector(state => state.data);
@@ -93,20 +94,42 @@ const PatientEntries = () => {
         }).finally(()=>{
             setLoading(false);
         })
-    }      
+    } 
+    
+    const createNewEntry = () => {
+        setCreatingNew(true);
+        axios.post(`${process.env.REACT_APP_BE_URL}/user/entry/new/${id}`,{},
+        {
+            headers: {
+                'Authorization': `Bearer ${userData.accessToken.token}`,
+                'email': userData.email,
+            },
+            withCredentials: true
+        }).then(res=>{
+            navigate(`/manage/my/draft/${res.data._id}`) 
+        }).catch(err=>{
+            if(err.response) showMsg(err.response?.data?.message, "error")
+            else alert(err)
+        }).finally(()=>{
+            setCreatingNew(false);
+        })
+    }
 
     return (                    
             <>
-                <Stack direction='row' alignItems='center' spacing={1} mb={2}>
-                    <IconButton
-                        id="fade-button"
-                        aria-controls={open ? 'fade-menu' : undefined}
-                        aria-haspopup="true"
-                        aria-expanded={open ? 'true' : undefined}
-                        onClick={handleOpen}
-                    ><FilterList/></IconButton>
-                    <Typography variant='body2' color='GrayText'>{filt}</Typography>
-                </Stack>
+            <Stack direction='row' justifyContent='space-between' alignItems='center' mb={1}>
+                <IconButton
+                    id="fade-button"
+                    aria-controls={open ? 'fade-menu' : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={open ? 'true' : undefined}
+                    onClick={handleOpen}
+                    size='small'
+                ><FilterList/></IconButton>
+                <Typography variant='body2' color='GrayText'>{filt}</Typography>
+                <Box flex={1}></Box>
+                <LoadingButton loading={creatingNew} onClick={createNewEntry} variant='contained'>Create New</LoadingButton>
+            </Stack>
 
                 <Menu id="fade-menu" MenuListProps={{ 'aria-labelledby': 'fade-button'}} anchorEl={anchorEl} open={open} onClose={handleClose}>
                 {filtOptions.map((item,index)=>{ return(<MenuItem key={index} onClick={()=>handleFilter(item)}>{item}</MenuItem>)})}
@@ -158,8 +181,8 @@ const PatientEntries = () => {
                                 }
                             </AvatarGroup>
                             </TableCell>
-                            {filt === "Updated Date" ? <TableCell>{dayjs(item.createdAt).format('DD/MM/YYYY')}</TableCell>
-                            : <TableCell>{dayjs(item.updatedAt).format('DD/MM/YYYY')}</TableCell>}
+                            {filt === "Updated Date" ? <TableCell>{dayjs(item.updateddAt).format('DD/MM/YYYY')}</TableCell>
+                            : <TableCell>{dayjs(item.createdAt).format('DD/MM/YYYY')}</TableCell>}
                         </TableRow>
                     )})}
                     </TableBody>

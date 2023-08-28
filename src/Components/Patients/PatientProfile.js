@@ -203,12 +203,12 @@ const PatientProfile = ({data}) => {
 
     return (
         <div>
-         <Stack direction='row' spacing={2} justifyContent='flex-end'>
+         <Stack direction='row' spacing={2} justifyContent='flex-end' mb={1}>
             <Button variant='contained' endIcon={<Edit/>} onClick={() => setEditEnable(!editEnable)}
             style={{ display: !(editEnable) ? 'none' : undefined }}>Edit</Button>
             <Button style={{ display: editEnable ? 'none' : undefined }} variant='contained' onClick={onCancel}>Cancel</Button>
         </Stack>
-        <Box component="form" noValidate onSubmit={handleSave} sx={{ mt: 1 }}>
+        <Box component="form" noValidate onSubmit={handleSave}>
             <Table  sx={{border: '1px solid lightgray'}}>
                 <TableBody>
                     <TableRow>

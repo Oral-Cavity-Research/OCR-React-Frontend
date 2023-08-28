@@ -21,7 +21,6 @@ import {
   Divider,
   Grid,
   Slide,
-  Dialog,
   IconButton,
   Button,
   Table,
@@ -39,12 +38,16 @@ import {
   InputLabel,
   Select,
   TableContainer,
+  Drawer,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
 } from "@mui/material";
 import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import { stringAvatar } from "../utils";
 import { useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import Canvas from "../Annotation/Canvas";
 import axios from "axios";
 import dayjs from "dayjs";
 import NotificationBar from "../NotificationBar";
@@ -129,14 +132,12 @@ const SharedEntryDetails = () => {
   const [loadingReviews, setLoadingReviews] = useState(true);
   const [reviews, setReviews] = useState([]);
   const [saving, setSaving] = useState(false);
-  const [openAnnotation, setOpenAnnotation] = useState(false);
-  const [imageIndex, setImageIndex] = useState({});
-  const [addReviewer, setAddReviewer] = useState(false);
   const [assignee, setAssignee] = useState(null);
   const [provisionalDiagnosis, setProvisionalDiagnosis] = useState("");
   const [managementSuggestion, setManagementSuggestion] = useState("");
   const [referralSuggestion, setReferralSuggestion] = useState("");
   const [data, setData] = useState({});
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -158,14 +159,12 @@ const SharedEntryDetails = () => {
     setAnchorEl(null);
   };
 
-  const handleDoubleClick = (index) => {
-    setImageIndex(index);
-    setOpenAnnotation(true);
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setAssignee(null);
   };
 
-  const handleClose = () => {
-    setOpenAnnotation(false);
-  };
+
 
   const markAsRead = (data) => {
     if (data.checked) return;
@@ -241,6 +240,9 @@ const SharedEntryDetails = () => {
       .then((res) => {
         showMsg("Review is addded!", "success");
         getReviews(data._id);
+        setProvisionalDiagnosis("")
+        setManagementSuggestion("")
+        setReferralSuggestion("")
         scrollToTop();
       })
       .catch((err) => {
@@ -258,11 +260,13 @@ const SharedEntryDetails = () => {
     }
 
     const containsReviewer = data.reviewers?.some(
-      (obj) => obj._id === assignee._id
+      (obj) => obj === assignee._id
     );
+
     if (containsReviewer) {
       showMsg("Reviewer assigned successfuly!", "success");
-      setAddReviewer(false);
+      setDialogOpen(false);
+      
       return;
     }
 
@@ -317,12 +321,6 @@ const SharedEntryDetails = () => {
     setLoading(true);
     loadData();
   }, []);
-
-  useEffect(() => {
-    if (!openAnnotation) {
-      loadData();
-    }
-  }, [openAnnotation]);
 
   const showMsg = (msg, severity) => {
     setStatus({ msg, severity, open: true });
@@ -401,6 +399,16 @@ const SharedEntryDetails = () => {
                   </Typography>
                 </Stack>
                 <Box flex={1}></Box>
+                {!data.reviewed && (
+                  <Button
+                    variant="contained"
+                    color="success"
+                    startIcon={<RateReview />}
+                    onClick={scrollToBottom}
+                  >
+                    Add review
+                  </Button>
+                )}
                 <IconButton
                   id="fade-button"
                   aria-controls={Boolean(anchorEl) ? "fade-menu" : undefined}
@@ -439,11 +447,11 @@ const SharedEntryDetails = () => {
                 transformOrigin={{ horizontal: "right", vertical: "top" }}
                 anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
               >
-                <MenuItem onClick={() => setAddReviewer(!addReviewer)}>
+                <MenuItem onClick={() => setDialogOpen(true)}>
                   <ListItemIcon>
                     <SwapHoriz />
                   </ListItemIcon>
-                  <ListItemText>Assign Reviewer</ListItemText>
+                  <ListItemText>Transfer Entry</ListItemText>
                 </MenuItem>
                 <MenuItem>
                   <ListItemIcon>
@@ -480,10 +488,8 @@ const SharedEntryDetails = () => {
                 <Stack direction="column" spacing={1}>
                   <Typography variant="body2">
                     Created By:{" "}
-                    <b>
-                      {data.clinician_id?.username? data.clinician_id.username: "Clinician"}
-                      {data.clinician_id?.reg_no? ` | ${data.clinician_id.reg_no}`:""}
-                    </b>
+                    {data.clinician_id?.username? data.clinician_id.username: "Clinician"}
+                    {data.clinician_id?.reg_no? ` | ${data.clinician_id.reg_no}`:""}
                   </Typography>
                   <Typography variant="body2">
                     Created At:{" "}
@@ -494,54 +500,10 @@ const SharedEntryDetails = () => {
                     {dayjs(data.assignedAt).format("DD/MM/YYYY HH:MM A")}
                   </Typography>
                 </Stack>
-                {!data.reviewed && (
-                  <Button
-                    variant="contained"
-                    color="success"
-                    startIcon={<RateReview />}
-                    onClick={scrollToBottom}
-                  >
-                    Add review
-                  </Button>
-                )}
               </Stack>
             </Paper>
-            {addReviewer && (
-              <Paper sx={{ p: 2, my: 3 }}>
-                <Stack direction="row" spacing={2} my={2}>
-                  <AssigneeDropdown setAssignee={setAssignee} />
-                  <LoadingButton
-                    loading={saving}
-                    variant="contained"
-                    onClick={addAssignee}
-                  >
-                    Assign
-                  </LoadingButton>
-                  <Button
-                    disabled={saving}
-                    variant="outlined"
-                    color="inherit"
-                    onClick={() => setAddReviewer(false)}
-                  >
-                    Close
-                  </Button>
-                </Stack>
-                {assignee && (
-                  <Box
-                    sx={{
-                      border: "1px solid lightgray",
-                      borderRadius: 1,
-                      p: 2,
-                    }}
-                  >
-                    <Typography>{assignee.username}</Typography>
-                    <Typography>{assignee.reg_no}</Typography>
-                  </Box>
-                )}
-              </Paper>
-            )}
-
             <Paper sx={{ p: 2, my: 3 }}>
+            <Typography p={1} mb={2} bgcolor={'#ececec'}>Findings</Typography>
               <Table sx={{ border: "1px solid lightgray" }}>
                 <TableBody>
                   <TableRow>
@@ -577,15 +539,12 @@ const SharedEntryDetails = () => {
               </Table>
             </Paper>
             <Paper sx={{ p: 2, my: 3 }}>
-              {data.images?.length > 0 ? (
-                <Typography sx={{ mb: 2 }} variant="body2">
-                  Images:
-                </Typography>
-              ) : (
-                <Typography sx={{ mb: 2 }} color="GrayText" variant="body2">
+            <Typography p={1} mb={2} bgcolor={'#ececec'}>Oral Cavity Images</Typography>
+              {data.images?.length === 0 &&
+              <Typography sx={{ mb: 2 }} color="GrayText" variant="body2">
                   No Images were Added
                 </Typography>
-              )}
+              }
               <Grid container spacing={2}>
                 {data.images?.map((item, index) => (
                   <Grid item key={index} xs={4} md={3} lg={2}>
@@ -595,55 +554,19 @@ const SharedEntryDetails = () => {
                           src={`${process.env.REACT_APP_IMAGE_PATH}/${item.image_name}`}
                           alt="Failed to Load"
                         />
-                        {item.annotation.length === 0 && (
-                          <div className="overlay">
-                            <svg onClick={() => handleDoubleClick(index)}>
-                              <polygon points="0,0,70,0,70,70" />
-                            </svg>
-                          </div>
-                        )}
-                        <Stack
-                          direction="row"
-                          sx={{ position: "absolute", bottom: 10, right: 0 }}
-                        >
-                          <IconButton
-                            onClick={() => handleDoubleClick(index)}
-                            size="small"
-                            sx={{ color: "transparent" }}
-                            className="iconBackground"
-                          >
-                            <Edit fontSize="small" />
-                          </IconButton>
-                        </Stack>
                       </div>
-
-                      <Stack
-                        direction="column"
-                        justifyContent="space-between"
-                        alignItems="start"
-                        px={1}
-                      >
-                        <Box>
-                          <Typography fontSize="small" color="GrayText">
-                            {item.location} | {item.clinical_diagnosis}
-                          </Typography>
-                        </Box>
-                      </Stack>
                     </div>
                   </Grid>
                 ))}
               </Grid>
             </Paper>
             <Paper sx={{ p: 2, my: 3 }}>
-              {data.reports?.length > 0 ? (
-                <Typography sx={{ mb: 2 }} variant="body2">
-                  Test Reports:
-                </Typography>
-              ) : (
-                <Typography color="GrayText" variant="body2">
+            <Typography p={1} mb={2} bgcolor={'#ececec'}>Test Reports</Typography>
+              {data.reports?.length === 0  &&
+              <Typography color="GrayText" variant="body2">
                   No Test Reports were Added
                 </Typography>
-              )}
+              }
 
               {data.reports?.map((item, index) => {
                 return (
@@ -673,17 +596,14 @@ const SharedEntryDetails = () => {
             </Paper>
 
             <Paper sx={{ p: 2, my: 3 }}>
+            <Typography p={1} mb={2} bgcolor={'#ececec'}>Reviews</Typography>
               {loadingReviews ? (
                 <Typography variant="body2">Loading Reviews...</Typography>
-              ) : reviews.length > 0 ? (
-                <Typography sx={{ mb: 2 }} variant="body2">
-                  Reviews:
-                </Typography>
-              ) : (
+              ) : reviews.length === 0 &&
                 <Typography color="GrayText" variant="body2">
                   No Reviews Yet
                 </Typography>
-              )}
+              }
               <Stack direction="column" spacing={1}>
                 {reviews.map((item, index) => {
                   return (
@@ -695,10 +615,14 @@ const SharedEntryDetails = () => {
                       <Avatar {...stringAvatar(item.reviewer_id?.username)} />
                       <ArrowLeft />
                       <Box>
+                        <Stack direction='row' mb={1} spacing={1}>
                         <Typography variant="body2">
-                          <strong>{item.reviewer_id?.username}</strong> |{" "}
-                          {item.reviewer_id?.reg_no}
+                          <strong>{item.reviewer_id?.username}</strong>
                         </Typography>
+                        <Typography variant="body2" color='GrayText'>
+                          {dayjs(item.createdAt).format('DD/MM/YYYY')}
+                        </Typography>
+                        </Stack>
                         <TableContainer>
                           <Table
                             sx={{
@@ -846,23 +770,45 @@ const SharedEntryDetails = () => {
               </Box>
             </Paper>
             <div ref={endRef} />
-            <Dialog
-              fullScreen
-              open={openAnnotation}
-              onClose={handleClose}
-              TransitionComponent={Transition}
-            >
-              <Canvas
-                imageIndex={imageIndex}
-                open={openAnnotation}
-                setOpen={setOpenAnnotation}
-                data={data.images}
-                setData={setData}
-                upload={false}
-              />
-            </Dialog>
           </>
         )}
+
+        <Dialog
+            open={dialogOpen}
+            onClose={handleDialogClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+            fullWidth
+        >
+          <DialogTitle>Transfer the Entry</DialogTitle>
+          <DialogContent>
+                <Stack direction="row" spacing={2} my={2}>
+                  <AssigneeDropdown setAssignee={setAssignee} />
+                  <LoadingButton
+                    loading={saving}
+                    variant="contained"
+                    onClick={addAssignee}
+                  >
+                    Assign
+                  </LoadingButton>
+                </Stack>
+                {assignee && (
+                  <Box
+                    sx={{
+                      border: "1px solid lightgray",
+                      borderRadius: 1,
+                      p: 2,
+                    }}
+                  >
+                    <Typography>{assignee.username}</Typography>
+                    <Typography>{assignee.reg_no}</Typography>
+                  </Box>
+                )}
+          </DialogContent>
+            <DialogActions>
+              <Button variant="outlined" color="inherit" onClick={handleDialogClose}>Close</Button>
+            </DialogActions>
+        </Dialog>
 
         <NotificationBar status={status} setStatus={setStatus} />
       </div>

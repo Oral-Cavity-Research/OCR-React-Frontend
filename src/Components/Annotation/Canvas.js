@@ -1,39 +1,29 @@
 import React, { useRef, useEffect, useState } from 'react';
-import {Button, Divider, Drawer, Select, Typography} from '@mui/material';
-import { Close, Save} from '@mui/icons-material';
-import colorPallete from '../ColorPalete'
-import RegionTable from './RegionTable';
-import Help from './Help';
+import {Box, Button, ButtonGroup, Select, MenuItem, Stack, Typography, FormControl, InputLabel} from '@mui/material';
 import ButtonPanel from './ButtonPanel';
-import MenuItem from '@mui/material/MenuItem';
 import axios from 'axios';
+import { useSelector} from 'react-redux';
 import { LoadingButton } from '@mui/lab';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import NotificationBar from '../NotificationBar';
-import { useSelector } from 'react-redux';
 
-// global variables 
-// todo: check whether we could use useStates instead
-const regionNames = ["Oral Cavity", "Teeth","Enemal","Hard Plate","Mole","Soft Plate","Tongue","Stain","Uvula","Gingiva","Lips"]
 const diagnosis =["Normal","OLP / LR", "OSMF/OSF","VBD", "RAU","MRG","FEP","PVL","SLE","OFG","OCA"]
 const locations = ["Lips","Upper labial mucosa","Lower labial mucosa","L/S Buccal mucosa","R/S Buccal mucosa",
 "Palate","Tongue-dorsum","Tongue-ventral","Alveolar ridge","Gingiva","Flour of the mouth"]
+// global variables 
+// todo: check whether we could use useStates instead
 
-const colors = colorPallete
-const mouse = {x : 0, y : 0, button : 0, cursor: 'crosshair'};
+const mouse = {x : 0, y : 0, button : 0, cursor: 'default'};
 var regions = []
 var isDragging = false;
 var isSelected = false;
 var isDrawing = true ;
-var isLabelVisible = true;
-var labelType = 'name';
 var polygon
 var canvas
-var ctx
+var ctx = null
 var selectedRegion
-var defaultType = "Oral Cavity"
-var defaultColor = 'rgb(255, 0, 0)'
-var opacity = true;
-
+const defaultSettings = {type:"Lesion", color: 'rgb(0,255,0)'};
 // return points as Json
 const point = (x,y) => ({x,y});
 
@@ -49,7 +39,7 @@ function drawCircle(ctx, pos,zoomLevel,size=4){
 
 // polygon class
 class Polygon{
-  constructor(ctx, color=defaultColor, type=defaultType){
+  constructor(ctx, color, type){
     this.ctx = ctx;
     this.isSelected = false;
     this.points = [];
@@ -75,12 +65,11 @@ class Polygon{
   }
   draw() {
       this.ctx.beginPath();
-      this.ctx.lineWidth = 1;
+      this.ctx.lineWidth = 2;
       this.ctx.strokeStyle = this.color;
       this.ctx.fillStyle = this.transcolor
       for (const p of this.points) { this.ctx.lineTo((p.x)*this.scale,(p.y)*this.scale) }
-      this.ctx.closePath();
-      if(opacity) this.ctx.fill();
+      if(this.completed) this.ctx.closePath();
       this.ctx.stroke();
   }
   closest(pos, dist = 8) {
@@ -98,7 +87,7 @@ class Polygon{
     }
     if (index > -1) { return this.points[index] }
   }
-  update(){
+  update( drawingMode, defaultColor, defaultType){
       // line following the cursor
       if(!this.completed && this.points.length !== 0){
         isDrawing = true
@@ -114,8 +103,19 @@ class Polygon{
       // if not dragging get the closest point to mouse
       if (!this.dragging) {  this.activePoint = this.closest(mouse) }
 
+      // check if connecting to the first point
+      if (!this.completed && this.points?.length> 2 && this.activePoint === this.points[0]) { drawCircle(this.ctx, this.points[0], this.scale, 4) }
+
+      // if not ccompleted and mouse button clicked on first point complete the region
+      if(!this.completed && this.points?.length> 2 && this.activePoint === this.points[0] && mouse.button){
+        this.completed = true
+
+        polygon = new Polygon(ctx, defaultColor, defaultType)
+        polygon.scale = this.scale;
+        regions.push(polygon)
+
       // if not dragging and mouse button clicked and when other regions are not selected add a point
-      if (this.activePoint === undefined && !isDragging && !isSelected && mouse.button && !this.completed) {
+      }else if (!isDragging && !isSelected && mouse.button && !this.completed && drawingMode) {
           this.addPoint(mouse);
           mouse.button = false;
       // if completed and dragging update the points
@@ -143,34 +143,65 @@ class Polygon{
       this.mouse.lx = (mouse.x)/this.scale;
       this.mouse.ly = (mouse.y)/this.scale;
   }
+  show(){
+    this.ctx.beginPath();
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeStyle = this.color;
+    this.ctx.fillStyle = this.color.replace(')', ', 0.6)').replace('rgb', 'rgba');
+    for (const p of this.points) { this.ctx.lineTo((p.x)*this.scale,(p.y)*this.scale) }
+    if(this.completed) this.ctx.closePath();
+    this.ctx.stroke();
+  }
 }
 
-const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {  
+const Canvas = ({imageIndex, imagedata, setImagedata, handleClose}) => {  
   
   const [size, setSize] = useState({width: 1, height:1})
-  const [orginalSize, setOriginalSize] = useState({width: 1, height:1})
-  const [showPoints, setShowPoints] = useState(false)
-  const [zoomLevel, setZoomLevel] = useState(1)
-  const [togglePanel, setTogglePanel] = useState(false);
-  const [state, setState] = useState(0);
-  const [status, setStatus] = useState({msg:"",severity:"success", open:false}) 
-  const [help, setHelp] = useState(false);
-  const [labelVisibility, setLabelVisibility] = useState(isLabelVisible);
-  const [selection, setSelection] = React.useState('Oral Cavity');
-  const [location, setLocation] = useState(data[imageIndex].location)
-  const [clinicalDiagnosis, setClinicalDiagnosis] = useState(data[imageIndex].clinical_diagnosis);
-  const [lesion, setLesion] = useState(data[imageIndex].lesions_appear);
+  const [data, setData] = useState(imagedata[imageIndex]);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [coordinates, setCoordinates] = useState([]);
+  const [drawingMode, setDrawingMode] = useState(false);
+  const [location, setLocation] = useState(imagedata[imageIndex].location);
+  const [clinicalDiagnosis, setClinicalDiagnosis] = useState(imagedata[imageIndex].clinical_diagnosis);
+  const [saving, setSaving] = useState(false);
+  const [status, setStatus] = useState({msg:"",severity:"success", open:false});
   const userData = useSelector(state => state.data);
 
-  const handleChange = (event) => {
-    setSelection(event.target.value);
-    set_types(event.target.value)
-  };
+  const theme = useTheme();
+  const matches = useMediaQuery(theme.breakpoints.up('sm'));
 
   const handleSave = ()=>{
 
-    setState(1);
+    const coor = getCoordinates();
+    setCoordinates(coor);
 
+    setSaving(true);
+
+    axios.post(`${process.env.REACT_APP_BE_URL}/image/update/${data._id}`,
+    {
+        location: location,
+        clinical_diagnosis: clinicalDiagnosis,
+        annotation: coor
+    },
+    { headers: {
+        'Authorization': `Bearer ${userData.accessToken.token}`,
+        'email': userData.email,
+    }}).then(res=>{
+        showMsg("Successful!",'success')
+        var temp = [...imagedata]
+        temp[imageIndex].annotation = coor
+        temp[imageIndex].location= location
+        temp[imageIndex].clinical_diagnosis = clinicalDiagnosis
+        setImagedata(temp);
+        handleClose();
+    }).catch(err=>{
+        alert(err)
+    }).finally(()=>{
+      setSaving(false)
+    })
+  }
+
+  const getCoordinates = ()=>{
     var updated = [];
 
     [...regions].forEach((region, index) =>{
@@ -194,150 +225,18 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
       }
     })
 
-    if(upload){
-      var temp = [...data]
-      temp[imageIndex].annotation = updated
-      temp[imageIndex].location= location
-      temp[imageIndex].clinical_diagnosis = clinicalDiagnosis
-      temp[imageIndex].lesions_appear = lesion
-
-      setData(temp);
-      setState(0);
-      setOpen(false);
-
-    }else{
-
-      axios.post(`${process.env.REACT_APP_BE_URL}/image/update`,
-        {
-          _id: data[imageIndex]._id,
-          location:location,
-          clinical_diagnosis:clinicalDiagnosis,
-          lesions_appear:lesion,
-          annotation: updated
-
-        },
-        { headers: {
-            'Authorization': `Bearer ${userData.accessToken.token}`,
-            'email': userData.email,
-        }}).then(res=>{
-          showMsg("Image Data Updated", "success")
-          // var temp = [...data]
-          // temp[imageIndex].annotation = updated
-          // temp[imageIndex].location= location
-          // temp[imageIndex].clinical_diagnosis = clinicalDiagnosis
-          // temp[imageIndex].lesions_appear = lesion
-          // setData(temp);
-          setOpen(false);
-        }).catch(err=>{
-            if(err.response) showMsg(err.response.data.message, "error")
-            else alert(err)
-        }).finally(()=>{
-            setState(0);
-        })
-    }
-    
-  }
-
-  const showMsg = (msg, severity)=>{
-    setStatus({msg, severity, open:true})
+   return updated;
   }
 
   const canvaRef = useRef(null)
-
-  useEffect(()=>{
-    if(open) return;
-
-    regions = []
-    isDragging = false;
-    isSelected = false;
-    isDrawing = true ;
-    isLabelVisible = true;
-    labelType = 'name';
-    selectedRegion = null
-    defaultType = "Oral Cavity"
-    defaultColor = 'rgb(255, 0, 0)'
-    opacity = true;
-
-    setZoomLevel(1);
-    setTogglePanel(false);
-    setHelp(false);
-    setLabelVisibility(isLabelVisible);
-    setSelection('');
-
-  },[open])
-
-  const show_regions = () =>{
-    if(isDrawing) return;
-
-    setHelp(false)
-
-    var type = [];
-    var bbox = [];
-    [...regions].forEach(region =>{
-      if(region.completed){
-        var pointArray = []
-        var all_x = region.points.map((p) => p["x"]);
-        var all_y = region.points.map((p) => p["y"]);
-        var bbox_arr = [Math.round(Math.min(...all_x)), Math.round(Math.min(...all_y)), 
-        Math.round(Math.max(...all_x)), Math.round(Math.max(...all_y))]
-        for (const p of region.points) {
-          pointArray.push(Math.round(p.x),Math.round(p.y))
-        }
-  
-        type.push(region.type)
-        bbox.push(bbox_arr.toString()) 
-      }
-    })
-
-    setShowPoints(
-      type.map((points, index) =>
-        <tr  key={index}>
-          <td>{index+1}</td>
-          <td>{type[index]}</td>
-          <td>[{bbox[index]}]</td>
-        </tr>
-      )
-    )
-
-    if(type.length === 0) return
-    setTogglePanel(!togglePanel)
-  }
-
-  const show_help = () =>{
-
-    setHelp(true)
-    setTogglePanel(!togglePanel)
-  }
-
-  // toggle labels
-  // todo: use only on variable
-  const show_label = ()=>{
-    isLabelVisible = !isLabelVisible
-    setLabelVisibility(!labelVisibility)
-    redraw_ids()
-  }
-
-  const label_type = () =>{
-    if(labelType === 'id') labelType = 'name'
-    else labelType = 'id'
-
-    redraw_canvas()
-    redraw_ids()
-  }
-
-  const opacity_change = ()=>{
-    opacity = !opacity;
-    redraw_canvas()
-    redraw_ids()
-  }
 
   const delete_selected = () =>{
     if(selectedRegion){
       selectedRegion.markedForDeletion = true;
       isSelected = false;
     }
-    redraw_canvas()
-    redraw_ids()
+    redraw_canvas();
+    redraw_ids();
   }
 
   const finish_drawing = () =>{
@@ -347,7 +246,7 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
       region.isSelected = false
     });
 
-    polygon = new Polygon(ctx)
+    polygon = new Polygon(ctx, defaultSettings.color, defaultSettings.type)
     polygon.scale = zoomLevel;
     regions.push(polygon)
     redraw_canvas()
@@ -368,7 +267,7 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
         if(!region.completed) region.markedForDeletion = true;
       });
   
-      polygon = new Polygon(ctx)
+      polygon = new Polygon(ctx, defaultSettings.color, defaultSettings.type)
       polygon.scale = zoomLevel;
       regions.push(polygon)
       redraw_canvas()
@@ -381,29 +280,10 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
       redraw_canvas()
       redraw_ids()
     }
-
-    if ( e.key === 'ArrowRight' 
-    || e.key === 'ArrowLeft'  
-    || e.key === 'ArrowDown'  
-    || e.key === 'ArrowUp' ) {
-      e.preventDefault()
-      var del = 1;
-      if(e.shiftKey) del= 10;
-      move_selected(e.key, del);
-    }
-
-    if(e.key === ' '){
-      if(togglePanel) {
-        setTogglePanel(false)
-        return
-      }
-      show_regions();
-    } 
-
   }
 
   const deselect_all = (e) =>{
-    if (e.target.className !== 'page_body')  return;
+    if (e.target.className !== 'drawing_area')  return;
 
     if(selectedRegion){
       selectedRegion.isSelected = false;
@@ -422,7 +302,7 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
 
   
     //if drawing don't select
-    if(isDrawing) return
+    if(isDrawing || drawingMode) return
 
     var selectedIndex = -1;
     var i;
@@ -458,6 +338,8 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
   }
 
   const handle_mouse = (e)=>{
+
+    if(ctx == null) return;
   
     var rect = canvas.getBoundingClientRect();
 
@@ -467,7 +349,7 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
     if(e.type === "mousedown"){
         handleSelect()  
     }
-    
+
     mouse.button = e.type === "mousedown" ? true : e.type === "mouseup" ? false : mouse.button;
     redraw_canvas()
     redraw_ids()
@@ -482,16 +364,29 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
     };
   }, [handle_keyup]);
 
+  // change drawing mode
+  useEffect(() => {
+    mouse.cursor = "default"
+    finish_drawing();
+  }, [drawingMode]);
+
+  useEffect(() => {
+    setData(imagedata[imageIndex]);
+  }, [imagedata, imageIndex]);
 
   // redraw the canvas
   const redraw_canvas = () =>{
-
+    
+    if(ctx === null) return;
+    
     ctx.clearRect(0,0, canvas.width, canvas.height);
-    mouse.cursor = "crosshair";
+    
+    if(!drawingMode) {mouse.cursor = "default"}
+    else {mouse.cursor = "crosshair"}
 
     regions = regions.filter(region => !region.markedForDeletion);
 
-    [...regions].forEach(region => {region.update()})
+    [...regions].forEach(region => {region.update( drawingMode, defaultSettings.color, defaultSettings.type)})
 
     canvas.style.cursor = mouse.cursor;
 
@@ -500,17 +395,14 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
   // redraw the region ids
   const redraw_ids = () =>{
 
-    if(!isLabelVisible){
-      redraw_canvas()
-      return
-    } 
+    if(ctx === null) return;
+    
 
     var text, text_info, height, width;
 
     for(var i=0; i< regions.length; i++){
       if(regions[i].completed){
-        if(labelType === 'id') text = (i+1).toString()
-        else text = regions[i].type
+        text = regions[i].type
         text_info = ctx.measureText(text);
         height = ctx.font.match(/\d+/).pop() || 10;
         width = text_info.width;
@@ -525,33 +417,37 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
 
 
   // initial run
-  useEffect(() => {
+  const init_run = (initZoomLevel) => {
    
-  canvas = canvaRef.current;
-  ctx = canvas.getContext('2d');
+    canvas = canvaRef.current;
+    ctx = canvas.getContext('2d');
 
-  regions = [];
+    regions = [];
 
-  [...data[imageIndex].annotation].forEach(region=>{
-    var type = region.name
-    polygon = new Polygon(ctx,colorPallete[type].main , type)
-    polygon.scale = zoomLevel;
-    var points = []
-    var oldAnnotations = region.annotations
-    for(var i=0; i< oldAnnotations.length; i+=2){
-      points.push(point(region.annotations[i], region.annotations[i+1]))
+    if(data){
+      [...data.annotation].forEach(region=>{
+        var type = region.name
+        polygon = new Polygon(ctx, defaultSettings.color, type)
+        polygon.scale = initZoomLevel;
+        var points = []
+        var oldAnnotations = region.annotations
+        for(var i=0; i< oldAnnotations.length; i+=2){
+          points.push(point(region.annotations[i], region.annotations[i+1]))
+        }
+        polygon.points = points
+        polygon.completed = true;
+        regions.push(polygon)    
+      })
     }
-    polygon.points = points
-    polygon.completed = true;
-    regions.push(polygon)    
-  })
 
-  polygon = new Polygon(ctx)
-  polygon.scale = zoomLevel;
-  regions.push(polygon)
+    polygon = new Polygon(ctx, defaultSettings.color, defaultSettings.type)
+    polygon.scale = initZoomLevel;
+    regions.push(polygon)
 
-  redraw_canvas()
-  }, []);
+    redraw_canvas()
+    redraw_ids()
+
+  };
 
   // redraw if canvas size changed
   useEffect(()=>{
@@ -563,138 +459,60 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
  
   // zoom in
   const zoom_in = ()=>{
-    if(zoomLevel > 4) return
+    if(size.width > 2 * window.innerWidth) return
 
     setSize({
-      width: orginalSize.width * zoomLevel *1.5,
-      height: orginalSize.height * zoomLevel *1.5
+      width: size.width * 1.25 ,
+      height: size.height * 1.25 
     });
     
     [...regions].forEach(region =>{
-      region.scale = region.scale * 1.5;
+      region.scale = region.scale * 1.25;
     })
 
-    setZoomLevel(zoomLevel*1.5)
+    setZoomLevel(zoomLevel * 1.25)
   }
 
   // zoom out
   const zoom_out = ()=>{
-    if(zoomLevel < 0.25) return
+    if(size.width < window.innerWidth/4) return
 
     setSize({
-      width: orginalSize.width * zoomLevel /1.5 ,
-      height: orginalSize.height * zoomLevel /1.5
+      width: size.width / 1.25 ,
+      height: size.height / 1.25 
     });
     
     [...regions].forEach(region =>{
-      region.scale = region.scale / 1.5;
+      region.scale = region.scale / 1.25;
     })
 
-    setZoomLevel(zoomLevel/1.5)
-  }
-
-  // zoom reset
-  const zoom_reset = ()=>{
-    if(zoomLevel === 1) return
-
-    setSize({
-      width: orginalSize.width ,
-      height: orginalSize.height
-    });
-    
-    [...regions].forEach(region =>{
-      region.scale = 1
-    })
-
-    setZoomLevel(1)
-  }
-
-  // move the selected region
-  const move_selected = (name, del) =>{
-    if(!isSelected) return
-
-    var move_x = 0;
-    var move_y = 0;
-    
-    switch( name ) {
-      case 'ArrowLeft':
-        move_x = -del;
-        break;
-      case 'ArrowUp':
-        move_y = -del;
-        break;
-      case 'ArrowRight':
-        move_x =  del;
-        break;
-      case 'ArrowDown':
-        move_y =  del;
-        break;
-      default:
-        break;
-      }
-
-    var moved = []
-
-    for (const p of selectedRegion.points) { 
-      if(!validate_move(p.x + (move_x * zoomLevel), p.y + (move_y * zoomLevel))) return
-      moved.push({x: p.x + (move_x * zoomLevel), y:p.y + (move_y * zoomLevel)})
-    }
-
-    selectedRegion.points = moved
-    redraw_canvas()
-    redraw_ids()
-  }
-
-  // validate move
-  const validate_move = (x,y)=>{
-    if (x < 0 || y < 0 || x > size.width || y > size.height) {
-      return false;
-    }
-    return true;
-  }
-  
-  //set types
-  const set_types = (name)=>{
-    defaultColor = colors[name].main;
-    defaultType = name;
-
-    [...regions].forEach(region => {
-      if(!region.completed){
-        region.color = defaultColor
-        region.transcolor = defaultColor.replace(')', ', 0.6)').replace('rgb', 'rgba')
-        region.type = name
-      }
-    });
-
-    if(selectedRegion){
-      selectedRegion.color = defaultColor
-      selectedRegion.transcolor = defaultColor.replace(')', ', 0.6)').replace('rgb', 'rgba')
-      selectedRegion.type = name
-    }
-
-    redraw_canvas()
-    redraw_ids()
+    setZoomLevel(zoomLevel/1.25)
   }
 
   // get the size of the image
   const get_dimensions = (img)=>{
-    setOriginalSize({
-      width: img.nativeEvent.srcElement.naturalWidth,
-      height: img.nativeEvent.srcElement.naturalHeight,
-    })
+   
+    const drawingboard_width = matches? window.innerWidth - (300+20) : window.innerWidth - 20 ;
+    const image_width = img.nativeEvent.srcElement.naturalWidth;
+
+
+    var initZoomLevel = image_width > drawingboard_width ? (drawingboard_width / image_width): 1;
+
     setSize({
-      width: img.nativeEvent.srcElement.naturalWidth,
-      height: img.nativeEvent.srcElement.naturalHeight,
-    })
+      width: img.nativeEvent.srcElement.naturalWidth * initZoomLevel,
+      height: img.nativeEvent.srcElement.naturalHeight * initZoomLevel,
+    });
+
+    setZoomLevel(initZoomLevel);
+    init_run(initZoomLevel);
   }
 
-  // clear all regions
-  const clear_all = ()=>{
-    [...regions].forEach(region => region.markedForDeletion = true);
-    polygon = new Polygon(ctx)
-    polygon.scale = zoomLevel;
-    regions.push(polygon)
-    redraw_canvas()
+  const goBack = ()=>{
+    handleClose();
+  }
+
+  const showMsg = (msg, severity)=>{
+    setStatus({msg, severity, open:true})
   }
 
   return (
@@ -702,74 +520,62 @@ const Canvas = ({imageIndex, open, setOpen, data, setData, upload}) => {
     <div className='page_body' onMouseDown={(e)=>{deselect_all(e)}}>
 
         {/********************* side bar **********************/}
-        <div className='side_bar'>
-        <LoadingButton loading={state ===1} variant='contained' fullWidth color='warning' startIcon={<Save/>} onClick={handleSave} sx={{mb:1}}>Save</LoadingButton>
-        <Button variant='contained' fullWidth color='inherit' disabled={state !==0} onClick={()=>setOpen(false)} sx={{mb:1}}>Close</Button>
+        <div className='top_bar'>
+          <Stack direction='row' sx={{width:'100%'}} alignItems='center' style={{paddingInline:'10px'}} spacing={1}>
 
-        {/******************** image annotation ************************/}
-        <Divider color="gray" sx={{height:2, mt:1}}/>   
-        
-        <Typography fontSize='small' sx={{color:'white'}}>Region Label</Typography>
-        <Select fullWidth size='small' value={selection} onChange={handleChange} sx={{backgroundColor: "white", mb:1}}>
-          {regionNames.map((name, index) =>{
-            return (<MenuItem key={index} value={name}><div className='color_square' style={{backgroundColor:colorPallete[name].main}}></div>{name}</MenuItem>)
-          })}
-        </Select>
+          {/******************* button pannel *************************/}
+          <ButtonPanel func={{finish_drawing,setDrawingMode, zoom_in, zoom_out, 
+          delete_selected}} drawingMode={drawingMode} status={data.status}/>
 
-        <Divider color="gray" sx={{height:2, mt:1}}/>
-        <Typography fontSize='small' sx={{color:'white'}}>Location</Typography>
-        
-          <Select fullWidth size='small' value={location} onChange={(e)=>setLocation(e.target.value)} sx={{backgroundColor: "white", mb:1}}>
+          <div style={{flex: 1}}></div>
+          <Box >
+            <Stack direction='row' spacing={1}>
+              <ButtonGroup color='success' variant="contained">
+                <LoadingButton loading={saving} variant='contained' onClick={handleSave}>Save</LoadingButton>
+              </ButtonGroup>
+              <Button size='small' variant='outlined' color='inherit' onClick={goBack}>Close</Button>
+            </Stack>
+          </Box>
+          </Stack>
+        </div>
+        {/********************** working area **********************/}
+        <div className="work_area">
+        <div className='drawing'>
+          <div className='drawing_area'>
+          <canvas className='main_canvas' onDoubleClick={(e)=>handle_mouse(e)} onMouseMove={(e)=>{handle_mouse(e)}} onMouseDown={(e)=>{handle_mouse(e)}} onMouseUp={(e)=>{handle_mouse(e)}} ref={canvaRef} width={size.width} height={size.height}>Sorry, Canvas functionality is not supported.</canvas>
+  
+          <img className="main_img" onLoad={(e)=>{get_dimensions(e)}}  width={size.width} height={size.height} src={`${process.env.REACT_APP_IMAGE_PATH}/${data.image_name}`} alt="failed to load"/> 
+          </div>
+        </div>
+        {/******************** image annotation ************************/} 
+        <Box className='right_bar' sx={{display: { xs: 'none', sm: 'block' } }}>
+        <div style={{padding:'10px'}}>
+                
+          <Stack direction='column' spacing={2} sx={{bgcolor:'white', borderRadius:1, p:1}}>
+          <Typography variant='body2'><b>Image Data</b></Typography>
+          <FormControl fullWidth>
+            <InputLabel size='small'>Location</InputLabel>
+            <Select label="Location" fullWidth size='small' value={location} onChange={(e)=>setLocation(e.target.value)} sx={{backgroundColor: "white", mb:1}}>
             {locations.map((name, index) =>{
               return (<MenuItem key={index} value={name}>{name}</MenuItem>)
             })}
           </Select>
-        
-          <Typography fontSize='small' sx={{color:'white'}}>Clinical Diagnosis</Typography>
-          <Select fullWidth size='small' value={clinicalDiagnosis} labelId="diagnosis" onChange={(e)=>setClinicalDiagnosis(e.target.value)} sx={{backgroundColor: "white", mb:1}}>
+          </FormControl>
+          <FormControl fullWidth>
+            <InputLabel size='small'>Clinical Diagnosis</InputLabel>
+          <Select label="Clinical Diagnosis" fullWidth size='small' value={clinicalDiagnosis} onChange={(e)=>setClinicalDiagnosis(e.target.value)} sx={{backgroundColor: "white", mb:1}}>
             {diagnosis.map((name, index) =>{
               return (<MenuItem key={index} value={name}>{name}</MenuItem>)
             })}
           </Select>
-
-          <Typography fontSize='small' sx={{color:'white'}}>Lesion Present</Typography>
-          <Select fullWidth size='small'  value={lesion} labelId="lesion" onChange={(e)=>setLesion(e.target.value)} sx={{backgroundColor: "white", mb:1}}>
-              <MenuItem value={false}>False</MenuItem>
-              <MenuItem value={true}>True</MenuItem>
-          </Select>
-        
-        <Divider color="gray" sx={{height:2, mt:1}}/>  
-
-         {/******************* button pannel *************************/}
-         <ButtonPanel func={{finish_drawing,show_regions, zoom_in, zoom_out, zoom_reset, move_selected, 
-          delete_selected, show_help, clear_all, show_label, label_type, opacity_change}} labelVisibility={labelVisibility}/>
-
+          </FormControl>
+          </Stack>
+          </div>
+        </Box>
         </div>
-
-        {/********************** working area **********************/}
-        <div className="work_area">
-          <canvas className='main_canvas' onDoubleClick={(e)=>handle_mouse(e)} onMouseMove={(e)=>{handle_mouse(e)}} onMouseDown={(e)=>{handle_mouse(e)}} onMouseUp={(e)=>{handle_mouse(e)}} ref={canvaRef} width={size.width} height={size.height}>Sorry, Canvas functionality is not supported.</canvas>
-          {upload?
-          <img className="main_img" onLoad={(e)=>{get_dimensions(e)}}  width={size.width} height={size.height} src={imageIndex>=0 && `${data[imageIndex].img}`} alt="failed to load"/> 
-            :
-          <img className="main_img" onLoad={(e)=>{get_dimensions(e)}}  width={size.width} height={size.height} src={imageIndex>=0 && `${process.env.REACT_APP_IMAGE_PATH}/${data[imageIndex].image_name}`} alt="failed to load"/> 
-          
-        }
-        </div>
-
-        {/********************** bottom panel **********************/}
-        {togglePanel &&
-          <Drawer anchor='bottom' variant="permanent">
-            <div style={{display: 'flex', flexDirection: 'row'}}>
-              <div style={{flexGrow:1}}></div>
-              <Close onClick={()=>setTogglePanel(!togglePanel)}/>
-            </div>
-            {help?<Help/>:<RegionTable showPoints={showPoints} />}
-          </Drawer> 
-        }
-        <NotificationBar status={status} setStatus={setStatus}/>
+        {/********************** info panel **********************/}
     </div>
-
+    <NotificationBar status={status} setStatus={setStatus}/>
     </>
   )
 }

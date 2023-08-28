@@ -3,14 +3,13 @@ import {useNavigate, useParams} from 'react-router-dom';
 import { ArrowBack, Download, MoreVert} from '@mui/icons-material';
 import { Box, Stack, Avatar, Typography, Skeleton,Tab, Button, Paper, IconButton,
     Menu, MenuItem, ListItemIcon, ListItemText} from '@mui/material';
-import {TabContext,TabList,TabPanel, LoadingButton} from '@mui/lab';
+import {TabContext,TabList,TabPanel} from '@mui/lab';
 import { stringAvatar } from '../utils';
 import axios from 'axios';
 import { useSelector} from 'react-redux';
 import PatientProfile from './PatientProfile';
 import NotificationBar from '../NotificationBar';
 import PatientsEntries from './PatientsEntries';
-import LinearStepper from './LinearStepper';
 import * as FileSaver from 'file-saver';
 import XLSX from 'sheetjs-style';
 
@@ -182,12 +181,10 @@ const PatientDetails = () => {
                 <TabList onChange={handleChange} aria-label="lab API tabs example" variant='standard'>
                     <Tab disableRipple label="Profile" value="1"/>
                     <Tab disableRipple label="All Entries" value="2" />
-                    <Tab disableRipple label="Add New Entry" value="3" />
                 </TabList>
                 </Box>
                 <TabPanel value="1" sx={{px:0}}><PatientProfile data={data}/></TabPanel>
                 <TabPanel value="2" sx={{px:0}}><PatientsEntries/></TabPanel>
-                <TabPanel value="3" sx={{px:0}}><LinearStepper data={data}/></TabPanel>
             </TabContext>
             </Box>
             </Paper>

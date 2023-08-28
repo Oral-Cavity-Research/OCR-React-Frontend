@@ -54,7 +54,7 @@ const Entries = () => {
     const loadMore = () => {
         setLoading(true);
         setNoMore(false);
-        axios.get(`${process.env.REACT_APP_BE_URL}/user/entry/get`,{
+        axios.get(`${process.env.REACT_APP_BE_URL}/user/entry/get/saved`,{
             params: { page: page + 1, filter: filt},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
@@ -76,7 +76,7 @@ const Entries = () => {
     const getData = ()=>{
         setLoading(true);
         setNoMore(false);
-        axios.get(`${process.env.REACT_APP_BE_URL}/user/entry/get`,{
+        axios.get(`${process.env.REACT_APP_BE_URL}/user/entry/get/saved`,{
             params: { page: 1, filter: filt},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
