@@ -34,7 +34,7 @@ const Manage = () => {
           <Divider/>
           <NavButton path={"/manage/my/patients"} startIcon={<People color='action'/>} name={"Patients"}/> 
           <NavButton path={"/manage/my/entries"} startIcon={<ViewList color='action'/>} name={"Entries"}/> 
-          <NavButton path={"/manage/my/draftentries"} startIcon={<ViewList color='action'/>} name={"Drafts"}/> 
+          <NavButton path={"/manage/my/draft"} startIcon={<ViewList color='action'/>} name={"Drafts"}/> 
         </>
         }
         {userData?.permissions?.includes(200) &&

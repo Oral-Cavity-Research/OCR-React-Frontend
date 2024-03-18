@@ -17,7 +17,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { trySilentRefresh } from './utils/authUtils';
 import {setUserData } from './Reducers/userDataSlice';
 import EntryDetails from './Components/Entry/EntryDetails';
-import DraftDetails from './Components/Entry/DraftDetails';
 import HospitalTable from './Components/AdminPortal/Hospitals/HospitalTabel';
 import Entries from './Components/Entry/Entries';
 import DraftEntries from './Components/Entry/DraftEntries';
@@ -35,7 +34,8 @@ import Dashboard from './Components/AdminPortal/Dashboard/Dashboard';
 import SignupPage from './Pages/SignupPage';
 import AdminDefaultPage from './Pages/AdminDefaultPage';
 import ManageDefault from './Pages/ManageDefault';
-
+import NewEntry from './Components/Entry/NewEntry';
+import PersistentDrawerRight from './Components/SharedEntry/deleteme';
 
 function App() {
   const userData = useSelector(state => state.data);
@@ -108,16 +108,17 @@ function App() {
                 <Route  index path="/manage/my/patients/new" element={<PatientNew/>}></Route>
                 <Route path="/manage/my/patients/:id" element={<PatientDetails/>}></Route>
             </Route>
-            <Route path ='/manage/my/draftentries' element={<Outlet/>}>
+            <Route path ='/manage/my/draft' element={<Outlet/>}>
                 <Route  index element={<DraftEntries/>}></Route>
-                <Route  index path="/manage/my/draftentries/all" element={<DraftEntries/>}></Route>
-                <Route path="/manage/my/draftentries/:id" element={<DraftDetails/>}></Route>
+                <Route  index path="/manage/my/draft/all" element={<DraftEntries/>}></Route>
+                <Route path="/manage/my/draft/:id" element={<NewEntry/>}></Route> 
             </Route>
             
         </Route>
         <Route path='/manage/shared' element={<ProtectedRoute allowed={[200]}><Manage/></ProtectedRoute>}>
           <Route index element={<SharedEntries/>}/>
           <Route path='/manage/shared/entries' element={<SharedEntries/>}/>
+          <Route path='/manage/shared/entries/temp' element={<PersistentDrawerRight/>}/>
           <Route path='/manage/shared/entries/view/:id' element={<ViewEntryDetails/>}/>
           <Route path='/manage/shared/entries/:id' element={<SharedEntryDetails/>}/>
           <Route path="/manage/shared/patients/:id" element={<SharedPatientDetails/>}></Route> 

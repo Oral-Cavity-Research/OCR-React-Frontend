@@ -78,7 +78,7 @@ const Dashboard = () => {
               sx={{ p: 2, my: 2 }}
             >
               {" "}
-              <PieChart title="The title of the graph" data={data} />
+              <PieChart title="Risk Habit" data={data} />
             </Paper>
           </Grid>
           <Grid

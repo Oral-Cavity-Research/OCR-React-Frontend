@@ -4,9 +4,7 @@ import {
   ArrowBack,
   ArrowLeft,
   AssignmentInd,
-  Delete,
   Download,
-  Edit,
   MoreVert,
   PictureAsPdf,
 } from "@mui/icons-material";
@@ -36,12 +34,14 @@ import {
   MenuItem,
   ListItemIcon,
   TableContainer,
+  DialogContent,
+  DialogActions,
+  DialogTitle,
 } from "@mui/material";
 import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import { stringAvatar } from "../utils";
 import { useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import Canvas from "../Annotation/Canvas";
 import axios from "axios";
 import dayjs from "dayjs";
 import NotificationBar from "../NotificationBar";
@@ -50,15 +50,6 @@ import { LoadingButton } from "@mui/lab";
 
 import PDFFile from "../DownloadEntry/PDFFile";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-
-const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
-
-function within24hrs(date) {
-  var diff = new Date() - new Date(date);
-  return diff / (3600 * 1000) < 24;
-}
 
 function timeDuration(start, end) {
   try {
@@ -90,14 +81,10 @@ const EntryDetails = () => {
   const [loadingReviews, setLoadingReviews] = useState(true);
   const [saving, setSaving] = useState(false);
   const [removeReviewer, setRemoveReviewer] = useState({});
-  const [deleting, setDeleting] = useState(false);
-  const [deleteEntry, setDeleteEntry] = useState(false);
-  const [openAnnotation, setOpenAnnotation] = useState(false);
-  const [imageIndex, setImageIndex] = useState({});
-  const [addReviewer, setAddReviewer] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [assignee, setAssignee] = useState(null);
-  const [data, setData] = useState(null);
+  const [data, setData] = useState({});
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -108,32 +95,9 @@ const EntryDetails = () => {
     setAnchorEl(null);
   };
 
-  const handleDoubleClick = (index) => {
-    setImageIndex(index);
-    setOpenAnnotation(true);
-  };
-
-  const handleClose = () => {
-    setOpenAnnotation(false);
-  };
-
-  const markAsRead = (data) => {
-    if (!data.updated) return;
-
-    axios
-      .post(
-        `${process.env.REACT_APP_BE_URL}/user/entry/open/${id}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${userData.accessToken.token}`,
-            email: userData.email,
-          },
-          withCredentials: true,
-        }
-      )
-      .then((res) => {})
-      .catch((err) => {});
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setAssignee(null);
   };
 
   const getReviews = () => {
@@ -172,7 +136,6 @@ const EntryDetails = () => {
         }
       )
       .then((res) => {
-        setAddReviewer(false);
         loadData();
       })
       .catch((err) => {
@@ -194,7 +157,6 @@ const EntryDetails = () => {
     );
     if (containsReviewer) {
       showMsg("Reviewer assigned successfuly!", "success");
-      setAddReviewer(false);
       return;
     }
 
@@ -214,8 +176,9 @@ const EntryDetails = () => {
       )
       .then((res) => {
         showMsg("Reviewer assigned successfuly!", "success");
-        setAddReviewer(false);
         loadData();
+        setAssignee(null);
+        handleDialogClose();
       })
       .catch((err) => {
         if (err.response) showMsg(err.response.data?.message, "error");
@@ -227,8 +190,7 @@ const EntryDetails = () => {
   };
 
   const loadData = () => {
-    axios
-      .get(`${process.env.REACT_APP_BE_URL}/user/entry/get/${id}`, {
+    axios.get(`${process.env.REACT_APP_BE_URL}/user/entry/get/saved/${id}`, {
         headers: {
           Authorization: `Bearer ${userData.accessToken.token}`,
           email: userData.email,
@@ -246,11 +208,12 @@ const EntryDetails = () => {
       });
   };
 
-  const handleDelete = () => {
-    setDeleting(true);
+  const markAsRead = (data) => {
+    if (!data.updated) return;
+
     axios
       .post(
-        `${process.env.REACT_APP_BE_URL}/user/entry/delete/${id}`,
+        `${process.env.REACT_APP_BE_URL}/user/entry/open/${id}`,
         {},
         {
           headers: {
@@ -260,17 +223,8 @@ const EntryDetails = () => {
           withCredentials: true,
         }
       )
-      .then((res) => {
-        showMsg("Reviewers assigned successfuly!", "success");
-        navigate("/manage/my/entries");
-      })
-      .catch((err) => {
-        if (err.response) showMsg(err.response.data?.message, "error");
-        else alert(err.message);
-      })
-      .finally(() => {
-        setDeleting(false);
-      });
+      .then((res) => {})
+      .catch((err) => {});
   };
 
   useEffect(() => {
@@ -278,16 +232,6 @@ const EntryDetails = () => {
     loadData();
     getReviews();
   }, []);
-
-  useEffect(() => {
-    if (!addReviewer) setAssignee(null);
-  }, [addReviewer]);
-
-  useEffect(() => {
-    if (!openAnnotation) {
-      loadData();
-    }
-  }, [openAnnotation]);
 
   const showMsg = (msg, severity) => {
     setStatus({ msg, severity, open: true });
@@ -347,7 +291,7 @@ const EntryDetails = () => {
                   >
                     <Typography
                       component={Link}
-                      to={`/manage/my/patients/${data.patient._id}`}
+                      to={`/manage/my/patients/${data.patient?._id}`}
                       variant="h5"
                       color="Highlight"
                       sx={{ cursor: "pointer" }}
@@ -413,7 +357,7 @@ const EntryDetails = () => {
 
                       />
                     }
-                    fileName={`${data.patient.patient_name}.pdf`}
+                    fileName={`${data.patient?.patient_name}.pdf`}
                   >
                     {({ loading }) =>
                       loading ? (
@@ -424,14 +368,6 @@ const EntryDetails = () => {
                     }
                   </PDFDownloadLink>
                 </MenuItem>
-                {within24hrs(data.createdAt) && (
-                  <MenuItem onClick={() => setDeleteEntry(!deleteEntry)}>
-                    <ListItemIcon>
-                      <Delete fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText>Delete</ListItemText>
-                  </MenuItem>
-                )}
               </Menu>
 
               <Divider sx={{ my: 1 }} />
@@ -461,117 +397,14 @@ const EntryDetails = () => {
                 })}
 
                 <Avatar sx={{ bgcolor: "transparent" }}>
-                  <IconButton onClick={() => setAddReviewer(!addReviewer)}>
+                  <IconButton onClick={() => setDialogOpen(true)}>
                     <Add />
                   </IconButton>
                 </Avatar>
               </AvatarGroup>
             </Paper>
-            {deleteEntry && (
-              <Paper sx={{ p: 2, my: 3 }}>
-                <Box sx={{ border: "1px solid red", borderRadius: 1, p: 2 }}>
-                  <Typography>
-                    This action will permanently delete the consultation entry
-                    and cannot be reversed. Please be certain before you
-                    proceed.
-                  </Typography>
-                  <Stack direction="row" spacing={2} my={2}>
-                    <LoadingButton
-                      loading={deleting}
-                      variant="contained"
-                      color="error"
-                      onClick={handleDelete}
-                    >
-                      Delete Entry
-                    </LoadingButton>
-                    <Button
-                      disabled={deleting}
-                      variant="outlined"
-                      color="inherit"
-                      onClick={() => setDeleteEntry(false)}
-                    >
-                      Cancle
-                    </Button>
-                  </Stack>
-                </Box>
-              </Paper>
-            )}
-            {addReviewer && (
-              <Paper sx={{ p: 2, my: 3 }}>
-                <Stack direction="row" spacing={2} my={2}>
-                  <AssigneeDropdown setAssignee={setAssignee} />
-                  <LoadingButton
-                    loading={saving}
-                    variant="contained"
-                    onClick={addAssignee}
-                  >
-                    Add
-                  </LoadingButton>
-                  <Button
-                    disabled={saving}
-                    variant="outlined"
-                    color="inherit"
-                    onClick={() => setAddReviewer(false)}
-                  >
-                    Close
-                  </Button>
-                </Stack>
-                {assignee && (
-                  <Box
-                    sx={{
-                      border: "1px solid lightgray",
-                      borderRadius: 1,
-                      p: 2,
-                      my: 2,
-                    }}
-                  >
-                    <Typography color="error">
-                      Click ADD to add the reviewer:
-                    </Typography>
-                    <Typography>{assignee.username}</Typography>
-                    <Typography>{assignee.reg_no}</Typography>
-                  </Box>
-                )}
-
-                {data.reviewers?.length > 0 && (
-                  <List
-                    sx={{
-                      border: "1px solid lightgray",
-                      borderRadius: 1,
-                      pl: 2,
-                    }}
-                  >
-                    {data.reviewers?.map((item, index) => {
-                      return (
-                        <ListItem
-                          key={index}
-                          disablePadding
-                          secondaryAction={
-                            <LoadingButton
-                              color="error"
-                              loading={removeReviewer._id === item._id}
-                              onClick={() => removeAssignee(item)}
-                            >
-                              Remove
-                            </LoadingButton>
-                          }
-                        >
-                          <ListItemAvatar>
-                            <Avatar {...stringAvatar(item.username)} />
-                          </ListItemAvatar>
-                          <ListItemText
-                            primary={item.username}
-                            secondary={item.reg_no}
-                          />
-                        </ListItem>
-                      );
-                    })}
-                  </List>
-                )}
-              </Paper>
-            )}
-
             <Paper sx={{ p: 2, my: 3 }}>
+            <Typography p={1} mb={2} bgcolor={'#ececec'}>Findings</Typography>
               <Table sx={{ border: "1px solid lightgray" }}>
                 <TableBody>
                   <TableRow>
@@ -607,15 +440,10 @@ const EntryDetails = () => {
               </Table>
             </Paper>
             <Paper sx={{ p: 2, my: 3 }}>
-              {data.images?.length > 0 ? (
-                <Typography sx={{ mb: 2 }} variant="body2">
-                  Images:
-                </Typography>
-              ) : (
-                <Typography sx={{ mb: 2 }} color="GrayText" variant="body2">
-                  No Images were Added
-                </Typography>
-              )}
+              <Typography p={1} mb={2} bgcolor={'#ececec'}>Oral Cavity Images</Typography>
+              {data.images?.length === 0  && 
+              <Typography sx={{ mb: 2 }} color="GrayText" variant="body2"> No Images were Added </Typography>
+              }
               <Grid container spacing={2}>
                 {data.images?.map((item, index) => (
                   <Grid item key={index} xs={4} md={3} lg={2}>
@@ -625,26 +453,6 @@ const EntryDetails = () => {
                           src={`${process.env.REACT_APP_IMAGE_PATH}/${item.image_name}`}
                           alt="Failed to Load"
                         />
-                        {item.annotation.length === 0 && (
-                          <div className="overlay">
-                            <svg onClick={() => handleDoubleClick(index)}>
-                              <polygon points="0,0,70,0,70,70" />
-                            </svg>
-                          </div>
-                        )}
-                        <Stack
-                          direction="row"
-                          sx={{ position: "absolute", bottom: 10, right: 0 }}
-                        >
-                          <IconButton
-                            onClick={() => handleDoubleClick(index)}
-                            size="small"
-                            sx={{ color: "transparent" }}
-                            className="iconBackground"
-                          >
-                            <Edit fontSize="small" />
-                          </IconButton>
-                        </Stack>
                       </div>
 
                       <Stack
@@ -653,11 +461,6 @@ const EntryDetails = () => {
                         alignItems="start"
                         px={1}
                       >
-                        <Box>
-                          <Typography fontSize="small" color="GrayText">
-                            {item.location} | {item.clinical_diagnosis}
-                          </Typography>
-                        </Box>
                       </Stack>
                     </div>
                   </Grid>
@@ -665,15 +468,10 @@ const EntryDetails = () => {
               </Grid>
             </Paper>
             <Paper sx={{ p: 2, my: 3 }}>
-              {data.reports?.length > 0 ? (
-                <Typography sx={{ mb: 2 }} variant="body2">
-                  Test Reports:
-                </Typography>
-              ) : (
-                <Typography color="GrayText" variant="body2">
-                  No Test Reports were Added
-                </Typography>
-              )}
+            <Typography p={1} mb={2} bgcolor={'#ececec'}>Test Reports</Typography>
+              {data.reports?.length === 0 &&
+                <Typography color="GrayText" variant="body2">No Test Reports were Added</Typography>
+              }
 
               {data.reports?.map((item, index) => {
                 return (
@@ -701,17 +499,12 @@ const EntryDetails = () => {
               })}
             </Paper>
             <Paper sx={{ p: 2, my: 3 }}>
+            <Typography p={1} mb={2} bgcolor={'#ececec'}>Reviews</Typography>
               {loadingReviews ? (
                 <Typography variant="body2">Loading Reviews...</Typography>
-              ) : reviews.length > 0 ? (
-                <Typography sx={{ mb: 2 }} variant="body2">
-                  Reviews:
-                </Typography>
-              ) : (
-                <Typography color="GrayText" variant="body2">
-                  No Reviews Yet
-                </Typography>
-              )}
+              ) : reviews.length === 0 &&
+              <Typography color="GrayText" variant="body2">No Reviews Yet</Typography>
+              }
               <Stack direction="column" spacing={1}>
                 {reviews.map((item, index) => {
                   return (
@@ -783,24 +576,77 @@ const EntryDetails = () => {
                 })}
               </Stack>
             </Paper>
-            <Dialog
-              fullScreen
-              open={openAnnotation}
-              onClose={handleClose}
-              TransitionComponent={Transition}
-            >
-              <Canvas
-                imageIndex={imageIndex}
-                open={openAnnotation}
-                setOpen={setOpenAnnotation}
-                data={data.images}
-                setData={setData}
-                upload={false}
-              />
-            </Dialog>
           </>
         )}
+        <Dialog
+            open={dialogOpen}
+            onClose={handleDialogClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+            fullWidth
+        >
 
+          <DialogTitle>Assign Reviewers</DialogTitle>
+          <DialogContent>
+              <Box my={2}>
+                <AssigneeDropdown setAssignee={setAssignee} />
+              </Box>
+              {assignee && (
+                  <Box sx={{border: "1px solid lightgray",borderRadius: 1,p: 2,my: 2}}>
+                    <ListItem
+                        disablePadding
+                        secondaryAction={
+                          <LoadingButton loading={saving} variant="contained" onClick={addAssignee}>
+                              Add
+                          </LoadingButton>
+                          }
+                      >
+                        <ListItemAvatar>
+                          <Avatar {...stringAvatar(assignee.username)} />
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={assignee.username}
+                          secondary={assignee.reg_no}
+                        />
+                      </ListItem>
+                  </Box>
+              )}
+
+              {data.reviewers?.length > 0 && (
+                <List sx={{border: "1px solid lightgray",borderRadius: 1,pl: 2,}}>
+                  {data.reviewers?.map((item, index) => {
+                    return (
+                      <ListItem
+                        key={index}
+                        disablePadding
+                        secondaryAction={
+                          <LoadingButton
+                            color="error"
+                            disabled={removeReviewer._id && removeReviewer._id !== item._id}
+                            loading={removeReviewer._id === item._id}
+                            onClick={() => removeAssignee(item)}
+                          >
+                            Remove
+                          </LoadingButton>
+                        }
+                      >
+                        <ListItemAvatar>
+                          <Avatar {...stringAvatar(item.username)} />
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={item.username}
+                          secondary={item.reg_no}
+                        />
+                      </ListItem>
+                    );
+                  })}
+                </List>
+              )}
+          </DialogContent>
+            <DialogActions>
+              <Button variant="outlined" color="inherit" onClick={handleDialogClose}>Close</Button>
+            </DialogActions>
+        </Dialog>
         <NotificationBar status={status} setStatus={setStatus} />
       </div>
     </div>

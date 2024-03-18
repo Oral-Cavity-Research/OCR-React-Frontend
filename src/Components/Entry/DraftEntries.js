@@ -1,16 +1,14 @@
 import React, {useEffect, useState } from 'react';
-import { Avatar, AvatarGroup, Badge, LinearProgress, Menu, MenuItem, Paper, Stack, 
-    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography} from '@mui/material';
+import {Badge, LinearProgress, Menu, MenuItem, Paper, Stack, 
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from '@mui/material';
 import {IconButton} from '@mui/material';
-import {Circle, FilterList, Image, Message, Notifications} from '@mui/icons-material';
+import {Circle, FilterList, Image, Message, Notifications, PictureAsPdf} from '@mui/icons-material';
 import {useNavigate } from 'react-router-dom';
 import NotificationBar from '../NotificationBar';
 import axios from 'axios';
 import { useSelector} from 'react-redux';
 import dayjs from 'dayjs';
 import { LoadingButton } from '@mui/lab';
-import Canvas from '../Annotation/Canvas';
-import ImageCropper from '../Crop/ImageCropper';
 
 const filtOptions = ["Newly Reviewed", "Reviewed", "Unassigned", "Assigned", "Unreviewed", "Created Date","Updated Date"]
 
@@ -42,7 +40,7 @@ const Entries = () => {
     }
 
     const handleClick = (id) => {
-        navigate(`/manage/my/draftentries/${id}`)
+        navigate(`/manage/my/draft/${id}`)
     };
 
     const showMsg = (msg, severity)=>{
@@ -56,7 +54,7 @@ const Entries = () => {
     const loadMore = () => {
         setLoading(true);
         setNoMore(false);
-        axios.get(`${process.env.REACT_APP_BE_URL}/user/draftentry/get`,{
+        axios.get(`${process.env.REACT_APP_BE_URL}/user/entry/get/draft`,{
             params: { page: page + 1, filter: filt},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
@@ -78,7 +76,7 @@ const Entries = () => {
     const getData = ()=>{
         setLoading(true);
         setNoMore(false);
-        axios.get(`${process.env.REACT_APP_BE_URL}/user/draftentry/get`,{
+        axios.get(`${process.env.REACT_APP_BE_URL}/user/entry/get/draft`,{
             params: { page: 1, filter: filt},
             headers: {
                 'Authorization': `Bearer ${userData.accessToken.token}`,
@@ -131,7 +129,7 @@ const Entries = () => {
                             <TableCell></TableCell>
                             <TableCell>Patient ID</TableCell>
                             <TableCell>Patient Name</TableCell>
-                            <TableCell>Images</TableCell>
+                            <TableCell>Images/Reports</TableCell>
                             {/* <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }}}>Reviewers</TableCell> */}
                             { filt === "Updated Date" ? <TableCell>Updated Date</TableCell>: <TableCell>Created Date</TableCell>}
                         </TableRow>
@@ -154,11 +152,11 @@ const Entries = () => {
                                 <Stack direction='row' spacing={1} alignItems='center'>
                                     <Image color={item.images?.length > 0? "primary":"disabled"} fontSize='small'/>
                                     <Typography variant='body2'>{item.images?.length}</Typography>
-                                    
+                                    <PictureAsPdf color={item.reports?.length > 0? "error":"disabled"} fontSize='small'/>
+                                    <Typography variant='body2'>{item.reports?.length ? item.reports.length: 0}</Typography>
                                 </Stack>
                             </TableCell>
                             
-
                             { filt === "Updated Date" ? <TableCell>{dayjs( new Date(item.updatedAt)).format('DD/MM/YYYY')}</TableCell>
                             : <TableCell>{dayjs( new Date(item.createdAt)).format('DD/MM/YYYY')}</TableCell>}
                         </TableRow>
